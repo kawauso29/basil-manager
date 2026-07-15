@@ -23,6 +23,9 @@ default: &default
 development:
   <<: *default
   database: basil_manager_development
+  username: postgres
+  password: password
+  host: db
 
   # The specified database role being used to connect to PostgreSQL.
   # To create additional roles in PostgreSQL see `$ createuser --help`.
@@ -57,6 +60,10 @@ development:
 test:
   <<: *default
   database: basil_manager_test
+  username: postgres
+  password: password
+  host: db
+
 
 # As with config/credentials.yml, you never want to store sensitive information,
 # like your database password, in your source code. If your source code is
