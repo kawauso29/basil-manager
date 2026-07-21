@@ -12,6 +12,7 @@ services:
 
   web:
     image: ruby:3.4
+    user: "${LOCAL_UID:-1000}:${LOCAL_GID:-1000}"
     working_dir: /app
     volumes:
       - .:/app
@@ -19,6 +20,7 @@ services:
     ports:
       - "3000:3000"
     environment:
+      HOME: /tmp
       RAILS_ENV: development
       DATABASE_HOST: db
       DATABASE_USERNAME: postgres
