@@ -1,0 +1,8 @@
+id: <%= @plant.id %><br>
+<%= form_with model: [:admin, @plant] do |f| %>
+  name: <%= f.text_field :name, value: @plant.name %><br>
+  code: <%= f.text_field :code, value: @plant.code %><br>
+  prefix: <%= f.text_field :prefix, value: @plant.prefix %><br>
+  last_stock_number: <%= f.text_field :last_stock_number, value: @plant.last_stock_number %><br>
+  <%= f.submit "更新" %>
+<% end %>

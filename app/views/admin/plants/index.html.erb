@@ -1,0 +1,5 @@
+<% @plants.each do |plant| %>
+  <%= plant.id %> / <%= plant.name %> / <%= plant.code %> / <%= plant.prefix %> / <%= link_to "詳細", admin_plant_path(plant) %><br>
+<% end %>
+
+<%= link_to "新規作成", new_admin_plant_path %>
