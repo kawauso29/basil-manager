@@ -12,4 +12,8 @@
 class Location < ActiveRecord::Base
   has_many :stocks
   has_many :location_observations, dependent: :destroy
+
+  validates :name,   presence: true,  uniqueness: true
+  validates :prefix, presence: true,  uniqueness: true
+  validates :code,   presence: true,  uniqueness: true
 end

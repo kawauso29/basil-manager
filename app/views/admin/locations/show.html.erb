@@ -1,0 +1,13 @@
+id: <%= @location.id %><br>
+name: <%= @location.name %><br>
+code: <%= @location.code %><br>
+prefix: <%= @location.prefix %><br>
+作成日: <%= @location.created_at %><br>
+更新日: <%= @location.updated_at %><br>
+
+<%= link_to "編集", edit_admin_location_path(@location) %><br>
+<%= link_to "一覧に戻る", admin_locations_path %><br>
+
+<%= form_with model: [:admin, @location], method: :delete do |f| %>
+  <%= f.submit "削除", data: { confirm: "本当に削除しますか？" } %>
+<% end %>

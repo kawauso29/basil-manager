@@ -1,0 +1,7 @@
+id: <%= @location.id %><br>
+<%= form_with model: [:admin, @location] do |f| %>
+  name: <%= f.text_field :name, value: @location.name %><br>
+  code: <%= f.text_field :code, value: @location.code %><br>
+  prefix: <%= f.text_field :prefix, value: @location.prefix %><br>
+  <%= f.submit "更新" %>
+<% end %>
