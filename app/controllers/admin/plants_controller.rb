@@ -14,7 +14,7 @@ class Admin::PlantsController < Admin::BaseController
       redirect_to admin_plant_path(@plant)
     else
       admin_create_error_message(@plant)
-      render :new
+      render :new, status: :unprocessable_content
     end
   end
 
@@ -33,7 +33,7 @@ class Admin::PlantsController < Admin::BaseController
       redirect_to admin_plant_path(@plant)
     else
       admin_update_error_message(@plant)
-      render :edit
+      render :edit, status: :unprocessable_content
     end
   end
 
@@ -44,7 +44,7 @@ class Admin::PlantsController < Admin::BaseController
       redirect_to admin_plants_path
     else
       admin_destroy_error_message(@plant)
-      redirect_to admin_plant_path(@plant)
+      render :show, status: :unprocessable_content
     end
   end
 
