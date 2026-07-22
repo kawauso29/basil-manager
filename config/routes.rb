@@ -6,6 +6,7 @@ Rails.application.routes.draw do
   get "up" => "rails/health#show", as: :rails_health_check
 
   namespace :admin do
+    root "dashbord#index"
     resources :plants
     resources :locations
   end
