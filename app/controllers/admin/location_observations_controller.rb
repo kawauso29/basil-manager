@@ -95,12 +95,16 @@ class Admin::LocationObservationsController < Admin::BaseController
 
   def set_form_options
     @location_data = Location.order(:id).pluck(:name, :id)
-    @weather_data = LocationObservation::WEATHER.invert.to_a
+    @weather_data = LocationObservation.weathers_i18n.map do |value, label|
+      [label, value]
+    end
   end
 
   def set_form_options_for_bulk_new
     @locations = Location.order(:id)
-    @weather_data = LocationObservation::WEATHER.invert.to_a
+    @weather_data = LocationObservation.weathers_i18n.map do |value, label|
+      [label, value]
+    end
     @recorded_at = Time.current
   end
 

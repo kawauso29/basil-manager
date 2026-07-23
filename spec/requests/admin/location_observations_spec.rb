@@ -5,7 +5,7 @@ RSpec.describe "Admin::LocationObservations", type: :request do
   describe "GET /admin/location_observations" do
     it "保存済みのLocationObservationsが一覧に表示される" do
       location = Location.create!(name: "テストロケーション", code: "test", prefix: "TST")
-      location_obserbations = location.location_observations.create!(weather: "test", temperature: 10.0, memo: "test", recorded_at: Time.current)
+      location_obserbations = location.location_observations.create!(weather: "sunny", temperature: 10.0, memo: "test", recorded_at: Time.current)
       get admin_location_observations_path
       expect(response).to have_http_status(:ok)
     end
@@ -44,7 +44,7 @@ RSpec.describe "Admin::LocationObservations", type: :request do
   describe "GET /admin/location_observations/:id" do
     it "indexへリダイレクトする" do
       location = Location.create!(name: "テストロケーション", code: "test", prefix: "TST")
-      location_obserbations = location.location_observations.create!(weather: "test", temperature: 10.0, memo: "test", recorded_at: Time.current)
+      location_obserbations = location.location_observations.create!(weather: "sunny", temperature: 10.0, memo: "test", recorded_at: Time.current)
       get admin_location_observation_path(location_obserbations)
       expect(response).to redirect_to(admin_location_observations_path)
     end
@@ -66,7 +66,7 @@ RSpec.describe "Admin::LocationObservations", type: :request do
         valid_params = {
           location_observation: {
             location_id: location.id,
-            weather: "test",
+            weather: "sunny",
             temperature: 10.0,
             memo: "test",
             recorded_at: Time.current
@@ -79,7 +79,7 @@ RSpec.describe "Admin::LocationObservations", type: :request do
         created_location_observation = LocationObservation.last
 
         # 作成値を検証
-        expect(created_location_observation.weather).to eq("test")
+        expect(created_location_observation.weather).to eq("sunny")
         expect(created_location_observation.temperature).to eq(10.0)
         expect(created_location_observation.memo).to eq("test")
 
@@ -95,7 +95,7 @@ RSpec.describe "Admin::LocationObservations", type: :request do
         valid_params = {
           location_observation: {
             location_id: nil,
-            weather: "test",
+            weather: "sunny",
             temperature: 10.0,
             memo: "test",
             recorded_at: Time.current
@@ -115,7 +115,7 @@ RSpec.describe "Admin::LocationObservations", type: :request do
   describe "GET /admin/location_observations/:id/edit" do
     it "LocationObservation編集画面が表示される" do
       location = Location.create!(name: "テストロケーション", code: "test", prefix: "TST")
-      location_obserbation = location.location_observations.create!(weather: "test", temperature: 10.0, memo: "test", recorded_at: Time.current)
+      location_obserbation = location.location_observations.create!(weather: "sunny", temperature: 10.0, memo: "test", recorded_at: Time.current)
       get edit_admin_location_observation_path(location_obserbation)
       expect(response).to have_http_status(:ok)
     end
@@ -126,35 +126,35 @@ RSpec.describe "Admin::LocationObservations", type: :request do
     context "パラメータが正常な場合" do
       it "LocationObservationを更新できる" do
         location = Location.create!(name: "テストロケーション", code: "test", prefix: "TST")
-        location_obserbation = location.location_observations.create!(weather: "test", temperature: 10.0, memo: "test", recorded_at: Time.current)
+        location_obserbation = location.location_observations.create!(weather: "sunny", temperature: 10.0, memo: "test", recorded_at: Time.current)
         params = {
           location_observation: {
             location_id: location.id,
-            weather: "update",
+            weather: "rainy",
             temperature: 20.0,
             memo: "update",
             recorded_at: Time.current
           }
         }
         patch admin_location_observation_path(location_obserbation, params)
-        expect(location_obserbation.reload.weather).to eq("update")
+        expect(location_obserbation.reload.weather).to eq("rainy")
         expect(flash[:notice]).to include("更新しました")
       end
       it "LocationObservationに更新がない" do
         recorded_at = Time.current.change(usec: 0)
         location = Location.create!(name: "テストロケーション", code: "test", prefix: "TST")
-        location_obserbation = location.location_observations.create!(weather: "test", temperature: 10.0, memo: "test", recorded_at: recorded_at)
+        location_obserbation = location.location_observations.create!(weather: "sunny", temperature: 10.0, memo: "test", recorded_at: recorded_at)
         params = {
           location_observation: {
             location_id: location.id,
-            weather: "test",
+            weather: "sunny",
             temperature: 10.0,
             memo: "test",
             recorded_at: recorded_at
           }
         }
         patch admin_location_observation_path(location_obserbation, params)
-        expect(location_obserbation.reload.weather).to eq("test")
+        expect(location_obserbation.reload.weather).to eq("sunny")
         expect(flash[:notice]).to include("変更はありませんでした")
       end
     end
@@ -162,11 +162,11 @@ RSpec.describe "Admin::LocationObservations", type: :request do
       it "LocationObservationを更新できない" do
         recorded_at = Time.current.change(usec: 0)
         location = Location.create!(name: "テストロケーション", code: "test", prefix: "TST")
-        location_obserbation = location.location_observations.create!(weather: "test", temperature: 10.0, memo: "test", recorded_at: Time.current)
+        location_obserbation = location.location_observations.create!(weather: "sunny", temperature: 10.0, memo: "test", recorded_at: Time.current)
         params = {
           location_observation: {
             location_id: nil,
-            weather: "update",
+            weather: "rainy",
             temperature: 20.0,
             memo: "update",
             recorded_at: recorded_at
@@ -182,7 +182,7 @@ RSpec.describe "Admin::LocationObservations", type: :request do
   describe "DELETE /admin/location_observations/:id" do
     it "LocationObservationを削除" do
       location = Location.create!(name: "テストロケーション", code: "test", prefix: "TST")
-      location_observation = location.location_observations.create!(weather: "test", temperature: 10.0, memo: "test", recorded_at: Time.current)
+      location_observation = location.location_observations.create!(weather: "sunny", temperature: 10.0, memo: "test", recorded_at: Time.current)
 
       expect {
         delete admin_location_observation_path(location_observation)
@@ -209,7 +209,7 @@ RSpec.describe "Admin::LocationObservations", type: :request do
         valid_params = {
           location_observation: {
             location_ids:[location.id, location2.id],
-            weather: "test",
+            weather: "sunny",
             temperature: 10.0,
             memo: "test",
             recorded_at: Time.current,
@@ -224,12 +224,12 @@ RSpec.describe "Admin::LocationObservations", type: :request do
 
         # 作成値を検証
         expect(created_location_observation.location_id).to eq(location.id)
-        expect(created_location_observation.weather).to eq("test")
+        expect(created_location_observation.weather).to eq("sunny")
         expect(created_location_observation.temperature).to eq(10.0)
         expect(created_location_observation.memo).to eq("test")
 
         expect(created_location_observation2.location_id).to eq(location2.id)
-        expect(created_location_observation2.weather).to eq("test")
+        expect(created_location_observation2.weather).to eq("sunny")
         expect(created_location_observation2.temperature).to eq(10.0)
         expect(created_location_observation2.memo).to eq("test")
 
@@ -245,7 +245,7 @@ RSpec.describe "Admin::LocationObservations", type: :request do
         valid_params = {
           location_observation: {
             location_ids: [],
-            weather: "test",
+            weather: "sunny",
             temperature: 10.0,
             memo: "test",
             recorded_at: Time.current,

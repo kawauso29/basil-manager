@@ -20,11 +20,4 @@ class LocationObservation < ActiveRecord::Base
     rainy: "rainy",
     snowy: "snowy"
   }, validate: { allow_blank: true }
-
-  WEATHER = {
-    sunny: "晴れ",
-    cloudy: "曇り",
-    rainy: "雨",
-    snowy: "雪"
-  }.freeze
 end
