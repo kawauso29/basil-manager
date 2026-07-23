@@ -14,6 +14,13 @@
 class LocationObservation < ActiveRecord::Base
   belongs_to :location
 
+  enum :weather, {
+    sunny: "sunny",
+    cloudy: "cloudy",
+    rainy: "rainy",
+    snowy: "snowy"
+  }, validate: { allow_blank: true }
+
   WEATHER = {
     sunny: "晴れ",
     cloudy: "曇り",
