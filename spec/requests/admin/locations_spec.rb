@@ -46,7 +46,6 @@ RSpec.describe "Admin::Locations", type: :request do
         expect(created_location.name).to eq("テストロケーション")
         expect(created_location.code).to eq("test")
         expect(created_location.prefix).to eq("TST")
-        expect(created_location.last_stock_number).to eq(0)
 
         # 遷移先がshowになるかどうか
         expect(response).to redirect_to(admin_location_path(created_location))
@@ -120,9 +119,9 @@ RSpec.describe "Admin::Locations", type: :request do
   describe "DELETE /admin/locations/:id" do
     context "子のStockを持つ場合" do
       it "Locationを削除できない" do
+        plant = Plant.create!(name: "テストプラント", code: "test", prefix: "TST")
         location = Location.create!(name: "テストロケーション", code: "test", prefix: "TST")
-        location = Location.create!(name: "テストロケーション", code: "test", prefix: "TST")
-        stock = Stocks::Creator.call(location: location, location: location, growing_method: "test", propagation_method: "test")
+        stock = Stocks::Creator.call(plant: plant, location: location, growing_method: "test", propagation_method: "test")
 
         delete admin_location_path(location)
         expect(flash.now[:alert]).to include("削除に失敗しました")
