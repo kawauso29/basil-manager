@@ -6,7 +6,7 @@ RSpec.describe "Admin::LocationObservations", type: :request do
     it "保存済みのLocationObservationsが一覧に表示される" do
       location = Location.create!(name: "テストロケーション", code: "test", prefix: "TST")
       location_obserbations = location.location_observations.create!(weather: "sunny", temperature: 10.0, memo: "test", recorded_at: Time.current)
-      get admin_location_observations_path
+      get admin_location_observations_path, headers: admin_headers
       expect(response).to have_http_status(:ok)
     end
     it "location_idで絞り込んだレコードだけが表示される" do
@@ -32,7 +32,7 @@ RSpec.describe "Admin::LocationObservations", type: :request do
         memo: "対象外の観察記録",
         recorded_at: Time.current
       )
-      get admin_location_observations_path(location_id: target_location.id)
+      get admin_location_observations_path(location_id: target_location.id), headers: admin_headers
 
       expect(response).to have_http_status(:ok)
       expect(response.body).to include(target_observation.memo)
@@ -45,7 +45,7 @@ RSpec.describe "Admin::LocationObservations", type: :request do
     it "indexへリダイレクトする" do
       location = Location.create!(name: "テストロケーション", code: "test", prefix: "TST")
       location_obserbations = location.location_observations.create!(weather: "sunny", temperature: 10.0, memo: "test", recorded_at: Time.current)
-      get admin_location_observation_path(location_obserbations)
+      get admin_location_observation_path(location_obserbations), headers: admin_headers
       expect(response).to redirect_to(admin_location_observations_path)
     end
   end
@@ -53,7 +53,7 @@ RSpec.describe "Admin::LocationObservations", type: :request do
   # new
   describe "GET /admin/location_observations/new" do
     it "新規LocationObservation作成画面が表示される" do
-      get new_admin_location_observation_path
+      get new_admin_location_observation_path, headers: admin_headers
       expect(response).to have_http_status(:ok)
     end
   end
@@ -73,7 +73,7 @@ RSpec.describe "Admin::LocationObservations", type: :request do
           }
         }
         expect {
-          post admin_location_observations_path, params: valid_params
+          post admin_location_observations_path, params: valid_params, headers: admin_headers
         }.to change(LocationObservation, :count).by(1)
 
         created_location_observation = LocationObservation.last
@@ -102,7 +102,7 @@ RSpec.describe "Admin::LocationObservations", type: :request do
           }
         }
         expect {
-          post admin_location_observations_path, params: valid_params
+          post admin_location_observations_path, params: valid_params, headers: admin_headers
         }.not_to change(LocationObservation, :count)
 
         expect(flash.now[:alert]).to include("作成に失敗しました")
@@ -116,7 +116,7 @@ RSpec.describe "Admin::LocationObservations", type: :request do
     it "LocationObservation編集画面が表示される" do
       location = Location.create!(name: "テストロケーション", code: "test", prefix: "TST")
       location_obserbation = location.location_observations.create!(weather: "sunny", temperature: 10.0, memo: "test", recorded_at: Time.current)
-      get edit_admin_location_observation_path(location_obserbation)
+      get edit_admin_location_observation_path(location_obserbation), headers: admin_headers
       expect(response).to have_http_status(:ok)
     end
   end
@@ -136,7 +136,7 @@ RSpec.describe "Admin::LocationObservations", type: :request do
             recorded_at: Time.current
           }
         }
-        patch admin_location_observation_path(location_obserbation, params)
+        patch admin_location_observation_path(location_obserbation, params), headers: admin_headers
         expect(location_obserbation.reload.weather).to eq("rainy")
         expect(flash[:notice]).to include("更新しました")
       end
@@ -153,7 +153,7 @@ RSpec.describe "Admin::LocationObservations", type: :request do
             recorded_at: recorded_at
           }
         }
-        patch admin_location_observation_path(location_obserbation, params)
+        patch admin_location_observation_path(location_obserbation, params), headers: admin_headers
         expect(location_obserbation.reload.weather).to eq("sunny")
         expect(flash[:notice]).to include("変更はありませんでした")
       end
@@ -172,7 +172,7 @@ RSpec.describe "Admin::LocationObservations", type: :request do
             recorded_at: recorded_at
           }
         }
-        patch admin_location_observation_path(location_obserbation, params)
+        patch admin_location_observation_path(location_obserbation, params), headers: admin_headers
         expect(flash.now[:alert]).to include("更新に失敗しました")
       end
     end
@@ -185,7 +185,7 @@ RSpec.describe "Admin::LocationObservations", type: :request do
       location_observation = location.location_observations.create!(weather: "sunny", temperature: 10.0, memo: "test", recorded_at: Time.current)
 
       expect {
-        delete admin_location_observation_path(location_observation)
+        delete admin_location_observation_path(location_observation), headers: admin_headers
       }.to change(LocationObservation, :count).by(-1)
       expect(response).to redirect_to(admin_location_observations_path)
       expect(flash[:notice]).to include("削除しました")
@@ -195,7 +195,7 @@ RSpec.describe "Admin::LocationObservations", type: :request do
   # bulk_new
   describe "GET /admin/location_observations/bulk_new" do
     it "LocationObservation一括作成画面が表示される" do
-      get bulk_new_admin_location_observations_path
+      get bulk_new_admin_location_observations_path, headers: admin_headers
       expect(response).to have_http_status(:ok)
     end
   end
@@ -216,7 +216,7 @@ RSpec.describe "Admin::LocationObservations", type: :request do
           }
         }
         expect {
-          post bulk_create_admin_location_observations_path, params: valid_params
+          post bulk_create_admin_location_observations_path, params: valid_params, headers: admin_headers
         }.to change(LocationObservation, :count).by(2)
 
         created_location_observation = LocationObservation.find_by(location_id: location.id)
@@ -252,7 +252,7 @@ RSpec.describe "Admin::LocationObservations", type: :request do
           }
         }
         expect {
-          post bulk_create_admin_location_observations_path, params: valid_params
+          post bulk_create_admin_location_observations_path, params: valid_params, headers: admin_headers
         }.not_to change(LocationObservation, :count)
 
         expect(flash.now[:alert]).to eq("location_idがありません")

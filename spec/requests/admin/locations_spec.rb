@@ -6,7 +6,7 @@ RSpec.describe "Admin::Locations", type: :request do
   describe "GET /admin/locations" do
     it "保存済みのLocationが一覧に表示される" do
       location = Location.create!(name: "テストロケーション", code: "test", prefix: "TST")
-      get admin_locations_path
+      get admin_locations_path, headers: admin_headers
       expect(response).to have_http_status(:ok)
     end
   end
@@ -15,7 +15,7 @@ RSpec.describe "Admin::Locations", type: :request do
   describe "GET /admin/locations/:id" do
     it "保存済みのLocation詳細が表示される" do
       location = Location.create!(name: "テストロケーション", code: "test", prefix: "TST")
-      get admin_location_path(location)
+      get admin_location_path(location), headers: admin_headers
       expect(response).to have_http_status(:ok)
     end
   end
@@ -23,7 +23,7 @@ RSpec.describe "Admin::Locations", type: :request do
   # new
   describe "GET /admin/locations/new" do
     it "新規Location作成画面が表示される" do
-      get new_admin_location_path
+      get new_admin_location_path, headers: admin_headers
       expect(response).to have_http_status(:ok)
     end
   end
@@ -37,7 +37,7 @@ RSpec.describe "Admin::Locations", type: :request do
         }
 
         expect {
-          post admin_locations_path, params: valid_params
+          post admin_locations_path, params: valid_params, headers: admin_headers
         }.to change(Location, :count).by(1)
 
         created_location = Location.last
@@ -62,7 +62,7 @@ RSpec.describe "Admin::Locations", type: :request do
         }
 
         expect {
-          post admin_locations_path, params: invalid_params
+          post admin_locations_path, params: invalid_params, headers: admin_headers
         }.not_to change(Location, :count)
 
         expect(flash.now[:alert]).to include("作成に失敗しました")
@@ -74,7 +74,7 @@ RSpec.describe "Admin::Locations", type: :request do
   describe "GET /admin/locations/:id/edit" do
     it "Location編集画面が表示される" do
       location = Location.create!(name: "テストロケーション", code: "test", prefix: "TST")
-      get edit_admin_location_path(location)
+      get edit_admin_location_path(location), headers: admin_headers
       expect(response).to have_http_status(:ok)
     end
   end
@@ -87,7 +87,7 @@ RSpec.describe "Admin::Locations", type: :request do
         params = {
           location: {name: "更新後ロケーション", code: "test", prefix: "TST"}
         }
-        patch admin_location_path(location, params)
+        patch admin_location_path(location, params), headers: admin_headers
         expect(location.reload.name).to eq("更新後ロケーション")
         expect(response).to redirect_to(admin_location_path(location))
         expect(flash[:notice]).to include("更新しました")
@@ -97,7 +97,7 @@ RSpec.describe "Admin::Locations", type: :request do
         params = {
           location: {name: "テストロケーション", code: "test", prefix: "TST"}
         }
-        patch admin_location_path(location, params)
+        patch admin_location_path(location, params), headers: admin_headers
         expect(location.reload.name).to eq("テストロケーション")
         expect(response).to redirect_to(admin_location_path(location))
         expect(flash[:notice]).to include("変更はありませんでした")
@@ -109,7 +109,7 @@ RSpec.describe "Admin::Locations", type: :request do
         params = {
           location: {name: "", code: "test", prefix: "TST"}
         }
-        patch admin_location_path(location, params)
+        patch admin_location_path(location), params: params, headers: admin_headers
         expect(flash.now[:alert]).to include("更新に失敗しました")
       end
     end
@@ -123,7 +123,7 @@ RSpec.describe "Admin::Locations", type: :request do
         location = Location.create!(name: "テストロケーション", code: "test", prefix: "TST")
         stock = Stocks::Creator.call(plant: plant, location: location, growing_method: "test", propagation_method: "test")
 
-        delete admin_location_path(location)
+        delete admin_location_path(location), headers: admin_headers
         expect(flash.now[:alert]).to include("削除に失敗しました")
       end
     end
@@ -131,7 +131,7 @@ RSpec.describe "Admin::Locations", type: :request do
       it "Locationを削除できる" do
         location = Location.create!(name: "テストロケーション", code: "test", prefix: "TST")
 
-        delete admin_location_path(location)
+        delete admin_location_path(location), headers: admin_headers
         expect(response).to redirect_to(admin_locations_path)
 
         expect(flash[:notice]).to eq("削除しました")

@@ -6,7 +6,7 @@ RSpec.describe "Admin::Plants", type: :request do
   describe "GET /admin/plants" do
     it "保存済みのPlantが一覧に表示される" do
       plant = Plant.create!(name: "テストプラント", code: "test", prefix: "TST")
-      get admin_plants_path
+      get admin_plants_path, headers: admin_headers
       expect(response).to have_http_status(:ok)
     end
   end
@@ -15,7 +15,7 @@ RSpec.describe "Admin::Plants", type: :request do
   describe "GET /admin/plants/:id" do
     it "保存済みのPlant詳細が表示される" do
       plant = Plant.create!(name: "テストプラント", code: "test", prefix: "TST")
-      get admin_plant_path(plant)
+      get admin_plant_path(plant), headers: admin_headers
       expect(response).to have_http_status(:ok)
     end
   end
@@ -23,7 +23,7 @@ RSpec.describe "Admin::Plants", type: :request do
   # new
   describe "GET /admin/plants/new" do
     it "新規Plant作成画面が表示される" do
-      get new_admin_plant_path
+      get new_admin_plant_path, headers: admin_headers
       expect(response).to have_http_status(:ok)
     end
   end
@@ -37,7 +37,7 @@ RSpec.describe "Admin::Plants", type: :request do
         }
 
         expect {
-          post admin_plants_path, params: valid_params
+          post admin_plants_path, params: valid_params, headers: admin_headers
         }.to change(Plant, :count).by(1)
 
         created_plant = Plant.last
@@ -63,7 +63,7 @@ RSpec.describe "Admin::Plants", type: :request do
         }
 
         expect {
-          post admin_plants_path, params: invalid_params
+          post admin_plants_path, params: invalid_params, headers: admin_headers
         }.not_to change(Plant, :count)
 
         expect(flash.now[:alert]).to include("作成に失敗しました")
@@ -75,7 +75,7 @@ RSpec.describe "Admin::Plants", type: :request do
   describe "GET /admin/plants/:id/edit" do
     it "Plant編集画面が表示される" do
       plant = Plant.create!(name: "テストプラント", code: "test", prefix: "TST")
-      get edit_admin_plant_path(plant)
+      get edit_admin_plant_path(plant), headers: admin_headers
       expect(response).to have_http_status(:ok)
     end
   end
@@ -88,7 +88,7 @@ RSpec.describe "Admin::Plants", type: :request do
         params = {
           plant: {name: "更新後プラント", code: "test", prefix: "TST"}
         }
-        patch admin_plant_path(plant, params)
+        patch admin_plant_path(plant, params), headers: admin_headers
         expect(plant.reload.name).to eq("更新後プラント")
         expect(response).to redirect_to(admin_plant_path(plant))
         expect(flash[:notice]).to include("更新しました")
@@ -98,7 +98,7 @@ RSpec.describe "Admin::Plants", type: :request do
         params = {
           plant: {name: "テストプラント", code: "test", prefix: "TST"}
         }
-        patch admin_plant_path(plant, params)
+        patch admin_plant_path(plant, params), headers: admin_headers
         expect(plant.reload.name).to eq("テストプラント")
         expect(response).to redirect_to(admin_plant_path(plant))
         expect(flash[:notice]).to include("変更はありませんでした")
@@ -110,7 +110,7 @@ RSpec.describe "Admin::Plants", type: :request do
         params = {
           plant: {name: "", code: "test", prefix: "TST"}
         }
-        patch admin_plant_path(plant, params)
+        patch admin_plant_path(plant, params), headers: admin_headers
         expect(flash.now[:alert]).to include("更新に失敗しました")
       end
     end
@@ -124,7 +124,7 @@ RSpec.describe "Admin::Plants", type: :request do
         location = Location.create!(name: "テストロケーション", code: "test", prefix: "TST")
         stock = Stocks::Creator.call(plant: plant, location: location, growing_method: "test", propagation_method: "test")
 
-        delete admin_plant_path(plant)
+        delete admin_plant_path(plant), headers: admin_headers
         expect(flash.now[:alert]).to include("削除に失敗しました")
       end
     end
@@ -132,7 +132,7 @@ RSpec.describe "Admin::Plants", type: :request do
       it "Plantを削除できる" do
         plant = Plant.create!(name: "テストプラント", code: "test", prefix: "TST")
 
-        delete admin_plant_path(plant)
+        delete admin_plant_path(plant), headers: admin_headers
         expect(response).to redirect_to(admin_plants_path)
 
         expect(flash[:notice]).to eq("削除しました")
