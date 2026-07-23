@@ -32,4 +32,8 @@
 
 - 作業が行われた日時は`created_at`ではなく`recorded_at`に記録する
 - 作業の種類は`action_type`で識別し、詳細が必要な場合は`memo`に記録する
+- `action_type`は`seed_sown`、`cutting_started`、`watered`、`fertilized`、
+  `pinched`、`pruned`、`water_replaced`、`harvested`、`moved`、
+  `transplanted`のいずれかとする
 - 株の現在状態を変更する作業では、`stocks.status`との整合性を保つ
+- enumの日本語表示と変更手順は[`enum 運用ガイド`](../enum/README.md)に従う

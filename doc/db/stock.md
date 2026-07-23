@@ -16,8 +16,10 @@
 | `public_token` | `string` | 不可 | なし | UK | 公開画面で株を識別するトークン |
 | `code` | `string` | 可 | `NULL` | なし | 株の管理名 |
 | `status` | `string` | 不可 | なし | なし | 現在の管理状態 |
-| `growing_method` | `string` | 可 | `NULL` | なし | 栽培方法 |
-| `propagation_method` | `string` | 可 | `NULL` | なし | 増殖方法 |
+| `growing_method` | `string` | 不可 | なし | なし | 栽培方法 |
+| `propagation_method` | `string` | 不可 | なし | なし | 増殖方法 |
+| `completion_reason` | `string` | 可 | `NULL` | なし | 育成完了理由 |
+| `completed_at` | `datetime` | 可 | `NULL` | なし | 育成完了日時 |
 | `created_at` | `datetime` | 不可 | なし | なし | 作成日時 |
 | `updated_at` | `datetime` | 不可 | なし | なし | 更新日時 |
 
@@ -26,6 +28,7 @@
 - 主キー: `id`
 - 一意インデックス: `public_token`
 - インデックス: `plant_id`、`location_id`、`parent_stock_id`
+- `status`、`growing_method`、`propagation_method`は必須とする
 - `parent_stock_id`には自身の`id`を指定できない
 
 ## 関連
@@ -43,3 +46,8 @@
 - 増殖元がある場合は`parent_stock_id`で元の株を参照する
 - 外部公開時は連番の`id`ではなく`public_token`を使用する
 - 状態の履歴は`stock_action_logs`、観察値は`stock_observations`に記録する
+- `status`は`starting`、`rooting`、`growing`のいずれかとする
+- `growing_method`は`pot`、`planter`、`water`のいずれかとする
+- `propagation_method`は`cutting_soil`、`cutting_water`、`seed`のいずれかとする
+- `completion_reason`は未設定、`cultivation_ended`、`harvested`、`discarded`のいずれかとする
+- enumの日本語表示と変更手順は[`enum 運用ガイド`](../enum/README.md)に従う
