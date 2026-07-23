@@ -1,0 +1,17 @@
+<%= form_with(
+      scope: :location_observation,
+      url: bulk_create_admin_location_observations_path,
+      method: :post
+    ) do |f| %>
+  location: <%= f.collection_check_boxes(:location_ids,  @locations, :id, :name,  { include_hidden: false, checked: @locations.pluck(:id) }) do |checkbox| %>
+    <%= checkbox.check_box %>
+    <%= checkbox.label %>
+  <% end %>
+  <br>
+  weather: <%= f.select(:weather,  @weather_data, {prompt: "選択してください"}) %><br>
+  temperature: <%= f.number_field(:temperature) %><br>
+  memo: <%= f.text_area :memo %><br>
+  recorded_at: <%= f.datetime_local_field :recorded_at, value: @recorded_at %><br>
+
+  <%= f.submit "作成" %>
+<% end %>

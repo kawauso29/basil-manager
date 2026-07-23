@@ -1,0 +1,25 @@
+<%= form_with url: admin_location_observations_path, method: :get do %>
+  <%= select_tag(
+    :location_id,
+    options_for_select(@location_options, @location&.id),
+  ) %>
+  <%= submit_tag "絞り込む" %>
+<% end %>
+<% @location_observations.each do |location_ovservation| %>
+  id: <%= location_ovservation.id %>
+  /
+  location_id: <%= location_ovservation.location_id %>
+  /
+  temperature: <%= location_ovservation.temperature %>
+  /
+  weather: <%= location_ovservation.weather %>
+  /
+  memo: <%= location_ovservation.memo %>
+  /
+  recorded_at: <%= location_ovservation.recorded_at %>
+  /
+  <%=link_to "編集", edit_admin_location_observation_path(location_ovservation) %>
+  <br>
+<% end %>
+<%= link_to "作成", new_admin_location_observation_path %><br>
+<%= link_to "一括作成", bulk_new_admin_location_observations_path %>

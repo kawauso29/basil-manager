@@ -10,5 +10,5 @@ last_stock_number: <%= @plant.last_stock_number %><br>
 <%= link_to "一覧に戻る", admin_plants_path %><br>
 
 <%= form_with model: [:admin, @plant], method: :delete do |f| %>
-  <%= f.submit "削除", data: { confirm: "本当に削除しますか？" } %>
+  <%= f.submit "削除", data: { turbo_confirm: "本当に削除しますか？" } %>
 <% end %>

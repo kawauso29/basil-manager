@@ -1,6 +1,13 @@
 module Admin::FlashMessages
   private
 
+  def admin_flash_now_alert(text)
+    flash.now[:alert] = text.to_s
+  end
+  def admin_flash_notice(text)
+    flash[:notice] = text.to_s
+  end
+
   def admin_create_success_message
     flash[:notice] = '作成しました'
   end
@@ -30,4 +37,5 @@ module Admin::FlashMessages
   def admin_update_error_message(model)
     flash.now[:alert] = "更新に失敗しました #{model.errors.full_messages.join(", ")}"
   end
+
 end

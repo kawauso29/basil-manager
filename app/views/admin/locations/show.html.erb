@@ -6,8 +6,9 @@ prefix: <%= @location.prefix %><br>
 更新日: <%= @location.updated_at %><br>
 
 <%= link_to "編集", edit_admin_location_path(@location) %><br>
+<%= link_to "ログ", admin_location_observations_path(location_id: @location.id) %><br>
 <%= link_to "一覧に戻る", admin_locations_path %><br>
 
 <%= form_with model: [:admin, @location], method: :delete do |f| %>
-  <%= f.submit "削除", data: { confirm: "本当に削除しますか？" } %>
+  <%= f.submit "削除", data: { turbo_confirm: "本当に削除しますか？" } %>
 <% end %>

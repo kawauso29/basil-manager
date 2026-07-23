@@ -9,6 +9,12 @@ Rails.application.routes.draw do
     root "dashbord#index"
     resources :plants
     resources :locations
+    resources :location_observations do
+      collection do
+        get :bulk_new
+        post :bulk_create
+      end
+    end
   end
 
   # Render dynamic PWA files from app/views/pwa/* (remember to link manifest in application.html.erb)

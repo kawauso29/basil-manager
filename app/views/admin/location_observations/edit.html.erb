@@ -1,0 +1,13 @@
+id: <%= @location_observation.id %><br>
+<%= form_with model: [:admin, @location_observation] do |f| %>
+  location: <%= f.select(:location_id,  @location_data, {prompt: "選択してください"}) %><br>
+  weather: <%= f.select(:weather,  @weather_data, {prompt: "選択してください"}) %><br>
+  temperature: <%= f.number_field :temperature, value: @location_observation.temperature %><br>
+  memo: <%= f.text_area :memo, value: @location_observation.memo %><br>
+  recorded_at: <%= f.datetime_local_field :recorded_at %><br>
+  <%= f.submit "更新" %>
+<% end %>
+<%= form_with model: [:admin, @location_observation], method: :delete do |f| %>
+  <%= f.submit "削除", data: { turbo_confirm: "本当に削除しますか？" } %>
+<% end %>
+<%= link_to "一覧に戻る", admin_location_observations_path %>
