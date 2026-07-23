@@ -48,10 +48,15 @@ class Stock < ActiveRecord::Base
     discarded: "discarded"
   }, validate: { allow_blank: true }
 
+  # どうやって育てるかを定義している。
+  # ポット、プランター、植木鉢などのサイズは
+  # 別途カラムを追加して管理することとする。
   enum :growing_method, {
     pot: "pot",
     planter: "planter",
-    water: "water"
+    flowerpot: "flowerpot",
+    water: "water",
+    other: "other",
   }, validate: true
 
   enum :propagation_method, {

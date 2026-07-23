@@ -59,7 +59,9 @@ ja:
       growing_method:
         pot: 苗ポット
         planter: プランター
+        flowerpot: 植木鉢
         water: 水耕
+        other: その他
       propagation_method:
         cutting_soil: 土挿し
         cutting_water: 水挿し
