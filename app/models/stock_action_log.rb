@@ -13,17 +13,16 @@
 class StockActionLog < ActiveRecord::Base
   belongs_to :stock
 
-  ACTION_TYPE = {
-    seed_sown: "種まき",
-    cutting_started: "挿し木開始",
-    watered: "水やり",
-    fertilized: "施肥",
-    pinched: "摘芯",
-    pruned: "剪定",
-    # divided: "株分け",
-    water_replaced: "水交換",
-    harvested: "収穫",
-    moved: "管理場所変更",
-    transplanted: "植え替え",
-  }.freeze
+  enum :action_type, {
+    seed_sown: "seed_sown",
+    cutting_started: "cutting_started",
+    watered: "watered",
+    fertilized: "fertilized",
+    pinched: "pinched",
+    pruned: "pruned",
+    water_replaced: "water_replaced",
+    harvested: "harvested",
+    moved: "moved",
+    transplanted: "transplanted"
+  }, validate: true
 end

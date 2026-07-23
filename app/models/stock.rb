@@ -36,35 +36,29 @@ class Stock < ActiveRecord::Base
             class_name: "Stock",           # 別モデルを見ないようにStockモデル参照を指定
             foreign_key: :parent_stock_id  # 子株の外部キーとしてparent_stock_idを使用
 
+  enum :status, {
+    starting: "starting",
+    rooting: "rooting",
+    growing: "growing"
+  }, validate: true
 
-  ########################
-  # 定数
-  ########################
+  enum :completion_reason, {
+    cultivation_ended: "cultivation_ended",
+    harvested: "harvested",
+    discarded: "discarded"
+  }, validate: { allow_blank: true }
 
-  STATUS = {
-    starting: "育成開始",
-    rooting: "発根中",
-    growing: "生育中",
-    # dividing: "株分け中",
-  }.freeze
+  enum :growing_method, {
+    pot: "pot",
+    planter: "planter",
+    water: "water"
+  }, validate: true
 
-  COMPLETION_REASON = {
-    cultivation_ended: "育成終了",
-    harvested: "収穫完了",
-    discarded: "廃棄",
-  }.freeze
-
-  GROWING_METHOD = {
-    pot: "苗ポット",
-    planter: "プランター",
-    water: "水耕",
-  }.freeze
-
-  PROPAGATION_METHOD = {
-    cutting_soil: "土挿し",
-    cutting_water: "水挿し",
-    seed: "種まき",
-  }.freeze
+  enum :propagation_method, {
+    cutting_soil: "cutting_soil",
+    cutting_water: "cutting_water",
+    seed: "seed"
+  }, validate: true
 
   #######################
   # scope

@@ -35,3 +35,32 @@ ja:
         cloudy: 曇り
         rainy:  雨
         snowy:  雪
+    stock_action_log:
+      action_type:
+        seed_sown: 種まき
+        cutting_started: 挿し木開始
+        watered: 水やり
+        fertilized: 施肥
+        pinched: 摘芯
+        pruned: 剪定
+        water_replaced: 水交換
+        harvested: 収穫
+        moved: 管理場所変更
+        transplanted: 植え替え
+    stock:
+      status:
+        starting: 育成開始
+        rooting: 発根中
+        growing: 生育中
+      completion_reason:
+        cultivation_ended: 育成終了
+        harvested: 収穫完了
+        discarded: 廃棄
+      growing_method:
+        pot: 苗ポット
+        planter: プランター
+        water: 水耕
+      propagation_method:
+        cutting_soil: 土挿し
+        cutting_water: 水挿し
+        seed: 種まき

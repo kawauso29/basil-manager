@@ -45,7 +45,7 @@ module Stocks
         plant: plant,
         location: location,
         code: stock_code(stock_number),
-        status: Stock::STATUS[:starting],
+        status: :starting,
         growing_method: growing_method,
         propagation_method: propagation_method
       )
