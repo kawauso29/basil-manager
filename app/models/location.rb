@@ -10,8 +10,10 @@
 # created_at : 作成日時
 # updated_at : 更新日時
 class Location < ActiveRecord::Base
-  has_many :stocks
-  has_many :location_observations, dependent: :destroy
+
+  # 子を1つでも持つ場合は削除せず引き止めます。
+  has_many :stocks, dependent: :restrict_with_error
+  has_many :location_observations, dependent: :restrict_with_error
 
   validates :name,   presence: true,  uniqueness: true
   validates :prefix, presence: true,  uniqueness: true
