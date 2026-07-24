@@ -1,4 +1,6 @@
 class Admin::PlantsController < Admin::BaseController
+  include Admin::ImageAttachment
+
   def index
     @plants = Plant.all
   end
@@ -8,7 +10,8 @@ class Admin::PlantsController < Admin::BaseController
   end
 
   def create
-    @plant = Plant.new(plant_params)
+    @plant = Plant.new(plant_params.except(:image))
+    attach_resized_image(@plant, plant_params[:image])
     if @plant.save
       admin_create_success_message
       redirect_to admin_plant_path(@plant)
@@ -28,7 +31,9 @@ class Admin::PlantsController < Admin::BaseController
 
   def update
     @plant = Plant.find(params[:id])
-    if @plant.update(plant_params)
+    @plant.assign_attributes(plant_params.except(:image))
+    attach_resized_image(@plant, plant_params[:image])
+    if @plant.save
       admin_update_success_message(@plant)
       redirect_to admin_plant_path(@plant)
     else

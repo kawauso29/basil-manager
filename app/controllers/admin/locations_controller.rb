@@ -1,4 +1,6 @@
 class Admin::LocationsController < Admin::BaseController
+  include Admin::ImageAttachment
+
   def index
     @locations = Location.all
   end
@@ -9,7 +11,8 @@ class Admin::LocationsController < Admin::BaseController
   end
 
   def create
-    @location = Location.new(location_params)
+    @location = Location.new(location_params.except(:image))
+    attach_resized_image(@location, location_params[:image])
     if @location.save
       admin_create_success_message
       redirect_to admin_location_path(@location)
@@ -31,7 +34,9 @@ class Admin::LocationsController < Admin::BaseController
 
   def update
     @location = Location.find(params[:id])
-    if @location.update(location_params)
+    @location.assign_attributes(location_params.except(:image))
+    attach_resized_image(@location, location_params[:image])
+    if @location.save
       admin_update_success_message(@location)
       redirect_to admin_location_path(@location)
     else
