@@ -26,14 +26,15 @@ class Plant < ActiveRecord::Base
   def has_image?
     self.image.attached?
   end
+  def missing_image?
+    !has_image?
+  end
   def icon_path
-    if has_image?
-      self.image.variant(:icon_thumb)
-    end
+    return "" if missing_image?
+    self.image.variant(:icon_thumb)
   end
   def thumb_path
-    if has_image?
-      self.image.variant(:main_thumb)
-    end
+    return "" if missing_image?
+    self.image.variant(:main_thumb)
   end
 end
