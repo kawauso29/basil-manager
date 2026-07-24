@@ -85,6 +85,7 @@ class Admin::LocationObservationsController < Admin::BaseController
       admin_destroy_success_message
       redirect_to admin_location_observations_path
     else
+      # 基本ここには流れてこないはず
       set_form_options
       admin_destroy_error_message(@location_observation)
       render :edit, status: :unprocessable_content
