@@ -11,7 +11,9 @@ services:
       - "5432:5432"
 
   web:
-    image: ruby:3.4
+    build:
+      context: .
+      target: development
     user: "${LOCAL_UID:-1000}:${LOCAL_GID:-1000}"
     working_dir: /app
     volumes:

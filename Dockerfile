@@ -9,6 +9,13 @@
 
 # Make sure RUBY_VERSION matches the Ruby version in .ruby-version
 ARG RUBY_VERSION=3.4.10
+
+FROM docker.io/library/ruby:$RUBY_VERSION AS development
+
+RUN apt-get update -qq && \
+    apt-get install --no-install-recommends -y libvips && \
+    rm -rf /var/lib/apt/lists /var/cache/apt/archives
+
 FROM docker.io/library/ruby:$RUBY_VERSION-slim AS base
 
 # Rails app lives here
