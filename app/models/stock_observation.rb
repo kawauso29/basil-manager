@@ -12,4 +12,23 @@
 # updated_at  : 更新日時
 class StockObservation < ActiveRecord::Base
   belongs_to :stock
+  has_one_attached :image do |attachable|
+    attachable.variant :small, resize_to_limit: [100, 100], preprocessed: true
+    attachable.variant :normal, resize_to_limit: [300, 300]
+  end
+
+  def has_image?
+    self.image.attached?
+  end
+  def missing_image?
+    !has_image?
+  end
+  def image_small_path
+    return "" if missing_image?
+    self.image.variant(:small)
+  end
+  def image_normal_path
+    return "" if missing_image?
+    self.image.variant(:normal)
+  end
 end

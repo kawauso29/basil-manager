@@ -1,4 +1,6 @@
 class Admin::StockObservationsController < Admin::BaseController
+  include Admin::ImageAttachment
+
   def index
     @stock_observations = StockObservation.all.order(:recorded_at).limit(30)
   end
@@ -12,7 +14,8 @@ class Admin::StockObservationsController < Admin::BaseController
   end
 
   def create
-    @stock_observation = StockObservation.new(stock_observation_params)
+    @stock_observation = StockObservation.new(stock_observation_params.except(:image))
+    attach_resized_image(@stock_observation, stock_observation_params[:image])
     if @stock_observation.save
       admin_create_success_message
       redirect_to admin_stock_observations_path
@@ -36,7 +39,9 @@ class Admin::StockObservationsController < Admin::BaseController
 
   def update
     @stock_observation = StockObservation.find(params[:id])
-    if @stock_observation.update(stock_observation_params)
+    @stock_observation.assign_attributes(stock_observation_params.except(:image))
+    attach_resized_image(@stock_observation, stock_observation_params[:image])
+    if @stock_observation.save
       admin_update_success_message(@stock_observation)
       redirect_to admin_stock_observation_path(@stock_observation)
     else
@@ -78,7 +83,8 @@ class Admin::StockObservationsController < Admin::BaseController
       :stock_id,
       :height_cm,
       :memo,
-      :recorded_at
+      :recorded_at,
+      :image
     )
   end
 end

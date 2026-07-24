@@ -3,5 +3,10 @@
   height_cm:  <%= f.number_field(:height_cm) %><br>
   memo: <%= f.text_area :memo %><br>
   recorded_at: <%= f.datetime_local_field :recorded_at %><br>
+  <hr>
+  <h2>画像アップロード</h2><br>
+  <div data-controller="image-preview">
+    <%= f.file_field :image, data: { action: "change->image-preview#preview" } %><img data-image-preview-target="image" width="100" hidden><br>
+  </div>
   <%= f.submit "作成" %>
 <% end %>

@@ -11,6 +11,7 @@ RSpec.describe Admin::StockLogsPresenter do
       observation_log = double(
         recorded_at: Time.zone.local(2026, 7, 1, 8),
         height_cm: 10,
+        image_small_path: "test",
         memo: "古い観察ログ"
       )
 
@@ -25,12 +26,14 @@ RSpec.describe Admin::StockLogsPresenter do
             recorded_at: "2026年07月01日08時",
             label: "観察",
             data_value: "10 cm",
+            image_path: "test",
             memo: "古い観察ログ"
           },
           {
             recorded_at: "2026年07月02日09時",
             label: "水やり",
             data_value: nil,
+            image_path: "",
             memo: "新しい作業ログ"
           }
         ]
