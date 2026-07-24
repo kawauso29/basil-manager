@@ -51,6 +51,12 @@ ja:
         action_type: 作業種別
         memo: メモ
         recorded_at: 作業日時
+      stock_observation:
+        stock: 対象株
+        stock_id: 対象株
+        height_cm: 高さ
+        memo: メモ
+        recorded_at: 観察日時
     errors:
       models:
         stock:
@@ -77,6 +83,10 @@ ja:
             action_type:
               blank: を選択してください
               inclusion: を選択してください
+        stock_observation:
+          attributes:
+            stock:
+              required: を選択してください
   enums:
     location_observation:
       weather:

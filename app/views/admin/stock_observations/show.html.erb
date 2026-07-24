@@ -1,0 +1,17 @@
+id: <%= @stock_observation.id %><br>
+stock_code: <%= @stock.code %><br>
+location_name: <%= @location.name %>
+plant_name: <%= @plant.name %><br>
+height_cm: <%= @stock_observation.height_cm %><br>
+memo: <%= @stock_observation.memo %><br>
+recorded_at: <%= @stock_observation.recorded_at %><br>
+
+
+<%= link_to "編集", edit_admin_stock_observation_path(@stock_observation) %><br><br>
+<%= link_to "一覧に戻る", admin_stock_observations_path %><br><br>
+
+<%= form_with model: [:admin, @stock_observation], method: :delete do |f| %>
+  <%= f.submit "削除", data: { turbo_confirm: "本当に削除しますか？" } %>
+<% end %>
+
+

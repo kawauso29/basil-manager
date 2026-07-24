@@ -1,0 +1,10 @@
+id: <%= @stock_observation.id %><br>
+stock_code: <%= @stock.code %><br>
+location_name: <%= @location.name %>
+plant_name: <%= @plant.name %><br>
+<%= form_with model: [:admin, @stock_observation] do |f| %>
+  height_cm:  <%= f.number_field(:height_cm) %><br>
+  memo: <%= f.text_area :memo %><br>
+  recorded_at: <%= f.datetime_local_field :recorded_at %><br>
+  <%= f.submit "更新" %>
+<% end %>

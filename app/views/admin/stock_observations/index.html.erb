@@ -1,0 +1,22 @@
+<% @stock_observations.each do |stock_observation| %>
+  <% stock = stock_observation.stock %>
+  <% location = stock.location %>
+  <% plant = stock.plant %>
+
+  <%= stock_observation.id %>
+    /
+  <%= stock_observation.stock.code %>
+    /
+  <%= location.name %> - <%= plant.name %>
+    /
+  <%= stock_observation.height_cm %>
+   /
+  <%= stock_observation.memo %>
+   /
+  <%= stock_observation.recorded_at.strftime("YYMMDDHHMM") %>
+   /
+  <%= link_to "詳細", admin_stock_observation_path(stock_observation) %><br>
+<% end %>
+
+<%= link_to "新規作成", new_admin_stock_observation_path %>
+
