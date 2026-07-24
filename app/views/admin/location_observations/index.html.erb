@@ -8,15 +8,15 @@
 <% @location_observations.each do |location_ovservation| %>
   id: <%= location_ovservation.id %>
   /
-  location_id: <%= location_ovservation.location_id %>
+  場所: <%= location_ovservation.location.name %>
   /
-  temperature: <%= location_ovservation.temperature %>
+  気温: <%= location_ovservation.temperature %>
   /
-  weather: <%= location_ovservation.weather %>
+  天候: <%= location_ovservation.weather_i18n %>
   /
-  memo: <%= location_ovservation.memo %>
+  メモ: <%= location_ovservation.memo %>
   /
-  recorded_at: <%= location_ovservation.recorded_at %>
+  記録日時: <%= location_ovservation.recorded_at %>
   /
   <%=link_to "編集", edit_admin_location_observation_path(location_ovservation) %>
   <br>
