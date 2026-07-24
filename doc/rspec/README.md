@@ -111,6 +111,120 @@ end
 
 `describe` や `context` の直下で `Plant.create!` すると、specファイルを読み込んだ時点で実行される。そのデータはexample用トランザクションの対象外になり、test DBに残る可能性があるため避ける。
 
+## `let`によるテストデータの共通化
+
+複数のexampleで同じテストデータを使う場合は、`let`で準備処理を共通化できる。
+
+```ruby
+RSpec.describe "Admin::Stocks", type: :request do
+  let(:plant) do
+    Plant.create!(
+      name: "テストプラント",
+      code: "test",
+      prefix: "TST"
+    )
+  end
+
+  let(:location) do
+    Location.create!(
+      name: "テストロケーション",
+      code: "test",
+      prefix: "TST"
+    )
+  end
+
+  let(:stock) do
+    Stocks::Creator.call(
+      plant_id: plant.id,
+      location_id: location.id,
+      growing_method: "pot",
+      propagation_method: "seed"
+    )
+  end
+end
+```
+
+example内では、定義した名前をメソッドのように呼び出す。
+
+```ruby
+it "Stock詳細が表示される" do
+  get admin_stock_path(stock), headers: admin_headers
+
+  expect(response).to have_http_status(:ok)
+end
+```
+
+### 遅延評価
+
+`let`は、定義した場所ですぐに実行されるわけではない。各exampleで初めて呼び出されたときに実行され、同じexample内ではその結果が再利用される。
+
+```ruby
+let(:stock) { Stocks::Creator.call(...) }
+
+it "Stockを使用する" do
+  stock # ここで初めてStockが作成される
+  stock # 作り直さず、同じStockが返る
+end
+
+it "Stockを使用しない" do
+  # stockを呼んでいないため、Stockは作成されない
+end
+```
+
+Stockの新規作成を確認するexampleでは、既存の `stock` を呼ばずにリクエストを実行する。先に `stock` を呼ぶと、件数確認の前にStockが1件作成されるため注意する。
+
+```ruby
+let(:valid_params) do
+  {
+    stock: {
+      plant_id: plant.id,
+      location_id: location.id,
+      growing_method: "pot",
+      propagation_method: "seed"
+    }
+  }
+end
+
+it "Stockを作成できる" do
+  expect {
+    post admin_stocks_path,
+         params: valid_params,
+         headers: admin_headers
+  }.to change(Stock, :count).by(1)
+end
+```
+
+### `let!`との違い
+
+`let!`は遅延評価ではなく、各exampleの開始前に必ず実行される。
+
+```ruby
+let!(:stock) do
+  Stocks::Creator.call(
+    plant_id: plant.id,
+    location_id: location.id,
+    growing_method: "pot",
+    propagation_method: "seed"
+  )
+end
+```
+
+一覧画面のように「リクエスト前から必ずStockが存在する」という前提を明示したい場合には使える。ただし、Stockを必要としないexampleでも作成されるため、通常は `let`を優先する。
+
+### `before`との使い分け
+
+`before`は、各exampleの前に共通の処理を実行したい場合に使用する。
+
+```ruby
+before do
+  get admin_stocks_path, headers: admin_headers
+end
+```
+
+モデルなどの値を準備してexampleから参照したい場合は `let`、HTTPリクエストなどの共通処理を事前実行したい場合は `before`を使うと役割が分かりやすい。
+
+`let`、`let!`、`before`で作成されたDBレコードも、各exampleのトランザクション内で作成されるため、example終了後にロールバックされる。
+
 ## テストの組み立て方
 
 1つのexampleは、次の3段階で考える。
