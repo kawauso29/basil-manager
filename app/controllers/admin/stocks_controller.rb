@@ -31,6 +31,7 @@ class Admin::StocksController < Admin::BaseController
 
   def show
     @stock = Stock.find(params[:id])
+    @stock_logs = Admin::StockLogsPresenter.call(@stock.stock_action_logs, @stock.stock_observations)
   end
 
   def edit
@@ -58,6 +59,7 @@ class Admin::StocksController < Admin::BaseController
     else
       # 基本ここには流れてこないはず
       admin_destroy_error_message(@stock)
+      @stock_logs = Admin::StockLogsPresenter.call(@stock.stock_action_logs, @stock.stock_observations)
       render :show, status: :unprocessable_content
     end
   end

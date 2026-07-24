@@ -8,6 +8,8 @@
 - `er.md`: 業務テーブル全体の関連を示すER図
 - `db/<table>.md`: 業務テーブルごとの詳細仕様
 - `enum/README.md`: Rails enumとenum_helpの共通運用ルール
+- `presenter/README.md`: Presenterの使用基準と実装ルール
+- `rspec/README.md`: RSpecの基本とテスト種別ごとの責務
 
 `db` 配下のファイル名は、Railsのモデル名に合わせた単数形の
 snake_caseとします。たとえば、`plants` テーブルの仕様は

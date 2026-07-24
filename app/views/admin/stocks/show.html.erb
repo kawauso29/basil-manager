@@ -8,6 +8,8 @@
   <%= f.submit "削除", data: { turbo_confirm: "本当に削除しますか？" } %>
 <% end %>
 
+<%= render "/admin/stocks/logs", logs: @stock_logs %>
+
 # 親株かどうか<br>
 <% if @stock.parent? %>
 親株

@@ -1,0 +1,5 @@
+# ログ<br>
+<% logs.each do |log| %>
+  <%= log[:recorded_at] %> / <%= log[:label] %> / <%= log[:data_value] %> / <%= log[:memo] %><br>
+<% end %>
+<hr>

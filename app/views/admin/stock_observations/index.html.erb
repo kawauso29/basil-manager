@@ -13,7 +13,7 @@
    /
   <%= stock_observation.memo %>
    /
-  <%= stock_observation.recorded_at.strftime("YYMMDDHHMM") %>
+  <%= stock_observation.recorded_at.strftime("%Y年%m月%d日%H時")  %>
    /
   <%= link_to "詳細", admin_stock_observation_path(stock_observation) %><br>
 <% end %>

@@ -149,6 +149,27 @@ RSpec.describe "Admin::Stocks", type: :request do
         expect(response).to have_http_status(:ok)
       end
     end
+    context "作業ログと観察ログを持つ" do
+      it "ログを含むStock詳細が表示される" do
+        stock = create_stock
+        stock.stock_action_logs.create!(
+          action_type: :watered,
+          memo: "作業ログ",
+          recorded_at: Time.zone.local(2026, 7, 2, 9)
+        )
+        stock.stock_observations.create!(
+          height_cm: 10,
+          memo: "観察ログ",
+          recorded_at: Time.zone.local(2026, 7, 1, 8)
+        )
+
+        get admin_stock_path(stock), headers: admin_headers
+
+        expect(response).to have_http_status(:ok)
+        expect(response.body).to include("作業ログ")
+        expect(response.body).to include("観察ログ")
+      end
+    end
   end
 
   # new

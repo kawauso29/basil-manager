@@ -489,6 +489,100 @@ Stockを持つPlantは削除できない
 
 全バリデーションをRequest specでも繰り返す必要はない。Request specでは代表的な不正入力を1ケース確認し、個別のバリデーションはModel specで確認する。
 
+## Presenter spec
+
+Presenter自身の変換、統合、並べ替えなどはPresenter specで確認する。
+
+```text
+app/presenters/admin/stock_logs_presenter.rb
+spec/presenters/admin/stock_logs_presenter_spec.rb
+```
+
+```ruby
+require "rails_helper"
+
+RSpec.describe Admin::StockLogsPresenter do
+  describe ".call" do
+    it "作業ログと観察ログを古い順に整形する" do
+      # Presenterの入力と期待する返却値を確認する
+    end
+  end
+end
+```
+
+### `described_class`
+
+`described_class`は、最上位の`RSpec.describe`で指定したクラスを返す。
+
+```ruby
+RSpec.describe Admin::StockLogsPresenter do
+  it "ログがなければ空配列を返す" do
+    result = described_class.call([], [])
+
+    expect(result).to eq([])
+  end
+end
+```
+
+この場合、次の呼び出しと同じ意味になる。
+
+```ruby
+result = Admin::StockLogsPresenter.call([], [])
+```
+
+テスト対象のクラス名を繰り返さずに書けるため、クラス名を変更した場合の修正箇所を減らせる。
+
+### `double`
+
+`double`は、テストに必要なメソッドだけを持つ代役のオブジェクトを作る。
+
+```ruby
+action_log = double(
+  recorded_at: Time.zone.local(2026, 7, 2, 9),
+  action_type_i18n: "水やり",
+  memo: "作業ログ"
+)
+```
+
+この`action_log`は、テスト内で次の呼び出しに応答する。
+
+```ruby
+action_log.recorded_at
+action_log.action_type_i18n
+action_log.memo
+```
+
+Presenterの整形処理だけを確認したい場合は、実際のDBレコードを作る必要がない。関連モデルの必須項目やDB状態から切り離し、Presenterへ与える入力と返却値へテストを集中できる。
+
+実際のモデルに存在しないメソッドまで誤って許可したくない場合は、`instance_double`の使用を検討する。
+
+```ruby
+action_log = instance_double(
+  StockActionLog,
+  recorded_at: Time.zone.local(2026, 7, 2, 9),
+  action_type_i18n: "水やり",
+  memo: "作業ログ"
+)
+```
+
+### Presenter specとRequest specの分担
+
+Presenter specでは次を確認する。
+
+- 複数種類のデータを共通形式へ統合できる
+- `recorded_at`の古い順に並べ替えられる
+- 日時、単位、ラベルを表示用に整形できる
+- 入力が空なら空配列を返す
+
+Request specでは次を確認する。
+
+- Presenterを使用する画面が例外なく表示される
+- 代表的な表示データがレスポンスに含まれる
+
+並べ替えやHashの完全一致はPresenter specに任せ、Request specで同じ内容を重複して検証しない。
+
+Presenterの使用基準と実装ルールは[`Presenter 運用ガイド`](../presenter/README.md)を参照する。
+
 ## Plant管理画面で保証している内容
 
 `spec/requests/admin/plants_spec.rb` は、次の振る舞いを対象としている。
