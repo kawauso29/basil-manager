@@ -55,7 +55,13 @@ class Admin::LocationsController < Admin::BaseController
   private
 
   def location_params
-    params.require(:location).permit(:name, :code, :prefix, :environment)
+    params.require(:location).permit(
+      :name,
+      :code,
+      :prefix,
+      :environment,
+      :image
+    )
   end
 
   def set_form_options

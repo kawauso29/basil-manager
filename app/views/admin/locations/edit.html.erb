@@ -4,5 +4,13 @@ id: <%= @location.id %><br>
   code: <%= f.text_field :code, value: @location.code %><br>
   prefix: <%= f.text_field :prefix, value: @location.prefix %><br>
   environment: <%= f.select :environment, @environment_data, prompt: "選択してください" %><br>
+  <hr>
+  <h2>画像アップロード</h2><br>
+  <% if @location.has_image? %>
+    現在の画像：<%= image_tag(@location.icon_path) %><br><br>
+  <% end %>
+  <div data-controller="image-preview">
+    <%= f.file_field :image, data: { action: "change->image-preview#preview" } %><img data-image-preview-target="image" width="100" hidden><br>
+  </div>
   <%= f.submit "更新" %>
 <% end %>
