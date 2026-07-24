@@ -1,0 +1,17 @@
+id: <%= stock.id %><br>
+plant_name: <%= stock.plant.name %><br>
+location_name: <%= stock.location.name %><br>
+code: <%= stock.code %><br>
+public_token: <%= stock.public_token %><br>
+status: <%= stock.status_i18n %><br>
+growing_method: <%= stock.growing_method_i18n %><br>
+propagation_method: <%= stock.propagation_method_i18n %><br>
+completion_reason: <%= stock.completion_reason_i18n %><br>
+completed_at: <%= stock.completed_at %><br>
+parent? : <%= stock.parent? %><br>
+child? : <%= stock.child? %><br>
+has_children? :<%= stock.has_children? %><br>
+作成日: <%= stock.created_at %><br>
+更新日: <%= stock.updated_at %><br>
+<%= link_to "詳細", admin_stock_path(stock) %><br>
+<%= link_to "編集", edit_admin_stock_path(stock) %><br>

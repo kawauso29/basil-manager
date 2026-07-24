@@ -11,4 +11,11 @@ prefix: <%= @location.prefix %><br>
 
 <%= form_with model: [:admin, @location], method: :delete do |f| %>
   <%= f.submit "削除", data: { turbo_confirm: "本当に削除しますか？" } %>
+<% end %><br>
+
+
+# 所有するStock一覧<br>
+<% @location.stocks.each do |stock|  %>
+  <%= render "/admin/stocks/stock_attr", stock: stock %>
 <% end %>
+

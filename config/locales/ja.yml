@@ -28,6 +28,42 @@
 #       enabled: "ON"
 
 ja:
+  errors:
+    format: "%{attribute}%{message}"
+  activerecord:
+    attributes:
+      stock:
+        plant: 植物
+        plant_id: 植物
+        location: 管理場所
+        location_id: 管理場所
+        parent_stock: 親株
+        parent_stock_id: 親株
+        code: 管理コード
+        status: 管理状態
+        growing_method: 栽培方法
+        propagation_method: 増殖方法
+        completion_reason: 育成完了理由
+        completed_at: 育成完了日時
+    errors:
+      models:
+        stock:
+          attributes:
+            plant:
+              required: を選択してください
+            location:
+              required: を選択してください
+            base:
+              restrict_dependent_destroy:
+                has_many: 子株が存在するため削除できません
+            parent_stock_id:
+              cannot_be_self: に自分自身は指定できません
+            status:
+              inclusion: を選択してください
+            growing_method:
+              inclusion: を選択してください
+            propagation_method:
+              inclusion: を選択してください
   enums:
     location_observation:
       weather:

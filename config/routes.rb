@@ -15,6 +15,7 @@ Rails.application.routes.draw do
         post :bulk_create
       end
     end
+    resources :stocks
   end
 
   # Render dynamic PWA files from app/views/pwa/* (remember to link manifest in application.html.erb)

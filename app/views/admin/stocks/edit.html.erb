@@ -1,0 +1,13 @@
+id: <%= @stock.id %><br>
+<%= form_with model: [:admin, @stock] do |f| %>
+  location: <%= f.select(:location_id,  @location_data, {prompt: "選択してください"}) %><br><br>
+  plant: <%= f.select(:plant_id,  @plant_data, {prompt: "選択してください"}) %><br><br>
+  parent: <%= f.select(:parent_stock_id,  @parent_data, { include_blank: "親株なし" }) %><br><br>
+  status: <%= f.select(:status,  @status_data, {prompt: "選択してください"}) %><br><br>
+  code: <%= f.text_field :code, value: @stock.code %><br>
+  growing_method: <%= f.select(:growing_method,  @growing_method_data, {prompt: "選択してください"}) %><br><br>
+  propagation_method: <%= f.select(:propagation_method,  @propagation_method_data, {prompt: "選択してください"}) %><br><br>
+  completion_reason: <%= f.select(:completion_reason,  @completion_reason_data, {prompt: "選択してください"}) %><br><br>
+  completed_at: <%= f.datetime_local_field :completed_at %><br>
+  <%= f.submit "更新" %>
+<% end %>

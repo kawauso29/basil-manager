@@ -1,0 +1,41 @@
+<%= render "/admin/stocks/stock_attr", stock: @stock %>
+
+<%= link_to "一覧に戻る", admin_stocks_path %><br>
+
+<%= form_with model: [:admin, @stock], method: :delete do |f| %>
+  <%= f.submit "削除", data: { turbo_confirm: "本当に削除しますか？" } %>
+<% end %>
+
+# 親株かどうか<br>
+<% if @stock.parent? %>
+親株
+<% else %>
+not親株
+<% end %><br>
+
+# 子株かどうか<br>
+<% if @stock.child? %>
+子株
+<% else %>
+not子株
+<% end %><br>
+
+# 親株を持つかどうか<br>
+<% if @stock.has_parent? %>
+親株を持つ<br>
+  L <%= @stock.parent_stock.code %>, <%= link_to("親株詳細", admin_stock_path(@stock.parent_stock)) %>
+<% else %>
+親株を持たない
+<% end %><br>
+
+# 子供を持つかどうか<br>
+<% if @stock.has_children? %>
+  子を持つ<br>
+ <% @stock.child_stocks.each do |child_stock| %>
+    <%= render "/admin/stocks/stock_attr", stock: child_stock %>
+ <% end %>
+<% else %>
+子を持たない
+<% end %>
+
+

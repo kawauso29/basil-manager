@@ -1,0 +1,7 @@
+<%= form_with model: [:admin, @stock] do |f| %>
+  location: <%= f.select(:location_id,  @location_data, {prompt: "選択してください"}) %><br><br>
+  plant: <%= f.select(:plant_id,  @plant_data, {prompt: "選択してください"}) %><br><br>
+  growing_method: <%= f.select(:growing_method,  @growing_method_data, {prompt: "選択してください"}) %><br><br>
+  propagation_method: <%= f.select(:propagation_method,  @propagation_method_data, {prompt: "選択してください"}) %><br><br>
+  <%= f.submit "作成" %>
+<% end %>

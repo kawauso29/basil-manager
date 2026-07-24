@@ -1,0 +1,25 @@
+<% @stocks.each do |stock| %>
+  <%= stock.id %>
+    /
+  <%= stock.plant.name %>
+    /
+  <%= stock.location.name %>
+    /
+  <%= stock.code %>
+    /
+  <%= stock.status_i18n %>
+    /
+  <%= stock.growing_method_i18n %>
+    /
+  <%= stock.propagation_method_i18n %>
+    /
+  <%= stock.parent? ? "親株" : "" %>
+    /
+  <%= stock.child? ? "子株" : "" %>
+    /
+  <%= stock.has_children? ? "子を持つ" : "子を持たない" %>
+    /
+  <%= link_to "詳細", admin_stock_path(stock) %><br>
+<% end %>
+
+<%= link_to "新規作成", new_admin_stock_path %>
