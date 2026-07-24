@@ -235,7 +235,7 @@ RSpec.describe "Admin::Stocks", type: :request do
 
   # destroy
   describe "DELETE /admin/stocks/:id" do
-    context "子kを持つ場合" do
+    context "子を持つ場合" do
       it "親Stockを削除できない" do
         stock = create_parent_stock
         delete admin_stock_path(stock), headers: admin_headers
