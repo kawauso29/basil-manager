@@ -37,7 +37,7 @@ RSpec.describe "Admin::StockActionLogs", type: :request do
       stock_id: create_stock.id,
       action_type: "seed_sown",
       memo: "test",
-      recoded_at: Time.now
+      recorded_at: nil
     )
   end
   let(:create_stock_action_log2) do
@@ -45,7 +45,7 @@ RSpec.describe "Admin::StockActionLogs", type: :request do
       stock_id: create_other_stock.id,
       action_type: "seed_sown",
       memo: "test",
-      recoded_at: Time.now
+      recorded_at: nil
     )
   end
 
@@ -55,17 +55,17 @@ RSpec.describe "Admin::StockActionLogs", type: :request do
         stock_id: create_stock.id,
         action_type: "seed_sown",
         memo: "test",
-        recoded_at: Time.now
+        recorded_at: nil
       }
     }
   end
   let(:invalid_params) do
     {
       stock_action_log: {
-        stock_id: nil,
-        action_type: "seed_sown",
+        stock_id: create_stock.id,
+        action_type: "",
         memo: "test",
-        recoded_at: Time.now
+        recorded_at: nil
       }
     }
   end
@@ -83,7 +83,7 @@ RSpec.describe "Admin::StockActionLogs", type: :request do
   # show
   describe "GET /admin/stock_action_logs/:id" do
     it "StockActionLog詳細が表示される" do
-      stock_action_log = create_parent_stock_action_log
+      stock_action_log = create_stock_action_log
       get admin_stock_action_log_path(stock_action_log), headers: admin_headers
       expect(response).to have_http_status(:ok)
     end
@@ -113,7 +113,7 @@ RSpec.describe "Admin::StockActionLogs", type: :request do
         expect(created_stock_action_log.memo).to eq("test")
 
         # 遷移先がshowになるかどうか
-        expect(response).to redirect_to(admin_stock_action_log_path(created_stock_action_log))
+        expect(response).to redirect_to(admin_stock_action_logs_path)
 
         expect(flash[:notice]).to eq("作成しました")
       end
@@ -155,7 +155,7 @@ RSpec.describe "Admin::StockActionLogs", type: :request do
       it "StockActionLogに更新がない" do
         stock_action_log = create_stock_action_log
         patch admin_stock_action_log_path(stock_action_log, valid_params), headers: admin_headers
-        expect(stock_action_log.reload.growing_method).to eq("seed_down")
+        expect(stock_action_log.reload.action_type).to eq("seed_sown")
         expect(response).to redirect_to(admin_stock_action_log_path(stock_action_log))
         expect(flash[:notice]).to include("変更はありませんでした")
       end

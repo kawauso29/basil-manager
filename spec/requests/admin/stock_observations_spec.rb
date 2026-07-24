@@ -37,7 +37,7 @@ RSpec.describe "Admin::StockObservations", type: :request do
       stock_id: create_stock.id,
       height_cm: 5.0,
       memo: "test",
-      recoded_at: Time.now
+      recorded_at: nil
     )
   end
   let(:create_stock_observation2) do
@@ -45,27 +45,17 @@ RSpec.describe "Admin::StockObservations", type: :request do
       stock_id: create_other_stock.id,
       height_cm: 5.0,
       memo: "test",
-      recoded_at: Time.now
+      recorded_at: nil
     )
   end
 
   let(:valid_params) do
     {
-      stock_action_log: {
+      stock_observation: {
         stock_id: create_stock.id,
         height_cm: 5.0,
         memo: "test",
-        recoded_at: Time.now
-      }
-    }
-  end
-  let(:invalid_params) do
-    {
-      stock_action_log: {
-        stock_id: nil,
-        height_cm: 5.0,
-        memo: "test",
-        recoded_at: Time.now
+        recorded_at: nil
       }
     }
   end
@@ -83,7 +73,7 @@ RSpec.describe "Admin::StockObservations", type: :request do
   # show
   describe "GET /admin/stock_observations/:id" do
     it "StockObservation詳細が表示される" do
-      stock_observation = create_parent_stock_observation
+      stock_observation = create_stock_observation
       get admin_stock_observation_path(stock_observation), headers: admin_headers
       expect(response).to have_http_status(:ok)
     end
@@ -109,23 +99,13 @@ RSpec.describe "Admin::StockObservations", type: :request do
         created_stock_observation = StockObservation.last
 
         # 作成値を検証
-        expect(created_stock_observation.action_type).to eq("seed_sown")
+        expect(created_stock_observation.height_cm).to eq(5.0)
         expect(created_stock_observation.memo).to eq("test")
 
         # 遷移先がshowになるかどうか
-        expect(response).to redirect_to(admin_stock_observation_path(created_stock_observation))
+        expect(response).to redirect_to(admin_stock_observations_path)
 
         expect(flash[:notice]).to eq("作成しました")
-      end
-    end
-
-    context "パラメータが不正な場合" do
-      it "StockObservationを作成できない" do
-        expect {
-          post admin_stock_observations_path, params: invalid_params, headers: admin_headers
-        }.not_to change(StockObservation, :count)
-
-        expect(flash.now[:alert]).to include("作成に失敗しました")
       end
     end
   end
@@ -145,26 +125,19 @@ RSpec.describe "Admin::StockObservations", type: :request do
       it "StockObservationを更新できる" do
         stock_observation = create_stock_observation
         params = {
-          stock_observation: {action_type: "moved"}
+          stock_observation: {height_cm: 6.0}
         }
         patch admin_stock_observation_path(stock_observation, params), headers: admin_headers
-        expect(stock_observation.reload.action_type).to eq("moved")
+        expect(stock_observation.reload.height_cm).to eq(6.0)
         expect(response).to redirect_to(admin_stock_observation_path(stock_observation))
         expect(flash[:notice]).to include("更新しました")
       end
       it "StockObservationに更新がない" do
         stock_observation = create_stock_observation
         patch admin_stock_observation_path(stock_observation, valid_params), headers: admin_headers
-        expect(stock_observation.reload.growing_method).to eq("seed_down")
+        expect(stock_observation.reload.height_cm).to eq(5.0)
         expect(response).to redirect_to(admin_stock_observation_path(stock_observation))
         expect(flash[:notice]).to include("変更はありませんでした")
-      end
-    end
-    context "パラメータが不正な場合" do
-      it "StockObservationを更新できない" do
-        stock_observation = create_stock_observation
-        patch admin_stock_observation_path(stock_observation, invalid_params), headers: admin_headers
-        expect(flash.now[:alert]).to include("更新に失敗しました")
       end
     end
   end

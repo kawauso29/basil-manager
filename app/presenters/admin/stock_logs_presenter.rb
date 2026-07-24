@@ -60,7 +60,7 @@ class Admin::StockLogsPresenter
 
   def format_log(log)
     log.merge(
-      recorded_at: log[:recorded_at].strftime("%Y年%m月%d日%H時")
+      recorded_at: log[:recorded_at]&.strftime("%Y年%m月%d日%H時")
     )
   end
 end
