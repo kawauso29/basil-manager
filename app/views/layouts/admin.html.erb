@@ -25,16 +25,18 @@
 
   <body>
     <header>
-      # link 
+      # link<br>
       <%= link_to "Top", admin_root_path %>
       <%= link_to "Stocks", admin_stocks_path %>
       <%= link_to "StockActionLogs", admin_stock_action_logs_path %>
       <%= link_to "Plants", admin_plants_path %>
       <%= link_to "Locations", admin_locations_path %>
       <%= link_to "LocationObservations", admin_location_observations_path %>
-      # アクション
+      <hr>
+      # アクション<br>
       <%= link_to "株作成", new_admin_stock_path %>
       <%= link_to "株アクションログ作成", new_admin_stock_action_log_path %>
+      <%= link_to "屋外の株へ水やりを一括記録", bulk_new_admin_stock_action_logs_path %>
       <%= link_to "株観察ログ作成", new_admin_stock_observation_path %>
       <%= link_to "ロケーションログ作成", new_admin_location_observation_path %>
       <hr>

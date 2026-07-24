@@ -13,6 +13,7 @@
 | `code` | `string` | 不可 | なし | UK | 場所を一意に識別するコード |
 | `prefix` | `string` | 不可 | なし | UK | 場所を一意に識別するプレフィックス |
 | `name` | `string` | 不可 | なし | UK | 表示用の場所名 |
+| `environment` | `string` | 不可 | `indoor` | なし | 屋内・屋外の区分 |
 | `created_at` | `datetime` | 不可 | なし | なし | 作成日時 |
 | `updated_at` | `datetime` | 不可 | なし | なし | 更新日時 |
 
@@ -20,7 +21,7 @@
 
 - 主キー: `id`
 - 一意インデックス: `code`、`prefix`、`name`
-- `code`、`prefix`、`name`は必須とする
+- `code`、`prefix`、`name`、`environment`は必須とする
 
 ## 関連
 
@@ -34,3 +35,6 @@
 - 同じ`prefix`または`name`を持つ場所は重複登録できない
 - 株ごとの現在地は`stocks.location_id`で管理する
 - 場所単位の気象・環境情報は`location_observations`に記録する
+- `environment`は`indoor`または`outdoor`とする
+- 一括水やりの対象には`outdoor`のLocationにある育成中のStockだけを使用する
+- enumの日本語表示と変更手順は[`enum 運用ガイド`](../enum/README.md)に従う

@@ -2,6 +2,7 @@ id: <%= @location.id %><br>
 name: <%= @location.name %><br>
 code: <%= @location.code %><br>
 prefix: <%= @location.prefix %><br>
+environment: <%= @location.environment_i18n %><br>
 作成日: <%= @location.created_at %><br>
 更新日: <%= @location.updated_at %><br>
 
@@ -18,4 +19,3 @@ prefix: <%= @location.prefix %><br>
 <% @location.stocks.each do |stock|  %>
   <%= render "/admin/stocks/stock_attr", stock: stock %>
 <% end %>
-

@@ -32,6 +32,8 @@ ja:
     format: "%{attribute}%{message}"
   activerecord:
     attributes:
+      location:
+        environment: 屋内・屋外区分
       stock:
         plant: 植物
         plant_id: 植物
@@ -59,6 +61,10 @@ ja:
         recorded_at: 観察日時
     errors:
       models:
+        location:
+          attributes:
+            environment:
+              inclusion: を選択してください
         stock:
           attributes:
             plant:
@@ -83,11 +89,17 @@ ja:
             action_type:
               blank: を選択してください
               inclusion: を選択してください
+            recorded_at:
+              blank: を入力してください
         stock_observation:
           attributes:
             stock:
               required: を選択してください
   enums:
+    location:
+      environment:
+        indoor: 屋内
+        outdoor: 屋外
     location_observation:
       weather:
         sunny:  晴れ

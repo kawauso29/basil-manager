@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_17_081138) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_24_180424) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -28,6 +28,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_17_081138) do
   create_table "locations", comment: "植物の育成場所を管理するテーブル", force: :cascade do |t|
     t.string "code", null: false, comment: "管理コード"
     t.datetime "created_at", null: false
+    t.string "environment", default: "indoor", null: false, comment: "屋内・屋外の区分"
     t.string "name", null: false, comment: "管理場所名称"
     t.string "prefix", null: false, comment: "管理プレフィックス"
     t.datetime "updated_at", null: false

@@ -23,6 +23,29 @@ class Admin::StockActionLogsController < Admin::BaseController
     end
   end
 
+  def bulk_new
+    set_form_options_for_bulk_new
+  end
+
+  def bulk_create
+    _params = bulk_watering_params
+    StockActionLogs::BulkWateringCreator.call(
+      stock_ids: _params[:stock_ids],
+      recorded_at: _params[:recorded_at],
+      memo: _params[:memo]
+    )
+    admin_create_success_message
+    redirect_to admin_stock_action_logs_path
+  rescue StockActionLogs::BulkWateringCreator::InvalidSelection => e
+    set_form_options_for_bulk_new
+    admin_flash_now_alert(e.message)
+    render :bulk_new, status: :unprocessable_content
+  rescue ActiveRecord::RecordInvalid => e
+    set_form_options_for_bulk_new
+    admin_create_error_message(e.record)
+    render :bulk_new, status: :unprocessable_content
+  end
+
   def show
     @stock_action_log = StockActionLog.find(params[:id])
     set_stock_relation
@@ -70,6 +93,12 @@ class Admin::StockActionLogsController < Admin::BaseController
     end
   end
 
+  def set_form_options_for_bulk_new
+    @stocks = Stock.active.joins(:location).merge(Location.outdoor).includes(:plant, :location).order(:id)
+    @selected_stock_ids = @stocks.ids
+    @recorded_at = Time.current
+  end
+
   def set_stock_relation
     @stock = @stock_action_log.stock
     @location = @stock.location
@@ -82,6 +111,14 @@ class Admin::StockActionLogsController < Admin::BaseController
       :action_type,
       :memo,
       :recorded_at
+    )
+  end
+
+  def bulk_watering_params
+    params.require(:stock_action_log).permit(
+      :memo,
+      :recorded_at,
+      stock_ids: []
     )
   end
 end

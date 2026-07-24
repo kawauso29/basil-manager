@@ -2,5 +2,6 @@
   name: <%= f.text_field :name, placeholder: "名前" %><br>
   code: <%= f.text_field :code, placeholder: "コード" %><br>
   prefix: <%= f.text_field :prefix, placeholder: "プレフィックス" %><br>
+  environment: <%= f.select :environment, @environment_data, prompt: "選択してください" %><br>
   <%= f.submit "作成" %>
 <% end %>

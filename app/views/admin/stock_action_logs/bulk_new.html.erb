@@ -1,0 +1,32 @@
+<h1>屋外の株へ水やりを一括記録</h1>
+
+<%= form_with(
+      scope: :stock_action_log,
+      url: bulk_create_admin_stock_action_logs_path,
+      method: :post
+    ) do |f| %>
+  対象株:
+  <%= f.collection_check_boxes(
+        :stock_ids,
+        @stocks,
+        :id,
+        :code,
+        { include_hidden: false, checked: @selected_stock_ids }
+      ) do |checkbox| %>
+    <%= checkbox.check_box %>
+    <%= checkbox.label do %>
+      <%= checkbox.object.code %>
+      /
+      <%= checkbox.object.plant.name %>
+      /
+      <%= checkbox.object.location.name %>
+    <% end %>
+  <% end %>
+  <br>
+
+  memo: <%= f.text_area :memo, value: @memo %><br>
+  recorded_at:
+  <%= f.datetime_local_field :recorded_at, value: @recorded_at %><br>
+
+  <%= f.submit "水やりを一括記録" %>
+<% end %>

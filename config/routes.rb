@@ -16,7 +16,12 @@ Rails.application.routes.draw do
       end
     end
     resources :stocks
-    resources :stock_action_logs
+    resources :stock_action_logs do
+      collection do
+        get :bulk_new
+        post :bulk_create
+      end
+    end
     resources :stock_observations
   end
 

@@ -36,4 +36,7 @@
   `pinched`、`pruned`、`water_replaced`、`harvested`、`moved`、
   `transplanted`のいずれかとする
 - 株の現在状態を変更する作業では、`stocks.status`との整合性を保つ
+- 一括水やりでは、`outdoor`のLocationにある育成中のStockだけを対象にする
+- 一括水やりの`action_type`はリクエストから受け取らず、サーバー側で`watered`に固定する
+- 一括作成はトランザクション内で行い、1件でも保存に失敗した場合は全件をロールバックする
 - enumの日本語表示と変更手順は[`enum 運用ガイド`](../enum/README.md)に従う

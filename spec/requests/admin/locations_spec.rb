@@ -33,7 +33,12 @@ RSpec.describe "Admin::Locations", type: :request do
     context "パラメータが正常な場合" do
       it "Locationを作成できる" do
         valid_params = {
-          location: { name: "テストロケーション", code: "test", prefix: "TST" }
+          location: {
+            name: "テストロケーション",
+            code: "test",
+            prefix: "TST",
+            environment: "outdoor"
+          }
         }
 
         expect {
@@ -46,6 +51,7 @@ RSpec.describe "Admin::Locations", type: :request do
         expect(created_location.name).to eq("テストロケーション")
         expect(created_location.code).to eq("test")
         expect(created_location.prefix).to eq("TST")
+        expect(created_location.environment).to eq("outdoor")
 
         # 遷移先がshowになるかどうか
         expect(response).to redirect_to(admin_location_path(created_location))

@@ -47,6 +47,7 @@ erDiagram
         string code UK
         string prefix UK
         string name UK
+        string environment
     }
 
     STOCK_ACTION_LOG {

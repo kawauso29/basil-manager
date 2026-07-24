@@ -46,7 +46,8 @@ enum :completion_reason, {
 
 `completion_reason`は育成完了前には未設定となるため、空を許可します。
 一方、`status`、`growing_method`、`propagation_method`、
-`StockActionLog#action_type`などの必須属性には`allow_blank`を付けません。
+`StockActionLog#action_type`、`Location#environment`などの必須属性には
+`allow_blank`を付けません。
 
 ## enumの利用
 
@@ -99,6 +100,7 @@ Stock.completion_reasons_i18n
 Stock.growing_methods_i18n
 Stock.propagation_methods_i18n
 StockActionLog.action_types_i18n
+Location.environments_i18n
 LocationObservation.weathers_i18n
 ```
 

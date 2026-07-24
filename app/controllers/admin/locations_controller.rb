@@ -4,6 +4,7 @@ class Admin::LocationsController < Admin::BaseController
   end
 
   def new
+    set_form_options
     @location = Location.new
   end
 
@@ -13,6 +14,7 @@ class Admin::LocationsController < Admin::BaseController
       admin_create_success_message
       redirect_to admin_location_path(@location)
     else
+      set_form_options
       admin_create_error_message(@location)
       render :new, status: :unprocessable_content
     end
@@ -23,6 +25,7 @@ class Admin::LocationsController < Admin::BaseController
   end
 
   def edit
+    set_form_options
     @location = Location.find(params[:id])
   end
 
@@ -32,6 +35,7 @@ class Admin::LocationsController < Admin::BaseController
       admin_update_success_message(@location)
       redirect_to admin_location_path(@location)
     else
+      set_form_options
       admin_update_error_message(@location)
       render :edit, status: :unprocessable_content
     end
@@ -51,6 +55,12 @@ class Admin::LocationsController < Admin::BaseController
   private
 
   def location_params
-    params.require(:location).permit(:name, :code, :prefix)
+    params.require(:location).permit(:name, :code, :prefix, :environment)
+  end
+
+  def set_form_options
+    @environment_data = Location.environments_i18n.map do |value, label|
+      [label, value]
+    end
   end
 end

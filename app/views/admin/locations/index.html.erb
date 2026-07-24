@@ -1,5 +1,5 @@
 <% @locations.each do |location| %>
-  <%= location.id %> / <%= location.name %> / <%= location.code %> / <%= location.prefix %> / <%= link_to "詳細", admin_location_path(location) %><br>
+  <%= location.id %> / <%= location.name %> / <%= location.code %> / <%= location.prefix %> / <%= location.environment_i18n %> / <%= link_to "詳細", admin_location_path(location) %><br>
 <% end %>
 
 <%= link_to "新規作成", new_admin_location_path %>

@@ -3,5 +3,6 @@ id: <%= @location.id %><br>
   name: <%= f.text_field :name, value: @location.name %><br>
   code: <%= f.text_field :code, value: @location.code %><br>
   prefix: <%= f.text_field :prefix, value: @location.prefix %><br>
+  environment: <%= f.select :environment, @environment_data, prompt: "選択してください" %><br>
   <%= f.submit "更新" %>
 <% end %>
