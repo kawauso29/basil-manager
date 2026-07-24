@@ -1,5 +1,7 @@
 <%= render "/admin/stocks/stock_attr", stock: @stock %>
 
+<%= link_to "アクションログ作成", new_admin_stock_action_log_path(stock_id: @stock.id) %>
+<%= link_to "観察ログ作成",      new_admin_stock_observation_path(stock_id: @stock.id) %>
 <%= link_to "一覧に戻る", admin_stocks_path %><br>
 
 <%= form_with model: [:admin, @stock], method: :delete do |f| %>

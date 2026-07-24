@@ -4,7 +4,10 @@ class Admin::StockObservationsController < Admin::BaseController
   end
 
   def new
-    @stock_observation = StockObservation.new(recorded_at: Time.current)
+    @stock_observation = StockObservation.new(
+      stock_id: params[:stock_id],
+      recorded_at: Time.current
+    )
     set_form_options
   end
 

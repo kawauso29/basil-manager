@@ -1,5 +1,5 @@
 <%= form_with model: [:admin, @stock_observation] do |f| %>
-  stock: <%= f.select(:stock_id,  @stock_data, {prompt: "選択してください"}) %><br><br>
+  stock: <%= f.select(:stock_id,  @stock_data, {prompt: "選択してください"}) %><br>
   height_cm:  <%= f.number_field(:height_cm) %><br>
   memo: <%= f.text_area :memo %><br>
   recorded_at: <%= f.datetime_local_field :recorded_at %><br>

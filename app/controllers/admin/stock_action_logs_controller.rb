@@ -4,7 +4,10 @@ class Admin::StockActionLogsController < Admin::BaseController
   end
 
   def new
-    @stock_action_log = StockActionLog.new(recorded_at: Time.current)
+    @stock_action_log = StockActionLog.new(
+      stock_id: params[:stock_id],
+      recorded_at: Time.current
+    )
     set_form_options
   end
 
