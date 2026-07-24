@@ -45,6 +45,12 @@ ja:
         propagation_method: 増殖方法
         completion_reason: 育成完了理由
         completed_at: 育成完了日時
+      stock_action_log:
+        stock: 対象株
+        stock_id: 対象株
+        action_type: 作業種別
+        memo: メモ
+        recorded_at: 作業日時
     errors:
       models:
         stock:
@@ -63,6 +69,13 @@ ja:
             growing_method:
               inclusion: を選択してください
             propagation_method:
+              inclusion: を選択してください
+        stock_action_log:
+          attributes:
+            stock:
+              required: を選択してください
+            action_type:
+              blank: を選択してください
               inclusion: を選択してください
   enums:
     location_observation:

@@ -16,6 +16,7 @@ Rails.application.routes.draw do
       end
     end
     resources :stocks
+    resources :stock_action_logs
   end
 
   # Render dynamic PWA files from app/views/pwa/* (remember to link manifest in application.html.erb)

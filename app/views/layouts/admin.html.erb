@@ -28,12 +28,14 @@
       # link 
       <%= link_to "Top", admin_root_path %>
       <%= link_to "Stocks", admin_stocks_path %>
+      <%= link_to "StockActionLogs", admin_stock_action_logs_path %>
       <%= link_to "Plants", admin_plants_path %>
       <%= link_to "Locations", admin_locations_path %>
       <%= link_to "LocationObservations", admin_location_observations_path %>
       # アクション
       <%= link_to "株作成", new_admin_stock_path %>
       <%= link_to "ロケーションログ作成", new_admin_location_observation_path %>
+      <%= link_to "アクションログ作成", new_admin_stock_action_log_path %>
       <hr>
     </header>
     <div class="flash-container">

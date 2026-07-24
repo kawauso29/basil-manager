@@ -12,6 +12,7 @@
 # updated_at  : 更新日時
 class StockActionLog < ActiveRecord::Base
   belongs_to :stock
+  validates :action_type,  presence: true
 
   enum :action_type, {
     seed_sown: "seed_sown",

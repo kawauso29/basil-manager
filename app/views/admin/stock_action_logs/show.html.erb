@@ -1,0 +1,17 @@
+id: <%= @stock_action_log.id %><br>
+stock_code: <%= @stock.code %><br>
+location_name: <%= @location.name %>
+plant_name: <%= @plant.name %><br>
+action_type: <%= @stock_action_log.action_type_i18n %><br>
+memo: <%= @stock_action_log.memo %><br>
+recorded_at: <%= @stock_action_log.recorded_at %><br>
+
+
+<%= link_to "編集", edit_admin_stock_action_log_path(@stock_action_log) %><br><br>
+<%= link_to "一覧に戻る", admin_stock_action_logs_path %><br><br>
+
+<%= form_with model: [:admin, @stock_action_log], method: :delete do |f| %>
+  <%= f.submit "削除", data: { turbo_confirm: "本当に削除しますか？" } %>
+<% end %>
+
+

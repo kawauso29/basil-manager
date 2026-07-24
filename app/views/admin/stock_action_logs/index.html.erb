@@ -1,0 +1,20 @@
+<% @stock_action_logs.each do |stock_action_log| %>
+  <% stock = stock_action_log.stock %>
+  <% location = stock.location %>
+  <% plant = stock.plant %>
+
+  <%= stock_action_log.id %>
+    /
+  <%= stock_action_log.stock.code %>
+    /
+  <%= location.name %> - <%= plant.name %>
+    /
+  <%= stock_action_log.action_type_i18n %>
+   /
+  <%= stock_action_log.memo %>
+   /
+  <%= link_to "詳細", admin_stock_action_log_path(stock_action_log) %><br>
+<% end %>
+
+<%= link_to "新規作成", new_admin_stock_action_log_path %>
+
