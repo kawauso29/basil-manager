@@ -4,5 +4,13 @@ id: <%= @plant.id %><br>
   code: <%= f.text_field :code, value: @plant.code %><br>
   prefix: <%= f.text_field :prefix, value: @plant.prefix %><br>
   last_stock_number: <%= f.text_field :last_stock_number, value: @plant.last_stock_number %><br>
+  <hr>
+  <h2>画像アップロード</h2><br>
+  <% if @plant.has_image? %>
+    現在の画像：<%= image_tag(@plant.icon_path) %><br><br>
+  <% end %>
+  <div data-controller="image-preview">
+    <%= f.file_field :image, data: { action: "change->image-preview#preview" } %><img data-image-preview-target="image" width="100" hidden><br>
+  </div>
   <%= f.submit "更新" %>
 <% end %>

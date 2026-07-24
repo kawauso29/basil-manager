@@ -10,6 +10,7 @@
 - `enum/README.md`: Rails enumとenum_helpの共通運用ルール
 - `presenter/README.md`: Presenterの使用基準と実装ルール
 - `rspec/README.md`: RSpecの基本とテスト種別ごとの責務
+- `stimulus/<controller>.md`: Stimulus Controllerの目的、Viewとの接続、処理内容
 
 `db` 配下のファイル名は、Railsのモデル名に合わせた単数形の
 snake_caseとします。たとえば、`plants` テーブルの仕様は

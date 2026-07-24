@@ -51,6 +51,12 @@ class Admin::PlantsController < Admin::BaseController
   private
 
   def plant_params
-    params.require(:plant).permit(:name, :code, :prefix, :last_stock_number)
+    params.require(:plant).permit(
+      :name,
+      :code,
+      :prefix,
+      :last_stock_number,
+      :image
+    )
   end
 end
