@@ -73,6 +73,7 @@ class Stock < ActiveRecord::Base
   }, validate: true
 
   validate :valid_cannot_self_be_parent
+  validate :valid_parent_stock_must_have_same_plant
 
   #######################
   # scope
@@ -117,6 +118,15 @@ class Stock < ActiveRecord::Base
 
     if parent_stock_id == id
       errors.add(:parent_stock_id, :cannot_be_self)
+    end
+  end
+  
+  def valid_parent_stock_must_have_same_plant
+    return if parent_stock_id.nil?
+
+    parent = self.parent_stock
+    if parent.plant_id != self.plant_id
+      errors.add(:parent_stock_id, :must_have_same_plant)
     end
   end
 end

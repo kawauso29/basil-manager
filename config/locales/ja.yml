@@ -76,6 +76,7 @@ ja:
                 has_many: 子株が存在するため削除できません
             parent_stock_id:
               cannot_be_self: に自分自身は指定できません
+              cannot_be_different_plant: に異なる植物を親に指定できません
             status:
               inclusion: を選択してください
             growing_method:
