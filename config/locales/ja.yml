@@ -111,6 +111,7 @@ ja:
       action_type:
         seed_sown: 種まき
         cutting_started: 挿し木開始
+        water_started: 水挿し開始
         watered: 水やり
         fertilized: 施肥
         pinched: 摘芯
