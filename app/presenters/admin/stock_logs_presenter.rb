@@ -13,7 +13,7 @@ class Admin::StockLogsPresenter
 
   def call
     build_log_data
-    .sort_by { |log| log[:recorded_at] }
+    .sort_by { |log| log[:sort_at] }
     .map { |log| format_log(log) }
   end
 
@@ -27,6 +27,7 @@ class Admin::StockLogsPresenter
     @action_logs.map do |log|
       log_unit(
         log.recorded_at,
+        log.created_at,
         log.action_type_i18n,
         nil,
         "",
@@ -39,6 +40,7 @@ class Admin::StockLogsPresenter
     @observation_logs.map do |log|
       log_unit(
         log.recorded_at,
+        log.created_at,
         "観察",
         "#{log.height_cm} cm",
         log.image_small_path,
@@ -47,9 +49,10 @@ class Admin::StockLogsPresenter
     end
   end
 
-  def log_unit(recorded_at, label, data_value, image_path, memo)
+  def log_unit(recorded_at, created_at, label, data_value, image_path, memo)
     {
       recorded_at: recorded_at,
+      sort_at: recorded_at || created_at,
       label: label,
       data_value: data_value,
       image_path: image_path,
@@ -58,7 +61,7 @@ class Admin::StockLogsPresenter
   end
 
   def format_log(log)
-    log.merge(
+    log.except(:sort_at).merge(
       recorded_at: log[:recorded_at]&.strftime("%Y年%m月%d日%H時")
     )
   end
