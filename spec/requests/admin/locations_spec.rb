@@ -1,7 +1,6 @@
 require "rails_helper"
 
 RSpec.describe "Admin::Locations", type: :request do
-
   # index
   describe "GET /admin/locations" do
     it "保存済みのLocationが一覧に表示される" do
@@ -91,7 +90,7 @@ RSpec.describe "Admin::Locations", type: :request do
       it "Locationを更新できる" do
         location = Location.create!(name: "テストロケーション", code: "test", prefix: "TST")
         params = {
-          location: {name: "更新後ロケーション", code: "test", prefix: "TST"}
+          location: { name: "更新後ロケーション", code: "test", prefix: "TST" }
         }
         patch admin_location_path(location, params), headers: admin_headers
         expect(location.reload.name).to eq("更新後ロケーション")
@@ -101,7 +100,7 @@ RSpec.describe "Admin::Locations", type: :request do
       it "Locationに更新がない" do
         location = Location.create!(name: "テストロケーション", code: "test", prefix: "TST")
         params = {
-          location: {name: "テストロケーション", code: "test", prefix: "TST"}
+          location: { name: "テストロケーション", code: "test", prefix: "TST" }
         }
         patch admin_location_path(location, params), headers: admin_headers
         expect(location.reload.name).to eq("テストロケーション")
@@ -113,7 +112,7 @@ RSpec.describe "Admin::Locations", type: :request do
       it "Locationを更新できない" do
         location = Location.create!(name: "テストロケーション", code: "test", prefix: "TST")
         params = {
-          location: {name: "", code: "test", prefix: "TST"}
+          location: { name: "", code: "test", prefix: "TST" }
         }
         patch admin_location_path(location), params: params, headers: admin_headers
         expect(flash.now[:alert]).to include("更新に失敗しました")

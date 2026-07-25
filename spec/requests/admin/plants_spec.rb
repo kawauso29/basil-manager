@@ -1,7 +1,6 @@
 require "rails_helper"
 
 RSpec.describe "Admin::Plants", type: :request do
-
   # index
   describe "GET /admin/plants" do
     it "保存済みのPlantが一覧に表示される" do
@@ -86,7 +85,7 @@ RSpec.describe "Admin::Plants", type: :request do
       it "Plantを更新できる" do
         plant = Plant.create!(name: "テストプラント", code: "test", prefix: "TST")
         params = {
-          plant: {name: "更新後プラント", code: "test", prefix: "TST"}
+          plant: { name: "更新後プラント", code: "test", prefix: "TST" }
         }
         patch admin_plant_path(plant, params), headers: admin_headers
         expect(plant.reload.name).to eq("更新後プラント")
@@ -96,7 +95,7 @@ RSpec.describe "Admin::Plants", type: :request do
       it "Plantに更新がない" do
         plant = Plant.create!(name: "テストプラント", code: "test", prefix: "TST")
         params = {
-          plant: {name: "テストプラント", code: "test", prefix: "TST"}
+          plant: { name: "テストプラント", code: "test", prefix: "TST" }
         }
         patch admin_plant_path(plant, params), headers: admin_headers
         expect(plant.reload.name).to eq("テストプラント")
@@ -108,7 +107,7 @@ RSpec.describe "Admin::Plants", type: :request do
       it "Plantを更新できない" do
         plant = Plant.create!(name: "テストプラント", code: "test", prefix: "TST")
         params = {
-          plant: {name: "", code: "test", prefix: "TST"}
+          plant: { name: "", code: "test", prefix: "TST" }
         }
         patch admin_plant_path(plant, params), headers: admin_headers
         expect(flash.now[:alert]).to include("更新に失敗しました")

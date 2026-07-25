@@ -61,6 +61,5 @@ module Stocks
     def update_plant_last_stock_number!(stock_number)
       plant.update!(last_stock_number: stock_number)
     end
-
   end
 end

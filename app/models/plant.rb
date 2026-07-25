@@ -12,8 +12,8 @@
 # updated_at        : 更新日時
 class Plant < ActiveRecord::Base
   has_one_attached :image do |attachable|
-    attachable.variant :icon_thumb, resize_to_limit: [100, 100], preprocessed: true
-    attachable.variant :main_thumb, resize_to_limit: [300, 300], preprocessed: true
+    attachable.variant :icon_thumb, resize_to_limit: [ 100, 100 ], preprocessed: true
+    attachable.variant :main_thumb, resize_to_limit: [ 300, 300 ], preprocessed: true
   end
 
   # stocksを1つでも持つ場合は削除せず、エラーを返し引き止めます。

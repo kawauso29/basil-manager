@@ -16,8 +16,8 @@ RSpec.describe Admin::StockLogsPresenter do
       )
 
       result = described_class.call(
-        [action_log],
-        [observation_log]
+        [ action_log ],
+        [ observation_log ]
       )
 
       expect(result).to eq(

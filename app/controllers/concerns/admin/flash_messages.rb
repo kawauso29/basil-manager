@@ -9,13 +9,13 @@ module Admin::FlashMessages
   end
 
   def admin_create_success_message
-    flash[:notice] = '作成しました'
+    flash[:notice] = "作成しました"
   end
   def admin_create_error_message(model)
     flash.now[:alert] = "作成に失敗しました #{model.errors.full_messages.join(', ')}"
   end
   def admin_destroy_success_message
-    flash[:notice] = '削除しました'
+    flash[:notice] = "削除しました"
   end
   def admin_destroy_error_message(model)
     flash.now[:alert] = "削除に失敗しました #{model.errors.full_messages.join(', ')}"
@@ -37,5 +37,4 @@ module Admin::FlashMessages
   def admin_update_error_message(model)
     flash.now[:alert] = "更新に失敗しました #{model.errors.full_messages.join(", ")}"
   end
-
 end

@@ -108,7 +108,6 @@ RSpec.describe "Admin::LocationObservations", type: :request do
         expect(flash.now[:alert]).to include("作成に失敗しました")
       end
     end
-
   end
 
   # edit
@@ -208,11 +207,11 @@ RSpec.describe "Admin::LocationObservations", type: :request do
         location2 = Location.create!(name: "テストロケーション2", code: "test2", prefix: "TST2")
         valid_params = {
           location_observation: {
-            location_ids:[location.id, location2.id],
+            location_ids: [ location.id, location2.id ],
             weather: "sunny",
             temperature: 10.0,
             memo: "test",
-            recorded_at: Time.current,
+            recorded_at: Time.current
           }
         }
         expect {
@@ -248,7 +247,7 @@ RSpec.describe "Admin::LocationObservations", type: :request do
             weather: "sunny",
             temperature: 10.0,
             memo: "test",
-            recorded_at: Time.current,
+            recorded_at: Time.current
           }
         }
         expect {

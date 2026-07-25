@@ -63,7 +63,7 @@ class Stock < ActiveRecord::Base
     planter: "planter",
     flowerpot: "flowerpot",
     water: "water",
-    other: "other",
+    other: "other"
   }, validate: true
 
   enum :propagation_method, {
@@ -122,7 +122,7 @@ class Stock < ActiveRecord::Base
       errors.add(:parent_stock_id, :cannot_be_self)
     end
   end
-  
+
   def valid_parent_stock_must_have_same_plant
     return if parent_stock_id.nil?
 

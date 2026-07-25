@@ -1,7 +1,6 @@
 require "rails_helper"
 
 RSpec.describe "Admin::StockActionLogs", type: :request do
-
   let(:create_plant) do
     Plant.create!(
       name: "テストプラント",
@@ -101,7 +100,6 @@ RSpec.describe "Admin::StockActionLogs", type: :request do
   describe "POST /admin/stock_action_logs" do
     context "パラメータが正常な場合" do
       it "StockActionLogを作成できる" do
-
         expect {
           post admin_stock_action_logs_path, params: valid_params, headers: admin_headers
         }.to change(StockActionLog, :count).by(1)
@@ -145,7 +143,7 @@ RSpec.describe "Admin::StockActionLogs", type: :request do
       it "StockActionLogを更新できる" do
         stock_action_log = create_stock_action_log
         params = {
-          stock_action_log: {action_type: "moved"}
+          stock_action_log: { action_type: "moved" }
         }
         patch admin_stock_action_log_path(stock_action_log, params), headers: admin_headers
         expect(stock_action_log.reload.action_type).to eq("moved")

@@ -89,7 +89,7 @@ class Admin::StockActionLogsController < Admin::BaseController
   def set_form_options
     @stock_data = Stock.active.pluck(:code, :id)
     @action_type_data = StockActionLog.action_types_i18n.map do |key, value|
-      [value, key]
+      [ value, key ]
     end
   end
 

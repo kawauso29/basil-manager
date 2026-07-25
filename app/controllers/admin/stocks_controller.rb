@@ -69,17 +69,17 @@ class Admin::StocksController < Admin::BaseController
   def set_form_data_for_new
     @location_data = Location.pluck(:name, :id)
     @plant_data= Plant.pluck(:name, :id)
-    @growing_method_data = Stock.growing_methods_i18n.map{|key,name| [name, key]}
-    @propagation_method_data = Stock.propagation_methods_i18n.map{|key,name| [name, key]}
+    @growing_method_data = Stock.growing_methods_i18n.map { |key, name| [ name, key ] }
+    @propagation_method_data = Stock.propagation_methods_i18n.map { |key, name| [ name, key ] }
   end
 
   def set_form_data
     @location_data = Location.pluck(:name, :id)
     @plant_data= Plant.pluck(:name, :id)
-    @growing_method_data = Stock.growing_methods_i18n.map{|key,name| [name, key]}
-    @propagation_method_data = Stock.propagation_methods_i18n.map{|key,name| [name, key]}
-    @status_data = Stock.statuses_i18n.map{|key,name| [name, key]}
-    @completion_reason_data = Stock.completion_reasons_i18n.map{|key,name| [name, key]}
+    @growing_method_data = Stock.growing_methods_i18n.map { |key, name| [ name, key ] }
+    @propagation_method_data = Stock.propagation_methods_i18n.map { |key, name| [ name, key ] }
+    @status_data = Stock.statuses_i18n.map { |key, name| [ name, key ] }
+    @completion_reason_data = Stock.completion_reasons_i18n.map { |key, name| [ name, key ] }
     @parent_data = Stock.active.where.not(id: params[:id]).pluck(:code, :id)
   end
 
@@ -103,7 +103,7 @@ class Admin::StocksController < Admin::BaseController
       plant_id:  _params[:plant_id],
       location_id:  _params[:location_id],
       growing_method:  _params[:growing_method],
-      propagation_method:  _params[:propagation_method],
+      propagation_method:  _params[:propagation_method]
     }
   end
 end

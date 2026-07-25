@@ -13,8 +13,8 @@
 class StockObservation < ActiveRecord::Base
   belongs_to :stock
   has_one_attached :image do |attachable|
-    attachable.variant :small, resize_to_limit: [100, 100], preprocessed: true
-    attachable.variant :normal, resize_to_limit: [300, 300]
+    attachable.variant :small, resize_to_limit: [ 100, 100 ], preprocessed: true
+    attachable.variant :normal, resize_to_limit: [ 300, 300 ]
   end
 
   def has_image?

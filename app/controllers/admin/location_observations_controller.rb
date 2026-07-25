@@ -2,7 +2,7 @@ class Admin::LocationObservationsController < Admin::BaseController
   def index
     location_id = params[:location_id]
     @location = Location.find_by(id: location_id)
-    @location_options = [["全て", ""]] + Location.pluck(:name, :id)
+    @location_options = [ [ "全て", "" ] ] + Location.pluck(:name, :id)
     @location_observations = LocationObservation.all.order(:id)
     if @location.present?
       @location_observations = @location_observations.where(location_id: location_id)
@@ -45,7 +45,7 @@ class Admin::LocationObservationsController < Admin::BaseController
 
     bulk_create_datas = []
     location_ids.each do |location_id|
-      bulk_create_datas << {location_id: location_id}.merge(_attr)
+      bulk_create_datas << { location_id: location_id }.merge(_attr)
     end
 
     begin
@@ -97,14 +97,14 @@ class Admin::LocationObservationsController < Admin::BaseController
   def set_form_options
     @location_data = Location.order(:id).pluck(:name, :id)
     @weather_data = LocationObservation.weathers_i18n.map do |value, label|
-      [label, value]
+      [ label, value ]
     end
   end
 
   def set_form_options_for_bulk_new
     @locations = Location.order(:id)
     @weather_data = LocationObservation.weathers_i18n.map do |value, label|
-      [label, value]
+      [ label, value ]
     end
     @recorded_at = Time.current
   end

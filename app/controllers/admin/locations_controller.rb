@@ -71,7 +71,7 @@ class Admin::LocationsController < Admin::BaseController
 
   def set_form_options
     @environment_data = Location.environments_i18n.map do |value, label|
-      [label, value]
+      [ label, value ]
     end
   end
 end

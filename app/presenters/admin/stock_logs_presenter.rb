@@ -1,5 +1,4 @@
 class Admin::StockLogsPresenter
-
   def self.call(action_logs, observation_logs)
     new(
       action_logs,
