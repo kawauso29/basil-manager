@@ -106,11 +106,7 @@ class Stock < ActiveRecord::Base
 
   # parent_stock_idに指定されているstock_idの関連を抜き出す
   def self.parent_select_relation
-    cache_key = "stock_parent_ids_#{Stock.active.maximum(:updated_at)}"
-    select_rel = Rails.cache.fetch(cache_key) do
-      Stock.active.children.select(:parent_stock_id)
-    end
-    select_rel
+    Stock.active.children.select(:parent_stock_id)
   end
 
   private
