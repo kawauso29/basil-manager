@@ -45,6 +45,8 @@ erDiagram
         string status
         string growing_method
         string propagation_method "NULL可"
+        integer quantity
+        text memo "NULL可"
         string completion_reason "NULL可"
         datetime completed_at "NULL可"
     }

@@ -15,7 +15,9 @@ Rails.application.routes.draw do
         post :bulk_create
       end
     end
-    resources :stocks
+    resources :stocks do
+      patch :change_quantity, on: :member
+    end
     resources :stock_action_logs do
       collection do
         get :bulk_new

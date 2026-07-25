@@ -35,7 +35,9 @@
 - 作業の種類は`action_type`で識別し、詳細が必要な場合は`memo`に記録する
 - `action_type`は`seed_sown`、`cutting_started`、`watered`、`fertilized`、
   `pinched`、`pruned`、`water_replaced`、`harvested`、`moved`、
-  `transplanted`のいずれかとする
+  `transplanted`、`quantity_changed`のいずれかとする
+- `quantity_changed`はStockの専用数量変更操作から作成し、変更前後の数量と
+  変更理由を`memo`へ記録する
 - 株の現在状態を変更する作業では、`stocks.status`との整合性を保つ
 - 一括水やりでは、`outdoor`のLocationにある育成中のStockだけを対象にする
 - 一括水やりの`action_type`はリクエストから受け取らず、サーバー側で`watered`に固定する

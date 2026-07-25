@@ -217,6 +217,25 @@ RSpec.describe "Admin::Stocks", type: :request do
 
         expect(Stock.last.propagation_method).to be_nil
       end
+
+      it "数量とメモを指定してStockを作成できる" do
+        params = {
+          stock: {
+            plant_id: create_plant.id,
+            location_id: create_location.id,
+            growing_method: "pot",
+            propagation_method: "cutting_soil",
+            quantity: 20,
+            memo: "摘芯で作った挿し穂"
+          }
+        }
+
+        post admin_stocks_path, params: params, headers: admin_headers
+
+        created_stock = Stock.last
+        expect(created_stock.quantity).to eq(20)
+        expect(created_stock.memo).to eq("摘芯で作った挿し穂")
+      end
     end
 
     context "パラメータが不正な場合" do
@@ -259,12 +278,89 @@ RSpec.describe "Admin::Stocks", type: :request do
         expect(response).to redirect_to(admin_stock_path(stock))
         expect(flash[:notice]).to include("変更はありませんでした")
       end
+
+      it "Stockのメモを更新できる" do
+        stock = create_stock
+
+        patch admin_stock_path(stock),
+              params: { stock: { memo: "南側の青いトレー" } },
+              headers: admin_headers
+
+        expect(stock.reload.memo).to eq("南側の青いトレー")
+      end
+
+      it "通常の更新では数量を変更できない" do
+        stock = create_stock
+
+        patch admin_stock_path(stock),
+              params: { stock: { quantity: 20 } },
+              headers: admin_headers
+
+        expect(stock.reload.quantity).to eq(1)
+      end
     end
     context "パラメータが不正な場合" do
       it "Stockを更新できない" do
         stock = create_stock
         patch admin_stock_path(stock, invalid_params), headers: admin_headers
         expect(flash.now[:alert]).to include("更新に失敗しました")
+      end
+    end
+  end
+
+  describe "PATCH /admin/stocks/:id/change_quantity" do
+    context "数量が正常な場合" do
+      it "数量を変更して作業ログを作成する" do
+        stock = create_stock
+
+        expect {
+          patch change_quantity_admin_stock_path(stock),
+                params: {
+                  stock_quantity: {
+                    quantity: 20,
+                    memo: "摘芯で作った挿し穂"
+                  }
+                },
+                headers: admin_headers
+        }.to change(StockActionLog, :count).by(1)
+
+        expect(stock.reload.quantity).to eq(20)
+
+        action_log = stock.stock_action_logs.last
+        expect(action_log.action_type).to eq("quantity_changed")
+        expect(action_log.memo).to eq("1株 → 20株（摘芯で作った挿し穂）")
+        expect(action_log.recorded_at).to be_present
+        expect(response).to redirect_to(admin_stock_path(stock))
+      end
+    end
+
+    context "数量が不正な場合" do
+      it "数量を変更せず作業ログも作成しない" do
+        stock = create_stock
+
+        expect {
+          patch change_quantity_admin_stock_path(stock),
+                params: { stock_quantity: { quantity: 0 } },
+                headers: admin_headers
+        }.not_to change(StockActionLog, :count)
+
+        expect(stock.reload.quantity).to eq(1)
+        expect(response).to have_http_status(:unprocessable_content)
+        expect(flash.now[:alert]).to include("数量変更に失敗しました")
+      end
+    end
+
+    context "数量が変更前と同じ場合" do
+      it "作業ログを作成しない" do
+        stock = create_stock
+
+        expect {
+          patch change_quantity_admin_stock_path(stock),
+                params: { stock_quantity: { quantity: 1 } },
+                headers: admin_headers
+        }.not_to change(StockActionLog, :count)
+
+        expect(response).to have_http_status(:unprocessable_content)
       end
     end
   end

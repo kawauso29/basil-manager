@@ -4,6 +4,13 @@
 <%= link_to "観察ログ作成",      new_admin_stock_observation_path(stock_id: @stock.id) %>
 <%= link_to "一覧に戻る", admin_stocks_path %><br>
 
+<h2>数量変更</h2>
+<%= form_with url: change_quantity_admin_stock_path(@stock), method: :patch, scope: :stock_quantity do |f| %>
+  数量: <%= f.number_field :quantity, value: @stock.quantity, min: 1 %><br>
+  変更理由: <%= f.text_area :memo %><br>
+  <%= f.submit "数量を変更" %>
+<% end %>
+
 <%= form_with model: [:admin, @stock], method: :delete do |f| %>
   <%= f.submit "削除", data: { turbo_confirm: "本当に削除しますか？" } %>
 <% end %>
@@ -41,5 +48,4 @@ not子株
 <% else %>
 子を持たない
 <% end %>
-
 

@@ -45,6 +45,8 @@ ja:
         status: 管理状態
         growing_method: 栽培方法
         propagation_method: 増殖方法
+        quantity: 数量
+        memo: メモ
         completion_reason: 育成完了理由
         completed_at: 育成完了日時
       stock_action_log:
@@ -83,6 +85,8 @@ ja:
               inclusion: を選択してください
             propagation_method:
               inclusion: を選択してください
+            quantity:
+              unchanged: は変更前と異なる値を入力してください
         stock_action_log:
           attributes:
             stock:
@@ -120,6 +124,7 @@ ja:
         harvested: 収穫
         moved: 管理場所変更
         transplanted: 植え替え
+        quantity_changed: 数量変更
     stock:
       status:
         starting: 育成開始

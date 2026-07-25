@@ -33,7 +33,7 @@ class Admin::StocksController < Admin::BaseController
 
   def show
     @stock = Stock.find(params[:id])
-    @stock_logs = Admin::StockLogsPresenter.call(@stock.stock_action_logs, @stock.stock_observations)
+    set_stock_logs
   end
 
   def edit
@@ -52,6 +52,21 @@ class Admin::StocksController < Admin::BaseController
       set_form_data
       render :edit, status: :unprocessable_content
     end
+  end
+
+  def change_quantity
+    @stock = Stock.find(params[:id])
+    _params = quantity_change_params
+    @stock.change_quantity!(
+      quantity: _params[:quantity],
+      memo: _params[:memo]
+    )
+    admin_update_success_message(@stock)
+    redirect_to admin_stock_path(@stock)
+  rescue ActiveRecord::RecordInvalid => e
+    set_stock_logs
+    admin_flash_now_alert("数量変更に失敗しました #{e.record.errors.full_messages.join(', ')}")
+    render :show, status: :unprocessable_content
   end
 
   def destroy
@@ -85,7 +100,7 @@ class Admin::StocksController < Admin::BaseController
     @completion_reason_data = Stock.completion_reasons_i18n.map { |key, name| [ name, key ] }
     @parent_data = Stock.active.where.not(id: params[:id]).map do |stock|
       label = "#{stock.plant.name}(id:#{stock.id}, code:#{stock.code})"
-      [label, stock.id]
+      [ label, stock.id ]
     end
   end
 
@@ -100,17 +115,39 @@ class Admin::StocksController < Admin::BaseController
       :propagation_method,
       :completion_reason,
       :completed_at,
+      :memo,
       :image
     )
   end
 
+  def create_stock_params
+    params.require(:stock).permit(
+      :plant_id,
+      :location_id,
+      :growing_method,
+      :propagation_method,
+      :quantity,
+      :memo
+    )
+  end
+
   def create_stock_hash
-    _params = stock_params
+    _params = create_stock_params
     {
-      plant_id:  _params[:plant_id],
-      location_id:  _params[:location_id],
-      growing_method:  _params[:growing_method],
-      propagation_method:  _params[:propagation_method]
+      plant_id: _params[:plant_id],
+      location_id: _params[:location_id],
+      growing_method: _params[:growing_method],
+      propagation_method: _params[:propagation_method],
+      quantity: _params[:quantity],
+      memo: _params[:memo]
     }
+  end
+
+  def quantity_change_params
+    params.require(:stock_quantity).permit(:quantity, :memo)
+  end
+
+  def set_stock_logs
+    @stock_logs = Admin::StockLogsPresenter.call(@stock.stock_action_logs, @stock.stock_observations)
   end
 end

@@ -1,6 +1,6 @@
 # == 役割
-# 個別の株または栽培単位を管理するモデル。
-# 現在の状態、栽培方法、増殖方法、管理場所および親株との関係を保持する。
+# 同じ条件でまとめて扱う株の管理単位を管理するモデル。
+# 管理単位内の数量、現在の状態、栽培方法、増殖方法、管理場所および親株との関係を保持する。
 #
 # == カラム
 # id                 : 株ID
@@ -12,6 +12,8 @@
 # status             : 現在の管理状態
 # growing_method     : 栽培方法
 # propagation_method : 増殖方法
+# quantity           : 管理単位に含まれる株数
+# memo               : 管理単位についてのメモ
 # completion_reason  : 育成完了理由
 # completed_at       : 育成完了日時
 # created_at         : 作成日時
@@ -78,6 +80,8 @@ class Stock < ActiveRecord::Base
 
   normalizes :propagation_method, with: ->(value) { value.presence }
 
+  validates :quantity, numericality: { only_integer: true, greater_than: 0 }
+
   validate :valid_cannot_self_be_parent
   validate :valid_parent_stock_must_have_same_plant
 
@@ -123,12 +127,38 @@ class Stock < ActiveRecord::Base
     self.image.variant(:main_thumb)
   end
 
+  def change_quantity!(quantity:, memo: nil, recorded_at: Time.current)
+    with_lock do
+      previous_quantity = self.quantity
+      self.quantity = quantity
+
+      if self.quantity == previous_quantity
+        errors.add(:quantity, :unchanged)
+        raise ActiveRecord::RecordInvalid, self
+      end
+
+      save!
+      stock_action_logs.create!(
+        action_type: :quantity_changed,
+        memo: quantity_change_log_memo(previous_quantity, self.quantity, memo),
+        recorded_at: recorded_at
+      )
+    end
+  end
+
   # parent_stock_idに指定されているstock_idの関連を抜き出す
   def self.parent_select_relation
     Stock.active.children.select(:parent_stock_id)
   end
 
   private
+
+  def quantity_change_log_memo(previous_quantity, new_quantity, memo)
+    change_description = "#{previous_quantity}株 → #{new_quantity}株"
+    return change_description if memo.blank?
+
+    "#{change_description}（#{memo.strip}）"
+  end
 
   def valid_cannot_self_be_parent
     return if parent_stock_id.nil?

@@ -25,6 +25,7 @@ class StockActionLog < ActiveRecord::Base
     water_replaced: "water_replaced",
     harvested: "harvested",
     moved: "moved",
-    transplanted: "transplanted"
+    transplanted: "transplanted",
+    quantity_changed: "quantity_changed"
   }, validate: true
 end
