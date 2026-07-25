@@ -44,7 +44,7 @@ erDiagram
         string code UK
         string status
         string growing_method
-        string propagation_method
+        string propagation_method "NULL可"
         string completion_reason "NULL可"
         datetime completed_at "NULL可"
     }

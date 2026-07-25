@@ -70,7 +70,9 @@ class Stock < ActiveRecord::Base
     cutting_soil: "cutting_soil",
     cutting_water: "cutting_water",
     seed: "seed"
-  }, validate: true
+  }, validate: { allow_blank: true }
+
+  normalizes :propagation_method, with: ->(value) { value.presence }
 
   validate :valid_cannot_self_be_parent
   validate :valid_parent_stock_must_have_same_plant

@@ -202,6 +202,23 @@ RSpec.describe "Admin::Stocks", type: :request do
 
         expect(flash[:notice]).to eq("作成しました")
       end
+
+      it "増殖方法が未設定でもStockを作成できる" do
+        params = {
+          stock: {
+            plant_id: create_plant.id,
+            location_id: create_location.id,
+            growing_method: "pot",
+            propagation_method: ""
+          }
+        }
+
+        expect {
+          post admin_stocks_path, params: params, headers: admin_headers
+        }.to change(Stock, :count).by(1)
+
+        expect(Stock.last.propagation_method).to be_nil
+      end
     end
 
     context "パラメータが不正な場合" do

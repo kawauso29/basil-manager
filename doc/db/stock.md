@@ -17,7 +17,7 @@
 | `code` | `string` | 不可 | なし | UK | 株の管理コード |
 | `status` | `string` | 不可 | なし | なし | 現在の管理状態 |
 | `growing_method` | `string` | 不可 | なし | なし | 栽培方法 |
-| `propagation_method` | `string` | 不可 | なし | なし | 増殖方法 |
+| `propagation_method` | `string` | 可 | `NULL` | なし | 増殖方法 |
 | `completion_reason` | `string` | 可 | `NULL` | なし | 育成完了理由 |
 | `completed_at` | `datetime` | 可 | `NULL` | なし | 育成完了日時 |
 | `created_at` | `datetime` | 不可 | なし | なし | 作成日時 |
@@ -29,7 +29,7 @@
 - 一意インデックス: `public_token`、`code`
 - インデックス: `plant_id`、`location_id`、`parent_stock_id`
 - `plant_id`、`location_id`、`code`、`public_token`、`status`、
-  `growing_method`、`propagation_method`は必須とする
+  `growing_method`は必須とする
 - `parent_stock_id`には自身の`id`を指定できない
 - 親株と子株の`plant_id`は同一とする
 
@@ -52,6 +52,6 @@
 - 状態の履歴は`stock_action_logs`、観察値は`stock_observations`に記録する
 - `status`は`starting`、`rooting`、`growing`のいずれかとする
 - `growing_method`は`pot`、`planter`、`flowerpot`、`water`、`other`のいずれかとする
-- `propagation_method`は`cutting_soil`、`cutting_water`、`seed`のいずれかとする
+- `propagation_method`は未設定、`cutting_soil`、`cutting_water`、`seed`のいずれかとする
 - `completion_reason`は未設定、`cultivation_ended`、`harvested`、`discarded`のいずれかとする
 - enumの日本語表示と変更手順は[`enum 運用ガイド`](../enum/README.md)に従う

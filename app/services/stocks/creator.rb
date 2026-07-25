@@ -2,7 +2,7 @@ module Stocks
   class Creator
     attr_reader :plant, :plant_id, :location_id, :growing_method, :propagation_method
 
-    def self.call(plant_id:, location_id:, growing_method:, propagation_method:)
+    def self.call(plant_id:, location_id:, growing_method:, propagation_method: nil)
       new(
           plant_id: plant_id,
           location_id: location_id,
@@ -11,7 +11,7 @@ module Stocks
       ).call
     end
 
-    def initialize(plant_id:, location_id:, growing_method:, propagation_method:)
+    def initialize(plant_id:, location_id:, growing_method:, propagation_method: nil)
       @plant_id = plant_id
       @location_id = location_id
       @growing_method = growing_method

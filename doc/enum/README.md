@@ -44,9 +44,10 @@ enum :completion_reason, {
 }, validate: { allow_blank: true }
 ```
 
-`completion_reason`は育成完了前には未設定となるため、空を許可します。
-一方、`status`、`growing_method`、`propagation_method`、
-`StockActionLog#action_type`、`Location#environment`などの必須属性には
+`completion_reason`は育成完了前、`propagation_method`は購入株など増殖方法を管理しない株では
+未設定となるため、空を許可します。
+一方、`status`、`growing_method`、`StockActionLog#action_type`、
+`Location#environment`などの必須属性には
 `allow_blank`を付けません。
 
 ## enumの利用
