@@ -1,4 +1,6 @@
 class Admin::StocksController < Admin::BaseController
+  include Admin::ImageAttachment
+
   def index
     @stocks = Stock.active.order(id: :asc)
   end
@@ -41,6 +43,7 @@ class Admin::StocksController < Admin::BaseController
 
   def update
     @stock = Stock.find(params[:id])
+    attach_resized_image(@stock, plant_params[:image])
     if @stock.update(stock_params)
       admin_update_success_message(@stock)
       redirect_to admin_stock_path(@stock)
@@ -94,6 +97,7 @@ class Admin::StocksController < Admin::BaseController
       :propagation_method,
       :completion_reason,
       :completed_at,
+      :image
     )
   end
 

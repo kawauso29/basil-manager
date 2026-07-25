@@ -7,5 +7,13 @@ id: <%= @stock.id %><br>
   code: <%= f.text_field :code, value: @stock.code %><br>
   growing_method: <%= f.select(:growing_method,  @growing_method_data, {prompt: "選択してください"}) %><br><br>
   propagation_method: <%= f.select(:propagation_method,  @propagation_method_data, {prompt: "選択してください"}) %><br><br>
+  <hr>
+  <h2>画像アップロード</h2><br>
+  <% if @stock.has_image? %>
+    現在の画像：<%= image_tag(@stock.icon_path) %><br><br>
+  <% end %>
+  <div data-controller="image-preview">
+    <%= f.file_field :image, data: { action: "change->image-preview#preview" } %><img data-image-preview-target="image" width="100" hidden><br>
+  </div>
   <%= f.submit "更新" %>
 <% end %>

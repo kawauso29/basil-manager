@@ -24,6 +24,10 @@
 
 class Stock < ActiveRecord::Base
   has_secure_token :public_token
+  has_one_attached :image do |attachable|
+    attachable.variant :icon_thumb, resize_to_limit: [ 100, 100 ], preprocessed: true
+    attachable.variant :main_thumb, resize_to_limit: [ 300, 300 ], preprocessed: true
+  end
 
   belongs_to :plant
   belongs_to :location
@@ -102,6 +106,21 @@ class Stock < ActiveRecord::Base
   end
   def has_children?
     self.child_stocks.exists?
+  end
+
+  def has_image?
+    self.image.attached?
+  end
+  def missing_image?
+    !has_image?
+  end
+  def icon_path
+    return "" if missing_image?
+    self.image.variant(:icon_thumb)
+  end
+  def thumb_path
+    return "" if missing_image?
+    self.image.variant(:main_thumb)
   end
 
   # parent_stock_idに指定されているstock_idの関連を抜き出す
