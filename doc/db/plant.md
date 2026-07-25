@@ -12,24 +12,28 @@
 | --- | --- | --- | --- | --- | --- |
 | `id` | `bigint` | 不可 | なし | PK | 植物ID |
 | `code` | `string` | 不可 | なし | UK | 植物を一意に識別するコード |
-| `name` | `string` | 不可 | なし | なし | 表示用の植物名 |
+| `prefix` | `string` | 不可 | なし | UK | 株コードに使用するプレフィックス |
+| `name` | `string` | 不可 | なし | UK | 表示用の植物名 |
+| `last_stock_number` | `integer` | 可 | `0` | なし | 最後に発行した株番号 |
 | `created_at` | `datetime` | 不可 | なし | なし | 作成日時 |
 | `updated_at` | `datetime` | 不可 | なし | なし | 更新日時 |
 
 ## インデックスと制約
 
 - 主キー: `id`
-- 一意インデックス: `code`
-- `code`と`name`は必須とする
+- 一意インデックス: `code`、`prefix`、`name`
+- `code`、`prefix`、`name`は必須とする
 
 ## 関連
 
+- `Plant has_one_attached Image`
 - `Plant has_many Stocks`
 - `stocks.plant_id`から参照される
-
-植物に紐づく株が存在する場合の削除方法は未確定です。
+- Stockが存在するPlantは削除できない
 
 ## 業務ルール
 
 - 同じ`code`を持つ植物は重複登録できない
+- 同じ`prefix`または`name`を持つ植物は重複登録できない
 - 個別の株の状態、栽培方法、増殖方法は`plants`ではなく`stocks`で管理する
+- `last_stock_number`は株コードの採番に使用し、通常の編集画面では変更しない

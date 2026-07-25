@@ -25,9 +25,11 @@
 
 ## 関連
 
+- `Location has_one_attached Image`
 - `Location has_many Stocks`
 - `Location has_many LocationObservations`
 - `stocks.location_id`と`location_observations.location_id`から参照される
+- StockまたはLocationObservationが存在するLocationは削除できない
 
 ## 業務ルール
 

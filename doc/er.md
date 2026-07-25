@@ -4,6 +4,13 @@ basil-managerで管理する業務テーブルの関連を示します。
 各テーブルのカラム、制約、業務ルールの詳細は、`db` 配下の仕様書を
 参照してください。
 
+画像はActive Storageの内部テーブルで管理するため、この業務テーブルの
+ER図には含めません。`Plant`、`Location`、`StockObservation`が
+それぞれ1枚の画像を添付できます。
+
+各履歴の`recorded_at`はNULLを許可します。記録だけを先に作成し、
+実際の記録日時を後から入力する運用があるためです。
+
 - [`plants` テーブル](db/plant.md)
 - [`stocks` テーブル](db/stock.md)
 - [`locations` テーブル](db/location.md)
@@ -21,29 +28,29 @@ erDiagram
     LOCATION ||--o{ LOCATION_OBSERVATION : has
 
     PLANT {
-        int id PK
+        bigint id PK
         string code UK
         string prefix UK
         string name UK
-        int last_stock_number
+        integer last_stock_number
     }
 
     STOCK {
-        int id PK
-        int plant_id FK
-        int location_id FK
-        int parent_stock_id FK
+        bigint id PK
+        bigint plant_id FK
+        bigint location_id FK
+        bigint parent_stock_id FK "NULL可"
         string public_token UK
         string code UK
         string status
         string growing_method
         string propagation_method
-        string completion_reason
-        datetime completed_at
+        string completion_reason "NULL可"
+        datetime completed_at "NULL可"
     }
 
     LOCATION {
-        int id PK
+        bigint id PK
         string code UK
         string prefix UK
         string name UK
@@ -51,27 +58,27 @@ erDiagram
     }
 
     STOCK_ACTION_LOG {
-        int id PK
-        int stock_id FK
+        bigint id PK
+        bigint stock_id FK
         string action_type
-        text memo
-        datetime recorded_at
+        text memo "NULL可"
+        datetime recorded_at "NULL可"
     }
 
     STOCK_OBSERVATION {
-        int id PK
-        int stock_id FK
-        decimal height_cm
-        text memo
-        datetime recorded_at
+        bigint id PK
+        bigint stock_id FK
+        decimal height_cm "NULL可"
+        text memo "NULL可"
+        datetime recorded_at "NULL可"
     }
 
     LOCATION_OBSERVATION {
-        int id PK
-        int location_id FK
-        decimal temperature
-        string weather
-        text memo
-        datetime recorded_at
+        bigint id PK
+        bigint location_id FK
+        decimal temperature "NULL可"
+        string weather "NULL可"
+        text memo "NULL可"
+        datetime recorded_at "NULL可"
     }
 ```

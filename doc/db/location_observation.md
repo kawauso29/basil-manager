@@ -32,6 +32,7 @@
 ## 業務ルール
 
 - 観察した日時は`created_at`ではなく`recorded_at`に記録する
+- 日時が未確定の場合は`recorded_at`を空にして作成し、後から入力できる
 - 測定していない項目は空にできる
 - `weather`は未設定、`sunny`、`cloudy`、`rainy`、`snowy`のいずれかとする
 - 数値で表せない環境情報は`weather`または`memo`に記録する
