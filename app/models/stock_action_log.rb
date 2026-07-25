@@ -17,7 +17,7 @@ class StockActionLog < ActiveRecord::Base
   enum :action_type, {
     seed_sown: "seed_sown",
     cutting_started: "cutting_started",
-    aater_started: "water_started",
+    water_started: "water_started",
     watered: "watered",
     fertilized: "fertilized",
     pinched: "pinched",
