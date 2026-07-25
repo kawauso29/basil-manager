@@ -43,7 +43,7 @@ class Admin::StocksController < Admin::BaseController
 
   def update
     @stock = Stock.find(params[:id])
-    attach_resized_image(@stock, plant_params[:image])
+    attach_resized_image(@stock, stock_params[:image])
     if @stock.update(stock_params)
       admin_update_success_message(@stock)
       redirect_to admin_stock_path(@stock)
