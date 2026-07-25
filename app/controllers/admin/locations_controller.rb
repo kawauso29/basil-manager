@@ -2,7 +2,7 @@ class Admin::LocationsController < Admin::BaseController
   include Admin::ImageAttachment
 
   def index
-    @locations = Location.all
+    @locations = Location.all.order(id: :asc)
   end
 
   def new

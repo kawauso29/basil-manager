@@ -2,7 +2,7 @@ class Admin::PlantsController < Admin::BaseController
   include Admin::ImageAttachment
 
   def index
-    @plants = Plant.all
+    @plants = Plant.all.order(id: :asc)
   end
 
   def new

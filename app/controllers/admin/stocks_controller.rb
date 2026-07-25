@@ -1,6 +1,6 @@
 class Admin::StocksController < Admin::BaseController
   def index
-    @stocks = Stock.all
+    @stocks = Stock.active.order(id: :asc)
   end
 
   def new
