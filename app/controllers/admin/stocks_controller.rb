@@ -83,7 +83,10 @@ class Admin::StocksController < Admin::BaseController
     @propagation_method_data = Stock.propagation_methods_i18n.map { |key, name| [ name, key ] }
     @status_data = Stock.statuses_i18n.map { |key, name| [ name, key ] }
     @completion_reason_data = Stock.completion_reasons_i18n.map { |key, name| [ name, key ] }
-    @parent_data = Stock.active.where.not(id: params[:id]).pluck(:code, :id)
+    @parent_data = Stock.active.where.not(id: params[:id]).map do |stock|
+      label = "#{stock.plant.name}(id:#{stock.id}, code:#{stock.code})"
+      [label, stock.id]
+    end
   end
 
   def stock_params
