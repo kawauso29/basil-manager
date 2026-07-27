@@ -68,9 +68,12 @@ RSpec.describe "Admin::Stocks", type: :request do
   describe "GET /admin/stocks" do
     it "保存済みのStockが一覧に表示される" do
       stock = create_stock
-      stock2 = create_stock
+      stock.update!(memo: "遮光ラックの上段")
+      create_stock
       get admin_stocks_path, headers: admin_headers
       expect(response).to have_http_status(:ok)
+      expect(response.body).to include("遮光ラックの上段")
+      expect(response.body).to include(stock.created_at.strftime("%Y/%m/%d"))
     end
   end
 
