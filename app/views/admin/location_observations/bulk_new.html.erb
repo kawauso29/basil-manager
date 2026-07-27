@@ -1,17 +1,14 @@
+<div class="page-header"><div><h1 class="page-title">場所の記録を一括作成</h1><p class="page-subtitle">同じ環境情報を複数の場所へ記録します。</p></div></div>
 <%= form_with(
       scope: :location_observation,
       url: bulk_create_admin_location_observations_path,
-      method: :post
+      method: :post,
+      class: "form-card"
     ) do |f| %>
-  location: <%= f.collection_check_boxes(:location_ids,  @locations, :id, :name,  { include_hidden: false, checked: @locations.pluck(:id) }) do |checkbox| %>
-    <%= checkbox.check_box %>
-    <%= checkbox.label %>
-  <% end %>
-  <br>
-  weather: <%= f.select(:weather,  @weather_data, {prompt: "選択してください"}) %><br>
-  temperature: <%= f.number_field(:temperature) %><br>
-  memo: <%= f.text_area :memo %><br>
-  recorded_at: <%= f.datetime_local_field :recorded_at, value: @recorded_at %><br>
-
+  <div class="form-field"><label>場所</label><div class="checkbox-list"><%= f.collection_check_boxes(:location_ids, @locations, :id, :name, { include_hidden: false, checked: @locations.pluck(:id) }) do |checkbox| %><%= checkbox.label { checkbox.check_box + checkbox.text } %><% end %></div></div>
+  <div class="form-field"><%= f.label :weather, "天候" %><%= f.select :weather, @weather_data, prompt: "選択してください" %></div>
+  <div class="form-field"><%= f.label :temperature, "気温（℃）" %><%= f.number_field :temperature, step: 0.1 %></div>
+  <div class="form-field"><%= f.label :memo, "メモ" %><%= f.text_area :memo %></div>
+  <div class="form-field"><%= f.label :recorded_at, "記録日時" %><%= f.datetime_local_field :recorded_at, value: @recorded_at %></div>
   <%= f.submit "作成" %>
 <% end %>

@@ -1,27 +1,11 @@
-<% @stocks.each do |stock| %>
-  <%= stock.id %>
-    /
-  <%= stock.plant.name %>
-    /
-  <%= stock.location.name %>
-    /
-  <%= stock.code %>
-    /
-  <%= stock.status_i18n %>
-    /
-  <%= stock.growing_method_i18n %>
-    /
-  <%= stock.propagation_method_i18n %>
-    /
-  <%= stock.quantity %>株
-    /
-  <%= stock.parent? ? "親株" : "" %>
-    /
-  <%= stock.child? ? "子株" : "" %>
-    /
-  <%= stock.has_children? ? "子を持つ" : "子を持たない" %>
-    /
-  <%= link_to "詳細", admin_stock_path(stock) %><br>
-<% end %>
-
-<%= link_to "新規作成", new_admin_stock_path %>
+<div class="page-header"><div><h1 class="page-title">株</h1><p class="page-subtitle">現在育成中の管理単位を一覧で確認できます。</p></div><div class="page-actions"><%= link_to "株を作成", new_admin_stock_path, class: "button" %></div></div>
+<section class="panel table-wrap">
+  <% if @stocks.any? %>
+    <table><thead><tr><th>画像</th><th>コード</th><th>植物</th><th>場所</th><th>状態</th><th>栽培方法</th><th>数量</th><th></th></tr></thead><tbody>
+      <% @stocks.each do |stock| %><tr>
+        <td><%= image_tag(stock.icon_path, class: "thumbnail", alt: "") if stock.has_image? %></td>
+        <td><strong><%= stock.code %></strong></td><td><%= stock.plant.name %></td><td><%= stock.location.name %></td><td><span class="status status--<%= stock.status %>"><%= stock.status_i18n %></span></td><td><%= stock.growing_method_i18n %></td><td><%= stock.quantity %> 株</td><td><%= link_to "詳細", admin_stock_path(stock) %></td>
+      </tr><% end %>
+    </tbody></table>
+  <% else %><p class="empty-state">育成中の株はありません。</p><% end %>
+</section>

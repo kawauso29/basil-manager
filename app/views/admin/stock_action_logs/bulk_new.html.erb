@@ -1,32 +1,20 @@
-<h1>屋外の株へ水やりを一括記録</h1>
+<div class="page-header"><div><h1 class="page-title">水やりを一括記録</h1><p class="page-subtitle">屋外で育成中の株を選択して、水やりを記録します。</p></div></div>
 
 <%= form_with(
       scope: :stock_action_log,
       url: bulk_create_admin_stock_action_logs_path,
-      method: :post
+      method: :post,
+      class: "form-card"
     ) do |f| %>
-  対象株:
-  <%= f.collection_check_boxes(
-        :stock_ids,
-        @stocks,
-        :id,
-        :code,
-        { include_hidden: false, checked: @selected_stock_ids }
-      ) do |checkbox| %>
-    <%= checkbox.check_box %>
-    <%= checkbox.label do %>
-      <%= checkbox.object.code %>
-      /
-      <%= checkbox.object.plant.name %>
-      /
-      <%= checkbox.object.location.name %>
+  <div class="form-field"><label>対象株</label><div class="checkbox-list">
+    <%= f.collection_check_boxes(:stock_ids, @stocks, :id, :code, { include_hidden: false, checked: @selected_stock_ids }) do |checkbox| %>
+      <%= checkbox.label do %>
+        <%= checkbox.check_box %>
+        <%= checkbox.object.code %> / <%= checkbox.object.plant.name %> / <%= checkbox.object.location.name %>
+      <% end %>
     <% end %>
-  <% end %>
-  <br>
-
-  memo: <%= f.text_area :memo, value: @memo %><br>
-  recorded_at:
-  <%= f.datetime_local_field :recorded_at, value: @recorded_at %><br>
-
+  </div></div>
+  <div class="form-field"><%= f.label :memo, "メモ" %><%= f.text_area :memo, value: @memo %></div>
+  <div class="form-field"><%= f.label :recorded_at, "作業日時" %><%= f.datetime_local_field :recorded_at, value: @recorded_at %></div>
   <%= f.submit "水やりを一括記録" %>
 <% end %>

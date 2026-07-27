@@ -1,16 +1,29 @@
-<hr>
-# link<br>
-<%= link_to "stocks", admin_stocks_path %><br>
-<%= link_to "stock_action_logs", admin_stock_action_logs_path %><br>
-<%= link_to "stock_observations", admin_stock_observations_path %><br>
-<%= link_to "plants", admin_plants_path %><br>
-<%= link_to "locations", admin_locations_path %><br>
-<%= link_to "location_observations", admin_location_observations_path %><br>
-<%= link_to "CSVを出力", admin_data_export_path %><br>
-<hr>
-# アクション<br>
-<%= link_to "株作成", new_admin_stock_path %><br>
-<%= link_to "株アクションログ作成", new_admin_stock_action_log_path %><br>
-<%= link_to "屋外の株へ水やりを一括記録", bulk_new_admin_stock_action_logs_path %><br>
-<%= link_to "株観察ログ作成", new_admin_stock_observation_path %><br>
-<%= link_to "ロケーションログ作成", new_admin_location_observation_path %><br>
+<div class="page-header">
+  <div>
+    <h1 class="page-title">管理ダッシュボード</h1>
+    <p class="page-subtitle">植物、株、場所と日々の記録をまとめて管理します。</p>
+  </div>
+</div>
+
+<section class="panel">
+  <h2>管理データ</h2>
+  <div class="page-actions">
+    <%= link_to "株", admin_stocks_path, class: "button button-secondary" %>
+    <%= link_to "植物", admin_plants_path, class: "button button-secondary" %>
+    <%= link_to "場所", admin_locations_path, class: "button button-secondary" %>
+    <%= link_to "作業履歴", admin_stock_action_logs_path, class: "button button-secondary" %>
+    <%= link_to "観察記録", admin_stock_observations_path, class: "button button-secondary" %>
+    <%= link_to "場所の記録", admin_location_observations_path, class: "button button-secondary" %>
+  </div>
+</section>
+
+<section class="panel">
+  <h2>よく使う操作</h2>
+  <div class="page-actions">
+    <%= link_to "株を作成", new_admin_stock_path, class: "button" %>
+    <%= link_to "作業を記録", new_admin_stock_action_log_path, class: "button button-secondary" %>
+    <%= link_to "水やりを一括記録", bulk_new_admin_stock_action_logs_path, class: "button button-secondary" %>
+    <%= link_to "観察を記録", new_admin_stock_observation_path, class: "button button-secondary" %>
+    <%= link_to "CSVを出力", admin_data_export_path, class: "button button-secondary" %>
+  </div>
+</section>

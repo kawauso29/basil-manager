@@ -1,5 +1,10 @@
-<% @locations.each do |location| %>
-  <%= location.id %> / <%= location.name %> / <%= location.code %> / <%= location.prefix %> / <%= location.environment_i18n %> / <%= link_to "詳細", admin_location_path(location) %><br>
-<% end %>
-
-<%= link_to "新規作成", new_admin_location_path %>
+<div class="page-header"><div><h1 class="page-title">場所</h1><p class="page-subtitle">栽培・保管場所を管理します。</p></div><div class="page-actions"><%= link_to "場所を追加", new_admin_location_path, class: "button" %></div></div>
+<section class="panel table-wrap">
+  <% if @locations.any? %>
+    <table><thead><tr><th>画像</th><th>名前</th><th>コード</th><th>プレフィックス</th><th>環境</th><th></th></tr></thead><tbody>
+      <% @locations.each do |location| %><tr>
+        <td><%= image_tag(location.icon_path, class: "thumbnail", alt: "") if location.has_image? %></td><td><%= location.name %></td><td><%= location.code %></td><td><%= location.prefix %></td><td><span class="tag"><%= location.environment_i18n %></span></td><td><%= link_to "詳細", admin_location_path(location) %></td>
+      </tr><% end %>
+    </tbody></table>
+  <% else %><p class="empty-state">登録されている場所はありません。</p><% end %>
+</section>

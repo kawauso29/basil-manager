@@ -1,20 +1,8 @@
-id: <%= stock.id %><br>
-image: <%= image_tag(stock.thumb_path) %><br>
-plant_name: <%= stock.plant.name %><br>
-location_name: <%= stock.location.name %><br>
-code: <%= stock.code %><br>
-public_token: <%= stock.public_token %><br>
-status: <%= stock.status_i18n %><br>
-growing_method: <%= stock.growing_method_i18n %><br>
-propagation_method: <%= stock.propagation_method_i18n %><br>
-quantity: <%= stock.quantity %><br>
-memo: <%= stock.memo %><br>
-completion_reason: <%= stock.completion_reason_i18n %><br>
-completed_at: <%= stock.completed_at %><br>
-parent? : <%= stock.parent? %><br>
-child? : <%= stock.child? %><br>
-has_children? :<%= stock.has_children? %><br>
-作成日: <%= stock.created_at %><br>
-更新日: <%= stock.updated_at %><br>
-<%= link_to "詳細", admin_stock_path(stock) %><br>
-<%= link_to "編集", edit_admin_stock_path(stock) %><br>
+<article class="stock-card">
+  <div class="stock-card-header">
+    <%= image_tag(stock.icon_path, class: "thumbnail", alt: "") if stock.has_image? %>
+    <div><h3 class="stock-card-title"><%= stock.code %></h3><span class="status status--<%= stock.status %>"><%= stock.status_i18n %></span></div>
+  </div>
+  <dl class="detail-list"><dt>植物</dt><dd><%= stock.plant.name %></dd><dt>場所</dt><dd><%= stock.location.name %></dd><dt>数量</dt><dd><%= stock.quantity %> 株</dd><dt>栽培方法</dt><dd><%= stock.growing_method_i18n %></dd><dt>増殖方法</dt><dd><%= stock.propagation_method_i18n || "未設定" %></dd><dt>メモ</dt><dd><%= stock.memo.presence || "—" %></dd></dl>
+  <div class="stock-card-actions"><%= link_to "詳細", admin_stock_path(stock) %><%= link_to "編集", edit_admin_stock_path(stock) %></div>
+</article>

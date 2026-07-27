@@ -1,17 +1,8 @@
-id: <%= @stock_observation.id %><br>
-stock_code: <%= @stock.code %><br>
-location_name: <%= @location.name %>
-plant_name: <%= @plant.name %><br>
-<%= form_with model: [:admin, @stock_observation] do |f| %>
-  height_cm:  <%= f.number_field(:height_cm) %><br>
-  memo: <%= f.text_area :memo %><br>
-  recorded_at: <%= f.datetime_local_field :recorded_at %><br>
-  <h2>画像アップロード</h2><br>
-  <% if @stock_observation.has_image? %>
-    現在の画像：<%= image_tag(@location.icon_path) %><br><br>
-  <% end %>
-  <div data-controller="image-preview">
-    <%= f.file_field :image, data: { action: "change->image-preview#preview" } %><img data-image-preview-target="image" width="100" hidden><br>
-  </div>
+<div class="page-header"><div><h1 class="page-title">観察記録を編集</h1><p class="page-subtitle"><%= @stock.code %> / <%= @plant.name %> / <%= @location.name %></p></div></div>
+<%= form_with model: [:admin, @stock_observation], class: "form-card" do |f| %>
+  <div class="form-field"><%= f.label :height_cm, "高さ（cm）" %><%= f.number_field :height_cm, step: 0.1 %></div>
+  <div class="form-field"><%= f.label :memo, "メモ" %><%= f.text_area :memo %></div>
+  <div class="form-field"><%= f.label :recorded_at, "観察日時" %><%= f.datetime_local_field :recorded_at %></div>
+  <div class="form-field" data-controller="image-preview"><%= f.label :image, "画像" %><%= image_tag(@stock_observation.image_small_path, class: "thumbnail", alt: "現在の画像") if @stock_observation.has_image? %><%= f.file_field :image, data: { action: "change->image-preview#preview" } %><img data-image-preview-target="image" width="100" hidden></div>
   <%= f.submit "更新" %>
 <% end %>

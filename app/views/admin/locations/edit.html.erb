@@ -1,16 +1,9 @@
-id: <%= @location.id %><br>
-<%= form_with model: [:admin, @location] do |f| %>
-  name: <%= f.text_field :name, value: @location.name %><br>
-  code: <%= f.text_field :code, value: @location.code %><br>
-  prefix: <%= f.text_field :prefix, value: @location.prefix %><br>
-  environment: <%= f.select :environment, @environment_data, prompt: "選択してください" %><br>
-  <hr>
-  <h2>画像アップロード</h2><br>
-  <% if @location.has_image? %>
-    現在の画像：<%= image_tag(@location.icon_path) %><br><br>
-  <% end %>
-  <div data-controller="image-preview">
-    <%= f.file_field :image, data: { action: "change->image-preview#preview" } %><img data-image-preview-target="image" width="100" hidden><br>
-  </div>
+<div class="page-header"><div><h1 class="page-title">場所を編集</h1><p class="page-subtitle"><%= @location.name %>（ID: <%= @location.id %>）</p></div></div>
+<%= form_with model: [:admin, @location], class: "form-card" do |f| %>
+  <div class="form-field"><%= f.label :name, "名前" %><%= f.text_field :name %></div>
+  <div class="form-field"><%= f.label :code, "コード" %><%= f.text_field :code %></div>
+  <div class="form-field"><%= f.label :prefix, "プレフィックス" %><%= f.text_field :prefix %></div>
+  <div class="form-field"><%= f.label :environment, "環境" %><%= f.select :environment, @environment_data, prompt: "選択してください" %></div>
+  <div class="form-field" data-controller="image-preview"><%= f.label :image, "画像" %><%= image_tag(@location.icon_path, class: "thumbnail", alt: "現在の画像") if @location.has_image? %><%= f.file_field :image, data: { action: "change->image-preview#preview" } %><img data-image-preview-target="image" width="100" hidden></div>
   <%= f.submit "更新" %>
 <% end %>

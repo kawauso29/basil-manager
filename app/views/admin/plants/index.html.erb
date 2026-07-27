@@ -1,5 +1,23 @@
-<% @plants.each do |plant| %>
-  <%= plant.id %> / <%= plant.name %> / <%= plant.code %> / <%= plant.prefix %> / <%= link_to "詳細", admin_plant_path(plant) %><br>
-<% end %>
+<div class="page-header">
+  <div><h1 class="page-title">植物</h1><p class="page-subtitle">植物の種類と株コードのプレフィックスを管理します。</p></div>
+  <div class="page-actions"><%= link_to "植物を追加", new_admin_plant_path, class: "button" %></div>
+</div>
 
-<%= link_to "新規作成", new_admin_plant_path %>
+<section class="panel table-wrap">
+  <% if @plants.any? %>
+    <table>
+      <thead><tr><th>画像</th><th>名前</th><th>コード</th><th>プレフィックス</th><th>最終株番号</th><th></th></tr></thead>
+      <tbody>
+        <% @plants.each do |plant| %>
+          <tr>
+            <td><%= image_tag(plant.icon_path, class: "thumbnail", alt: "") if plant.has_image? %></td>
+            <td><%= plant.name %></td><td><%= plant.code %></td><td><%= plant.prefix %></td><td><%= plant.last_stock_number %></td>
+            <td><%= link_to "詳細", admin_plant_path(plant) %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% else %>
+    <p class="empty-state">登録されている植物はありません。</p>
+  <% end %>
+</section>

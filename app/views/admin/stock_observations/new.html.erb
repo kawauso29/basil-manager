@@ -1,12 +1,9 @@
-<%= form_with model: [:admin, @stock_observation] do |f| %>
-  stock: <%= f.select(:stock_id,  @stock_data, {prompt: "選択してください"}) %><br>
-  height_cm:  <%= f.number_field(:height_cm) %><br>
-  memo: <%= f.text_area :memo %><br>
-  recorded_at: <%= f.datetime_local_field :recorded_at %><br>
-  <hr>
-  <h2>画像アップロード</h2><br>
-  <div data-controller="image-preview">
-    <%= f.file_field :image, data: { action: "change->image-preview#preview" } %><img data-image-preview-target="image" width="100" hidden><br>
-  </div>
-  <%= f.submit "作成" %>
+<div class="page-header"><h1 class="page-title">観察を記録</h1></div>
+<%= form_with model: [:admin, @stock_observation], class: "form-card" do |f| %>
+  <div class="form-field"><%= f.label :stock_id, "株" %><%= f.select :stock_id, @stock_data, prompt: "選択してください" %></div>
+  <div class="form-field"><%= f.label :height_cm, "高さ（cm）" %><%= f.number_field :height_cm, step: 0.1 %></div>
+  <div class="form-field"><%= f.label :memo, "メモ" %><%= f.text_area :memo %></div>
+  <div class="form-field"><%= f.label :recorded_at, "観察日時" %><%= f.datetime_local_field :recorded_at %></div>
+  <div class="form-field" data-controller="image-preview"><%= f.label :image, "画像" %><%= f.file_field :image, data: { action: "change->image-preview#preview" } %><img data-image-preview-target="image" width="100" hidden></div>
+  <%= f.submit "記録" %>
 <% end %>

@@ -1,7 +1,8 @@
-<%= form_with model: [:admin, @location] do |f| %>
-  name: <%= f.text_field :name, placeholder: "名前" %><br>
-  code: <%= f.text_field :code, placeholder: "コード" %><br>
-  prefix: <%= f.text_field :prefix, placeholder: "プレフィックス" %><br>
-  environment: <%= f.select :environment, @environment_data, prompt: "選択してください" %><br>
+<div class="page-header"><h1 class="page-title">場所を追加</h1></div>
+<%= form_with model: [:admin, @location], class: "form-card" do |f| %>
+  <div class="form-field"><%= f.label :name, "名前" %><%= f.text_field :name, placeholder: "例: キッチン裏" %></div>
+  <div class="form-field"><%= f.label :code, "コード" %><%= f.text_field :code, placeholder: "例: kitchen_back" %></div>
+  <div class="form-field"><%= f.label :prefix, "プレフィックス" %><%= f.text_field :prefix, placeholder: "例: KTB" %></div>
+  <div class="form-field"><%= f.label :environment, "環境" %><%= f.select :environment, @environment_data, prompt: "選択してください" %></div>
   <%= f.submit "作成" %>
 <% end %>

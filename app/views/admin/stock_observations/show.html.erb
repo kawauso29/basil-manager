@@ -1,18 +1,3 @@
-id: <%= @stock_observation.id %><br>
-image: <%= image_tag(@stock_observation.image_small_path) %><br>
-stock_code: <%= @stock.code %><br>
-location_name: <%= @location.name %>
-plant_name: <%= @plant.name %><br>
-height_cm: <%= @stock_observation.height_cm %><br>
-memo: <%= @stock_observation.memo %><br>
-recorded_at: <%= @stock_observation.recorded_at %><br>
-
-
-<%= link_to "編集", edit_admin_stock_observation_path(@stock_observation) %><br><br>
-<%= link_to "一覧に戻る", admin_stock_observations_path %><br><br>
-
-<%= form_with model: [:admin, @stock_observation], method: :delete do |f| %>
-  <%= f.submit "削除", data: { turbo_confirm: "本当に削除しますか？" } %>
-<% end %>
-
-
+<div class="page-header"><div><h1 class="page-title">観察記録</h1><p class="page-subtitle"><%= @stock.code %> / <%= @plant.name %></p></div><div class="page-actions"><%= link_to "編集", edit_admin_stock_observation_path(@stock_observation), class: "button" %><%= link_to "一覧へ戻る", admin_stock_observations_path, class: "button button-secondary" %></div></div>
+<section class="detail-card detail-layout"><dl class="detail-list"><dt>場所</dt><dd><%= @location.name %></dd><dt>高さ</dt><dd><%= @stock_observation.height_cm %> cm</dd><dt>観察日時</dt><dd><%= @stock_observation.recorded_at&.strftime("%Y/%m/%d %H:%M") || "未設定" %></dd><dt>メモ</dt><dd><%= @stock_observation.memo.presence || "—" %></dd></dl><%= image_tag(@stock_observation.image_normal_path, class: "record-image", alt: "観察画像") if @stock_observation.has_image? %></section>
+<%= form_with model: [:admin, @stock_observation], method: :delete, class: "inline-form" do |f| %><%= f.submit "削除", class: "button-danger", data: { turbo_confirm: "本当に削除しますか？" } %><% end %>

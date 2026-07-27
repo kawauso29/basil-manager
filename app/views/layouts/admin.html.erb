@@ -24,30 +24,35 @@
   </head>
 
   <body>
-    <header>
-      # link<br>
-      <%= link_to "Top", admin_root_path %>
-      <%= link_to "Stocks", admin_stocks_path %>
-      <%= link_to "StockActionLogs", admin_stock_action_logs_path %>
-      <%= link_to "StockObservations", admin_stock_observations_path %>
-      <%= link_to "Plants", admin_plants_path %>
-      <%= link_to "Locations", admin_locations_path %>
-      <%= link_to "LocationObservations", admin_location_observations_path %>
-      <%= link_to "CSVを出力", admin_data_export_path %>
-      <hr>
-      # アクション<br>
-      <%= link_to "株作成", new_admin_stock_path %>
-      <%= link_to "株アクションログ作成", new_admin_stock_action_log_path %>
-      <%= link_to "屋外の株へ水やりを一括記録", bulk_new_admin_stock_action_logs_path %>
-      <%= link_to "株観察ログ作成", new_admin_stock_observation_path %>
-      <%= link_to "ロケーションログ作成", new_admin_location_observation_path %>
-      <hr>
-    </header>
-    <div class="flash-container">
-      <% flash.each do |type, message| %>
-        <div class="<%= type %>"><%= message %></div>
-      <% end %>
+    <div class="app-shell">
+      <header class="app-header">
+        <div class="header-inner">
+          <%= link_to "Basil Manager", admin_root_path, class: "brand" %>
+          <nav class="primary-nav" aria-label="メインメニュー">
+            <%= link_to "株", admin_stocks_path %>
+            <%= link_to "植物", admin_plants_path %>
+            <%= link_to "場所", admin_locations_path %>
+            <%= link_to "作業履歴", admin_stock_action_logs_path %>
+            <%= link_to "観察記録", admin_stock_observations_path %>
+            <%= link_to "場所の記録", admin_location_observations_path %>
+          </nav>
+          <%= link_to "CSVを出力", admin_data_export_path, class: "button button-secondary header-export" %>
+        </div>
+        <nav class="quick-nav" aria-label="よく使う操作">
+          <%= link_to "株を作成", new_admin_stock_path %>
+          <%= link_to "作業を記録", new_admin_stock_action_log_path %>
+          <%= link_to "水やりを一括記録", bulk_new_admin_stock_action_logs_path %>
+          <%= link_to "観察を記録", new_admin_stock_observation_path %>
+          <%= link_to "場所の記録を追加", new_admin_location_observation_path %>
+        </nav>
+      </header>
+
+      <main class="app-main">
+        <% flash.each do |type, message| %>
+          <div class="flash flash--<%= type %>"><%= message %></div>
+        <% end %>
+        <%= yield %>
+      </main>
     </div>
-    <%= yield %>
   </body>
 </html>

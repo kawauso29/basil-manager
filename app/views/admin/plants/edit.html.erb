@@ -1,16 +1,13 @@
-id: <%= @plant.id %><br>
-<%= form_with model: [:admin, @plant] do |f| %>
-  name: <%= f.text_field :name, value: @plant.name %><br>
-  code: <%= f.text_field :code, value: @plant.code %><br>
-  prefix: <%= f.text_field :prefix, value: @plant.prefix %><br>
-  last_stock_number: <%= @plant.last_stock_number %>(編集不可)<br>
-  <hr>
-  <h2>画像アップロード</h2><br>
-  <% if @plant.has_image? %>
-    現在の画像：<%= image_tag(@plant.icon_path) %><br><br>
-  <% end %>
-  <div data-controller="image-preview">
-    <%= f.file_field :image, data: { action: "change->image-preview#preview" } %><img data-image-preview-target="image" width="100" hidden><br>
+<div class="page-header"><div><h1 class="page-title">植物を編集</h1><p class="page-subtitle"><%= @plant.name %>（ID: <%= @plant.id %>）</p></div></div>
+<%= form_with model: [:admin, @plant], class: "form-card" do |f| %>
+  <div class="form-field"><%= f.label :name, "名前" %><%= f.text_field :name %></div>
+  <div class="form-field"><%= f.label :code, "コード" %><%= f.text_field :code %></div>
+  <div class="form-field"><%= f.label :prefix, "プレフィックス" %><%= f.text_field :prefix %></div>
+  <p class="form-hint">最終株番号: <%= @plant.last_stock_number %>（自動管理）</p>
+  <div class="form-field" data-controller="image-preview">
+    <%= f.label :image, "画像" %>
+    <%= image_tag(@plant.icon_path, class: "thumbnail", alt: "現在の画像") if @plant.has_image? %>
+    <%= f.file_field :image, data: { action: "change->image-preview#preview" } %><img data-image-preview-target="image" width="100" hidden>
   </div>
   <%= f.submit "更新" %>
 <% end %>

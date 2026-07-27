@@ -1,7 +1,8 @@
-<%= form_with model: [:admin, @stock_action_log] do |f| %>
-  stock: <%= f.select(:stock_id,  @stock_data, {prompt: "選択してください"}) %><br>
-  action_type: <%= f.select(:action_type, @action_type_data, {prompt: "選択してください"}) %><br>
-  memo: <%= f.text_area :memo %><br>
-  recorded_at: <%= f.datetime_local_field :recorded_at %><br>
-  <%= f.submit "作成" %>
+<div class="page-header"><h1 class="page-title">作業を記録</h1></div>
+<%= form_with model: [:admin, @stock_action_log], class: "form-card" do |f| %>
+  <div class="form-field"><%= f.label :stock_id, "株" %><%= f.select :stock_id, @stock_data, prompt: "選択してください" %></div>
+  <div class="form-field"><%= f.label :action_type, "作業内容" %><%= f.select :action_type, @action_type_data, prompt: "選択してください" %></div>
+  <div class="form-field"><%= f.label :memo, "メモ" %><%= f.text_area :memo %></div>
+  <div class="form-field"><%= f.label :recorded_at, "作業日時" %><%= f.datetime_local_field :recorded_at %></div>
+  <%= f.submit "記録" %>
 <% end %>

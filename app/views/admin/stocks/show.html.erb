@@ -1,51 +1,12 @@
+<div class="page-header"><div><h1 class="page-title"><%= @stock.code %></h1><p class="page-subtitle"><%= @stock.plant.name %> / <%= @stock.location.name %></p></div><div class="page-actions"><%= link_to "編集", edit_admin_stock_path(@stock), class: "button" %><%= link_to "一覧へ戻る", admin_stocks_path, class: "button button-secondary" %></div></div>
 <%= render "/admin/stocks/stock_attr", stock: @stock %>
 
-<%= link_to "アクションログ作成", new_admin_stock_action_log_path(stock_id: @stock.id) %>
-<%= link_to "観察ログ作成",      new_admin_stock_observation_path(stock_id: @stock.id) %>
-<%= link_to "一覧に戻る", admin_stocks_path %><br>
+<section class="panel"><h2>記録を追加</h2><div class="page-actions"><%= link_to "作業を記録", new_admin_stock_action_log_path(stock_id: @stock.id), class: "button button-secondary" %><%= link_to "観察を記録", new_admin_stock_observation_path(stock_id: @stock.id), class: "button button-secondary" %></div></section>
 
-<h2>数量変更</h2>
-<%= form_with url: change_quantity_admin_stock_path(@stock), method: :patch, scope: :stock_quantity do |f| %>
-  数量: <%= f.number_field :quantity, value: @stock.quantity, min: 1 %><br>
-  変更理由: <%= f.text_area :memo %><br>
-  <%= f.submit "数量を変更" %>
-<% end %>
+<section class="form-card"><h2>数量を変更</h2><%= form_with url: change_quantity_admin_stock_path(@stock), method: :patch, scope: :stock_quantity do |f| %><div class="form-field"><%= f.label :quantity, "数量" %><%= f.number_field :quantity, value: @stock.quantity, min: 1 %></div><div class="form-field"><%= f.label :memo, "変更理由" %><%= f.text_area :memo %></div><%= f.submit "数量を変更" %><% end %></section>
 
-<%= form_with model: [:admin, @stock], method: :delete do |f| %>
-  <%= f.submit "削除", data: { turbo_confirm: "本当に削除しますか？" } %>
-<% end %>
+<section class="panel"><h2>履歴</h2><%= render "/admin/stocks/logs", logs: @stock_logs %></section>
 
-<%= render "/admin/stocks/logs", logs: @stock_logs %>
+<section class="panel"><h2>系譜</h2><dl class="detail-list"><dt>親株</dt><dd><% if @stock.has_parent? %><%= link_to @stock.parent_stock.code, admin_stock_path(@stock.parent_stock) %><% else %>なし<% end %></dd><dt>子株</dt><dd><%= @stock.child_stocks.count %> 件</dd></dl><% @stock.child_stocks.each do |child_stock| %><%= render "/admin/stocks/stock_attr", stock: child_stock %><% end %></section>
 
-# 親株かどうか<br>
-<% if @stock.parent? %>
-親株
-<% else %>
-not親株
-<% end %><br>
-
-# 子株かどうか<br>
-<% if @stock.child? %>
-子株
-<% else %>
-not子株
-<% end %><br>
-
-# 親株を持つかどうか<br>
-<% if @stock.has_parent? %>
-親株を持つ<br>
-  L <%= @stock.parent_stock.code %>, <%= link_to("親株詳細", admin_stock_path(@stock.parent_stock)) %>
-<% else %>
-親株を持たない
-<% end %><br>
-
-# 子供を持つかどうか<br>
-<% if @stock.has_children? %>
-  子を持つ<br>
- <% @stock.child_stocks.each do |child_stock| %>
-    <%= render "/admin/stocks/stock_attr", stock: child_stock %>
- <% end %>
-<% else %>
-子を持たない
-<% end %>
-
+<%= form_with model: [:admin, @stock], method: :delete, class: "inline-form" do |f| %><%= f.submit "削除", class: "button-danger", data: { turbo_confirm: "本当に削除しますか？" } %><% end %>

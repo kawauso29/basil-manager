@@ -1,22 +1,2 @@
-<% @stock_observations.each do |stock_observation| %>
-  <% stock = stock_observation.stock %>
-  <% location = stock.location %>
-  <% plant = stock.plant %>
-
-  <%= stock_observation.id %>
-    /
-  <%= stock_observation.stock.code %>
-    /
-  <%= location.name %> - <%= plant.name %>
-    /
-  <%= stock_observation.height_cm %>
-   /
-  <%= stock_observation.memo %>
-   /
-  <%= stock_observation.recorded_at&.strftime("%Y年%m月%d日%H時")  %>
-   /
-  <%= link_to "詳細", admin_stock_observation_path(stock_observation) %><br>
-<% end %>
-
-<%= link_to "新規作成", new_admin_stock_observation_path %>
-
+<div class="page-header"><div><h1 class="page-title">観察記録</h1><p class="page-subtitle">株の高さや生育の様子を記録します。</p></div><div class="page-actions"><%= link_to "観察を記録", new_admin_stock_observation_path, class: "button" %></div></div>
+<section class="panel table-wrap"><% if @stock_observations.any? %><table><thead><tr><th>画像</th><th>日時</th><th>株</th><th>植物 / 場所</th><th>高さ</th><th>メモ</th><th></th></tr></thead><tbody><% @stock_observations.each do |observation| %><tr><td><%= image_tag(observation.image_small_path, class: "thumbnail", alt: "") if observation.has_image? %></td><td><%= observation.recorded_at&.strftime("%Y/%m/%d %H:%M") || "未設定" %></td><td><%= observation.stock.code %></td><td><%= observation.stock.plant.name %> / <%= observation.stock.location.name %></td><td><%= observation.height_cm %> cm</td><td><%= observation.memo %></td><td><%= link_to "詳細", admin_stock_observation_path(observation) %></td></tr><% end %></tbody></table><% else %><p class="empty-state">観察記録はまだありません。</p><% end %></section>

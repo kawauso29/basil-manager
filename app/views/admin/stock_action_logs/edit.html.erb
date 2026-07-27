@@ -1,10 +1,7 @@
-id: <%= @stock_action_log.id %><br>
-stock_code: <%= @stock.code %><br>
-location_name: <%= @location.name %>
-plant_name: <%= @plant.name %><br>
-<%= form_with model: [:admin, @stock_action_log] do |f| %>
-  action_type: <%= f.select(:action_type, @action_type_data, {prompt: "選択してください"}) %><br><br>
-  memo: <%= f.text_area :memo %><br>
-  recorded_at: <%= f.datetime_local_field :recorded_at %><br>
+<div class="page-header"><div><h1 class="page-title">作業履歴を編集</h1><p class="page-subtitle"><%= @stock.code %> / <%= @plant.name %> / <%= @location.name %></p></div></div>
+<%= form_with model: [:admin, @stock_action_log], class: "form-card" do |f| %>
+  <div class="form-field"><%= f.label :action_type, "作業内容" %><%= f.select :action_type, @action_type_data, prompt: "選択してください" %></div>
+  <div class="form-field"><%= f.label :memo, "メモ" %><%= f.text_area :memo %></div>
+  <div class="form-field"><%= f.label :recorded_at, "作業日時" %><%= f.datetime_local_field :recorded_at %></div>
   <%= f.submit "更新" %>
 <% end %>
