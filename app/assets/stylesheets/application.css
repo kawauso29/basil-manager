@@ -111,6 +111,9 @@ tbody tr:hover { background: #fafcfb; }
 .form-field { margin-bottom: 16px; }
 .form-field label { display: block; margin-bottom: 5px; font-size: 14px; font-weight: 700; }
 .form-hint { margin: 4px 0 0; color: var(--muted); font-size: 13px; }
+.form-section { padding: 0; margin: 28px 0 0; border: 0; }
+.form-section legend { padding: 0; margin-bottom: 4px; font-size: 18px; font-weight: 700; }
+.form-section .form-hint { margin-bottom: 18px; }
 input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="file"]), select, textarea {
   width: 100%;
   padding: 9px 10px;
@@ -153,6 +156,7 @@ input[type="submit"] {
 .detail-list dt { color: var(--muted); font-weight: 700; }
 .detail-list dd { margin: 0; }
 .detail-list dt:last-of-type, .detail-list dd:last-child { border-bottom: 0; }
+.detail-list--multiline dd { white-space: pre-line; }
 .record-image { width: 100%; max-width: 200px; height: auto; border-radius: 6px; }
 .thumbnail { width: 48px; height: 48px; object-fit: cover; border-radius: 5px; background: var(--green-100); }
 .thumbnail-button { padding: 0; cursor: zoom-in; background: none; border: 0; border-radius: 5px; }

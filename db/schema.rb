@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_27_040000) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_27_165201) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -66,12 +66,25 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_27_040000) do
   end
 
   create_table "plants", comment: "植物の種類を管理するテーブル", force: :cascade do |t|
+    t.text "care_cautions", comment: "育成上の注意点"
+    t.text "care_notes", comment: "育成メモ"
+    t.text "climate_requirements", comment: "気候条件"
     t.string "code", null: false, comment: "管理コード"
     t.datetime "created_at", null: false
+    t.text "fertilizing_guide", comment: "施肥の目安"
+    t.text "growing_season", comment: "生育時期"
     t.integer "last_stock_number", default: 0, comment: "最後に発行した株番号"
     t.string "name", null: false, comment: "植物名"
+    t.text "overwintering_guide", comment: "冬越しの目安"
     t.string "prefix", null: false, comment: "管理プレフィックス"
+    t.text "pruning_guide", comment: "剪定の目安"
+    t.string "scientific_name", comment: "学名"
+    t.text "soil_requirements", comment: "用土の条件"
+    t.text "sunlight_requirements", comment: "日当たり条件"
+    t.text "temperature_requirements", comment: "温度条件"
     t.datetime "updated_at", null: false
+    t.text "ventilation_requirements", comment: "風通しの条件"
+    t.text "watering_guide", comment: "水やりの目安"
     t.index ["code"], name: "index_plants_on_code", unique: true
     t.index ["name"], name: "index_plants_on_name", unique: true
     t.index ["prefix"], name: "index_plants_on_prefix", unique: true

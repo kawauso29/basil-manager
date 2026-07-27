@@ -35,6 +35,19 @@ erDiagram
         string prefix UK
         string name UK
         integer last_stock_number
+        string scientific_name "NULL可"
+        text temperature_requirements "NULL可"
+        text climate_requirements "NULL可"
+        text growing_season "NULL可"
+        text sunlight_requirements "NULL可"
+        text watering_guide "NULL可"
+        text fertilizing_guide "NULL可"
+        text ventilation_requirements "NULL可"
+        text soil_requirements "NULL可"
+        text pruning_guide "NULL可"
+        text overwintering_guide "NULL可"
+        text care_notes "NULL可"
+        text care_cautions "NULL可"
     }
 
     STOCK {

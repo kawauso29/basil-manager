@@ -1,0 +1,35 @@
+<%= form_with model: [:admin, plant], class: "form-card" do |f| %>
+  <div class="form-field"><%= f.label :name, "名前" %><%= f.text_field :name, placeholder: "例: バジル" %></div>
+  <div class="form-field"><%= f.label :code, "コード" %><%= f.text_field :code, placeholder: "例: basil" %></div>
+  <div class="form-field"><%= f.label :prefix, "プレフィックス" %><%= f.text_field :prefix, placeholder: "例: BSL" %></div>
+
+  <% if plant.persisted? %>
+    <p class="form-hint">最終株番号: <%= plant.last_stock_number %>（自動管理）</p>
+    <div class="form-field" data-controller="image-preview">
+      <%= f.label :image, "画像" %>
+      <%= expandable_thumbnail(plant.icon_path, plant.image, alt: "現在の画像") if plant.has_image? %>
+      <%= f.file_field :image, data: { action: "change->image-preview#preview" } %>
+      <img data-image-preview-target="image" width="100" hidden>
+    </div>
+  <% end %>
+
+  <fieldset class="form-section">
+    <legend>生育条件・お手入れ</legend>
+    <p class="form-hint">品種や株の状態、鉢の大きさ、天候によって変わるため、判断基準と季節ごとの目安を具体的に記録します。</p>
+    <div class="form-field"><%= f.label :scientific_name, "学名" %><%= f.text_field :scientific_name, placeholder: "例: Ocimum basilicum" %></div>
+    <div class="form-field"><%= f.label :temperature_requirements, "温度" %><%= f.text_area :temperature_requirements, rows: 3, placeholder: "生育適温、耐暑・耐寒温度など" %></div>
+    <div class="form-field"><%= f.label :climate_requirements, "気候" %><%= f.text_area :climate_requirements, rows: 3, placeholder: "好む湿度、雨への強さ、暑さへの対応など" %></div>
+    <div class="form-field"><%= f.label :growing_season, "シーズン" %><%= f.text_area :growing_season, rows: 3, placeholder: "植え付け、生育、開花、収穫、休眠の時期など" %></div>
+    <div class="form-field"><%= f.label :sunlight_requirements, "日当たり" %><%= f.text_area :sunlight_requirements, rows: 3, placeholder: "必要な日照時間、夏の遮光など" %></div>
+    <div class="form-field"><%= f.label :watering_guide, "水やり" %><%= f.text_area :watering_guide, rows: 4, placeholder: "乾きの判断、季節ごとの頻度、与え方など" %></div>
+    <div class="form-field"><%= f.label :fertilizing_guide, "肥料" %><%= f.text_area :fertilizing_guide, rows: 3, placeholder: "肥料の種類、時期、頻度など" %></div>
+    <div class="form-field"><%= f.label :ventilation_requirements, "風通し" %><%= f.text_area :ventilation_requirements, rows: 3, placeholder: "置き場所、株間、蒸れ対策など" %></div>
+    <div class="form-field"><%= f.label :soil_requirements, "用土" %><%= f.text_area :soil_requirements, rows: 3, placeholder: "水はけ、保水性、pHなど" %></div>
+    <div class="form-field"><%= f.label :pruning_guide, "剪定・切り戻し" %><%= f.text_area :pruning_guide, rows: 3, placeholder: "摘芯、剪定、切り戻しの時期と方法など" %></div>
+    <div class="form-field"><%= f.label :overwintering_guide, "冬越し" %><%= f.text_area :overwintering_guide, rows: 3, placeholder: "冬の置き場所、最低温度、水・肥料の管理など" %></div>
+    <div class="form-field"><%= f.label :care_notes, "メモ" %><%= f.text_area :care_notes, rows: 4, placeholder: "収穫や回復手順などの補足" %></div>
+    <div class="form-field"><%= f.label :care_cautions, "注意点" %><%= f.text_area :care_cautions, rows: 4, placeholder: "根腐れ、病害虫、作業上の注意など" %></div>
+  </fieldset>
+
+  <%= f.submit plant.persisted? ? "更新" : "作成" %>
+<% end %>

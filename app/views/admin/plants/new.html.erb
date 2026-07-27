@@ -1,7 +1,2 @@
 <div class="page-header"><h1 class="page-title">植物を追加</h1></div>
-<%= form_with model: [:admin, @plant], class: "form-card" do |f| %>
-  <div class="form-field"><%= f.label :name, "名前" %><%= f.text_field :name, placeholder: "例: バジル" %></div>
-  <div class="form-field"><%= f.label :code, "コード" %><%= f.text_field :code, placeholder: "例: basil" %></div>
-  <div class="form-field"><%= f.label :prefix, "プレフィックス" %><%= f.text_field :prefix, placeholder: "例: BSL" %></div>
-  <%= f.submit "作成" %>
-<% end %>
+<%= render "form", plant: @plant %>

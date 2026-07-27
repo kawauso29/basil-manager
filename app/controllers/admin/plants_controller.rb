@@ -61,6 +61,19 @@ class Admin::PlantsController < Admin::BaseController
       :code,
       :prefix,
       :last_stock_number,
+      :scientific_name,
+      :temperature_requirements,
+      :climate_requirements,
+      :growing_season,
+      :sunlight_requirements,
+      :watering_guide,
+      :fertilizing_guide,
+      :ventilation_requirements,
+      :soil_requirements,
+      :pruning_guide,
+      :overwintering_guide,
+      :care_notes,
+      :care_cautions,
       :image
     )
   end

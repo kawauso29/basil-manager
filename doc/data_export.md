@@ -25,4 +25,7 @@ Active Storageの内部テーブルは出力しない。画像はレコードに
 | `image_byte_size` | 添付画像のバイト数。画像なしの場合は空 |
 | `image_data_url` | `data:<MIMEタイプ>;base64,...` 形式の画像本体。画像なしの場合は空 |
 
+`attributes_json`は出力時点の全カラムを含む。Plantの学名、生育条件、
+水やり、肥料、風通しなどの育成ガイドもこのJSON内へ出力される。
+
 画像を持つのは現在、Plant、Location、Stock、StockObservationである。CSVは画像本体をBase64化するため、元画像より大きくなる。画像理解に対応したAIへ渡す場合は、`image_data_url`列を画像入力として取り出して渡す。

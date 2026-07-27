@@ -3,7 +3,12 @@ require "rails_helper"
 RSpec.describe "Admin::DataExports", type: :request do
   describe "GET /admin/data_export" do
     it "全業務データと添付画像をBase64のdata URLとしてCSVに出力する" do
-      plant = Plant.create!(name: "テストプラント", code: "test", prefix: "TST")
+      plant = Plant.create!(
+        name: "テストプラント",
+        code: "test",
+        prefix: "TST",
+        watering_guide: "土の表面が乾いたらたっぷり"
+      )
       plant.image.attach(
         io: StringIO.new("image data"),
         filename: "plant.txt",
@@ -28,7 +33,10 @@ RSpec.describe "Admin::DataExports", type: :request do
       plant_row = rows.find { |row| row["record_type"] == "Plant" && row["record_id"] == plant.id.to_s }
       stock_row = rows.find { |row| row["record_type"] == "Stock" && row["record_id"] == stock.id.to_s }
 
-      expect(JSON.parse(plant_row.fetch("attributes_json"))).to include("name" => "テストプラント")
+      expect(JSON.parse(plant_row.fetch("attributes_json"))).to include(
+        "name" => "テストプラント",
+        "watering_guide" => "土の表面が乾いたらたっぷり"
+      )
       expect(plant_row.fetch("image_filename")).to eq("plant.txt")
       expect(plant_row.fetch("image_content_type")).to eq("text/plain")
       expect(plant_row.fetch("image_byte_size")).to eq("10")
