@@ -4,6 +4,6 @@
   <div class="form-field"><%= f.label :code, "コード" %><%= f.text_field :code %></div>
   <div class="form-field"><%= f.label :prefix, "プレフィックス" %><%= f.text_field :prefix %></div>
   <div class="form-field"><%= f.label :environment, "環境" %><%= f.select :environment, @environment_data, prompt: "選択してください" %></div>
-  <div class="form-field" data-controller="image-preview"><%= f.label :image, "画像" %><%= image_tag(@location.icon_path, class: "thumbnail", alt: "現在の画像") if @location.has_image? %><%= f.file_field :image, data: { action: "change->image-preview#preview" } %><img data-image-preview-target="image" width="100" hidden></div>
+  <div class="form-field" data-controller="image-preview"><%= f.label :image, "画像" %><%= expandable_thumbnail(@location.icon_path, @location.image, alt: "現在の画像") if @location.has_image? %><%= f.file_field :image, data: { action: "change->image-preview#preview" } %><img data-image-preview-target="image" width="100" hidden></div>
   <%= f.submit "更新" %>
 <% end %>

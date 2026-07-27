@@ -3,6 +3,6 @@
   <div class="form-field"><%= f.label :height_cm, "高さ（cm）" %><%= f.number_field :height_cm, step: 0.1 %></div>
   <div class="form-field"><%= f.label :memo, "メモ" %><%= f.text_area :memo %></div>
   <div class="form-field"><%= f.label :recorded_at, "観察日時" %><%= f.datetime_local_field :recorded_at %></div>
-  <div class="form-field" data-controller="image-preview"><%= f.label :image, "画像" %><%= image_tag(@stock_observation.image_small_path, class: "thumbnail", alt: "現在の画像") if @stock_observation.has_image? %><%= f.file_field :image, data: { action: "change->image-preview#preview" } %><img data-image-preview-target="image" width="100" hidden></div>
+  <div class="form-field" data-controller="image-preview"><%= f.label :image, "画像" %><%= expandable_thumbnail(@stock_observation.image_small_path, @stock_observation.image, alt: "現在の画像") if @stock_observation.has_image? %><%= f.file_field :image, data: { action: "change->image-preview#preview" } %><img data-image-preview-target="image" width="100" hidden></div>
   <%= f.submit "更新" %>
 <% end %>

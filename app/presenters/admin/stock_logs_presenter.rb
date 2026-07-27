@@ -31,6 +31,7 @@ class Admin::StockLogsPresenter
         log.action_type_i18n,
         nil,
         "",
+        "",
         log.memo
       )
     end
@@ -44,17 +45,19 @@ class Admin::StockLogsPresenter
         "観察",
         "#{log.height_cm} cm",
         log.image_small_path,
+        log.image,
         log.memo
       )
     end
   end
 
-  def log_unit(recorded_at, created_at, label, data_value, image_path, memo)
+  def log_unit(recorded_at, created_at, label, data_value, image_thumbnail_path, image_path, memo)
     {
       recorded_at: recorded_at,
       sort_at: recorded_at || created_at,
       label: label,
       data_value: data_value,
+      image_thumbnail_path: image_thumbnail_path,
       image_path: image_path,
       memo: memo
     }

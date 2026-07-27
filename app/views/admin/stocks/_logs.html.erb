@@ -4,7 +4,7 @@
       <li>
         <span class="log-date"><%= log[:recorded_at] || "日時未設定" %></span>
         <span><strong><%= log[:label] %></strong> <%= log[:data_value] %></span>
-        <span><%= image_tag(log[:image_path], class: "thumbnail", alt: "") if log[:image_path].present? %> <%= log[:memo].presence || "—" %></span>
+        <span><%= expandable_thumbnail(log[:image_thumbnail_path], log[:image_path], alt: "観察画像") if log[:image_thumbnail_path].present? %> <%= log[:memo].presence || "—" %></span>
       </li>
     <% end %>
   </ul>

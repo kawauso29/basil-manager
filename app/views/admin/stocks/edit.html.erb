@@ -9,6 +9,6 @@
   <div class="form-field"><%= f.label :propagation_method, "増殖方法" %><%= f.select :propagation_method, @propagation_method_data, include_blank: "未設定" %></div>
   <div class="form-field"><%= f.label :memo, "現在のメモ" %><%= f.text_area :memo %></div>
   <div class="form-field"><%= f.label :history_memo, "履歴メモ" %><%= f.text_area :history_memo %><p class="form-hint">場所または状態を変更した場合に、その変更履歴へ残します。</p></div>
-  <div class="form-field" data-controller="image-preview"><%= f.label :image, "画像" %><%= image_tag(@stock.icon_path, class: "thumbnail", alt: "現在の画像") if @stock.has_image? %><%= f.file_field :image, data: { action: "change->image-preview#preview" } %><img data-image-preview-target="image" width="100" hidden></div>
+  <div class="form-field" data-controller="image-preview"><%= f.label :image, "画像" %><%= expandable_thumbnail(@stock.icon_path, @stock.image, alt: "現在の画像") if @stock.has_image? %><%= f.file_field :image, data: { action: "change->image-preview#preview" } %><img data-image-preview-target="image" width="100" hidden></div>
   <%= f.submit "更新" %>
 <% end %>

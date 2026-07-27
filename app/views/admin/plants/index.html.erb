@@ -10,7 +10,7 @@
       <tbody>
         <% @plants.each do |plant| %>
           <tr>
-            <td><%= image_tag(plant.icon_path, class: "thumbnail", alt: "") if plant.has_image? %></td>
+            <td><%= expandable_thumbnail(plant.icon_path, plant.image, alt: plant.name) if plant.has_image? %></td>
             <td><%= plant.name %></td><td><%= plant.code %></td><td><%= plant.prefix %></td><td><%= plant.last_stock_number %></td>
             <td><%= link_to "詳細", admin_plant_path(plant) %></td>
           </tr>

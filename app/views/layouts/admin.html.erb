@@ -23,7 +23,7 @@
     <%= javascript_importmap_tags %>
   </head>
 
-  <body>
+  <body data-controller="image-modal">
     <div class="app-shell">
       <header class="app-header">
         <div class="header-inner">
@@ -54,5 +54,9 @@
         <%= yield %>
       </main>
     </div>
+    <dialog class="image-modal" data-image-modal-target="dialog" data-action="click->image-modal#closeOnBackdrop close->image-modal#reset">
+      <button type="button" class="image-modal-close" data-action="image-modal#close" aria-label="画像を閉じる">×</button>
+      <img class="image-modal-image" data-image-modal-target="image" alt="">
+    </dialog>
   </body>
 </html>

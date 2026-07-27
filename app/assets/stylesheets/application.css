@@ -155,6 +155,13 @@ input[type="submit"] {
 .detail-list dt:last-of-type, .detail-list dd:last-child { border-bottom: 0; }
 .record-image { width: 100%; max-width: 200px; height: auto; border-radius: 6px; }
 .thumbnail { width: 48px; height: 48px; object-fit: cover; border-radius: 5px; background: var(--green-100); }
+.thumbnail-button { padding: 0; cursor: zoom-in; background: none; border: 0; border-radius: 5px; }
+.thumbnail-button:focus-visible { outline: 3px solid rgb(40 114 85 / 35%); outline-offset: 2px; }
+.thumbnail-button .thumbnail { display: block; }
+.image-modal { position: relative; max-width: min(1000px, calc(100vw - 32px)); max-height: calc(100vh - 32px); padding: 44px 16px 16px; margin: auto; background: #fff; border: 0; border-radius: 8px; box-shadow: 0 16px 48px rgb(0 0 0 / 35%); }
+.image-modal::backdrop { background: rgb(0 0 0 / 65%); }
+.image-modal-image { display: block; max-width: min(100%, 968px); max-height: calc(100vh - 92px); object-fit: contain; }
+.image-modal-close { position: absolute; top: 8px; right: 8px; width: 30px; height: 30px; padding: 0; color: #fff; font-size: 24px; line-height: 1; cursor: pointer; background: var(--green-900); border: 0; border-radius: 50%; }
 
 .status, .tag {
   display: inline-block;

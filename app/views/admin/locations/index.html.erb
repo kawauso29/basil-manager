@@ -3,7 +3,7 @@
   <% if @locations.any? %>
     <table><thead><tr><th>画像</th><th>名前</th><th>コード</th><th>プレフィックス</th><th>環境</th><th></th></tr></thead><tbody>
       <% @locations.each do |location| %><tr>
-        <td><%= image_tag(location.icon_path, class: "thumbnail", alt: "") if location.has_image? %></td><td><%= location.name %></td><td><%= location.code %></td><td><%= location.prefix %></td><td><span class="tag"><%= location.environment_i18n %></span></td><td><%= link_to "詳細", admin_location_path(location) %></td>
+        <td><%= expandable_thumbnail(location.icon_path, location.image, alt: location.name) if location.has_image? %></td><td><%= location.name %></td><td><%= location.code %></td><td><%= location.prefix %></td><td><span class="tag"><%= location.environment_i18n %></span></td><td><%= link_to "詳細", admin_location_path(location) %></td>
       </tr><% end %>
     </tbody></table>
   <% else %><p class="empty-state">登録されている場所はありません。</p><% end %>
