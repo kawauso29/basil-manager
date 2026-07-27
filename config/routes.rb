@@ -7,6 +7,7 @@ Rails.application.routes.draw do
 
   namespace :admin do
     root "dashboard#index"
+    resource :data_export, only: :show
     resources :plants
     resources :locations
     resources :location_observations do
