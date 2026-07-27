@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_25_150000) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_27_040000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -201,11 +201,19 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_25_150000) do
   create_table "stock_action_logs", comment: "株への作業実行記録を行うテーブル", force: :cascade do |t|
     t.string "action_type", null: false, comment: "アクションログの種類"
     t.datetime "created_at", null: false
+    t.bigint "from_location_id", comment: "変更前の管理場所ID"
     t.text "memo", comment: "アクションログのメモ"
+    t.integer "quantity_after", comment: "変更後の数量"
+    t.integer "quantity_before", comment: "変更前の数量"
     t.datetime "recorded_at", comment: "アクションログの記録日時"
+    t.string "status_after", comment: "変更後の管理状態"
+    t.string "status_before", comment: "変更前の管理状態"
     t.bigint "stock_id", null: false, comment: "株ID"
+    t.bigint "to_location_id", comment: "変更後の管理場所ID"
     t.datetime "updated_at", null: false
+    t.index ["from_location_id"], name: "index_stock_action_logs_on_from_location_id"
     t.index ["stock_id"], name: "index_stock_action_logs_on_stock_id"
+    t.index ["to_location_id"], name: "index_stock_action_logs_on_to_location_id"
   end
 
   create_table "stock_observations", comment: "株の観察記録を行うテーブル", force: :cascade do |t|
@@ -249,6 +257,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_25_150000) do
   add_foreign_key "solid_queue_ready_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_recurring_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_scheduled_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
+  add_foreign_key "stock_action_logs", "locations", column: "from_location_id"
+  add_foreign_key "stock_action_logs", "locations", column: "to_location_id"
   add_foreign_key "stock_action_logs", "stocks"
   add_foreign_key "stock_observations", "stocks"
   add_foreign_key "stocks", "locations"

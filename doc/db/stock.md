@@ -61,7 +61,8 @@
 - 管理上の分割では分割元を親株にせず、新しいStockにも分割前と同じ
   `parent_stock_id`を設定する
 - `quantity`は通常編集では変更せず、専用の数量変更操作を使用する
-- 数量変更時は変更前後の数量と理由を`stock_action_logs`へ記録する
+- 場所、状態、数量の変更は専用操作を使用し、変更前後の値を
+  `stock_action_logs`へ構造化して記録する
 - 外部公開時は連番の`id`ではなく`public_token`を使用する
 - 状態の履歴は`stock_action_logs`、観察値は`stock_observations`に記録する
 - `status`は`starting`、`rooting`、`growing`のいずれかとする

@@ -289,6 +289,45 @@ RSpec.describe "Admin::Stocks", type: :request do
         expect(stock.reload.memo).to eq("南側の青いトレー")
       end
 
+      it "管理場所を変更して構造化された作業ログを作成する" do
+        stock = create_stock
+        destination = Location.create!(name: "移動先", code: "dst", prefix: "DST")
+
+        expect {
+          patch admin_stock_path(stock),
+                params: { stock: { location_id: destination.id, history_memo: "遮光ラックへ移動" } },
+                headers: admin_headers
+        }.to change(StockActionLog, :count).by(1)
+
+        action_log = stock.stock_action_logs.last
+        expect(stock.reload.location).to eq(destination)
+        expect(action_log).to have_attributes(
+          action_type: "moved",
+          from_location_id: create_location.id,
+          to_location_id: destination.id,
+          memo: "遮光ラックへ移動"
+        )
+      end
+
+      it "管理状態を変更して構造化された作業ログを作成する" do
+        stock = create_stock
+
+        expect {
+          patch admin_stock_path(stock),
+                params: { stock: { status: "rooting", history_memo: "発根を確認" } },
+                headers: admin_headers
+        }.to change(StockActionLog, :count).by(1)
+
+        action_log = stock.stock_action_logs.last
+        expect(stock.reload.status).to eq("rooting")
+        expect(action_log).to have_attributes(
+          action_type: "status_changed",
+          status_before: "starting",
+          status_after: "rooting",
+          memo: "発根を確認"
+        )
+      end
+
       it "通常の更新では数量を変更できない" do
         stock = create_stock
 
@@ -328,6 +367,8 @@ RSpec.describe "Admin::Stocks", type: :request do
 
         action_log = stock.stock_action_logs.last
         expect(action_log.action_type).to eq("quantity_changed")
+        expect(action_log.quantity_before).to eq(1)
+        expect(action_log.quantity_after).to eq(20)
         expect(action_log.memo).to eq("1株 → 20株（摘芯で作った挿し穂）")
         expect(action_log.recorded_at).to be_present
         expect(response).to redirect_to(admin_stock_path(stock))

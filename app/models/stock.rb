@@ -140,7 +140,56 @@ class Stock < ActiveRecord::Base
       save!
       stock_action_logs.create!(
         action_type: :quantity_changed,
+        quantity_before: previous_quantity,
+        quantity_after: self.quantity,
         memo: quantity_change_log_memo(previous_quantity, self.quantity, memo),
+        recorded_at: recorded_at
+      )
+    end
+  end
+
+  def move_to!(location_id:, memo: nil, recorded_at: Time.current)
+    with_lock do
+      target_location = Location.find_by(id: location_id)
+      unless target_location
+        errors.add(:location, :required)
+        raise ActiveRecord::RecordInvalid, self
+      end
+
+      previous_location_id = self.location_id
+      if target_location.id == previous_location_id
+        errors.add(:location_id, :unchanged)
+        raise ActiveRecord::RecordInvalid, self
+      end
+
+      self.location = target_location
+      save!
+      stock_action_logs.create!(
+        action_type: :moved,
+        from_location_id: previous_location_id,
+        to_location_id: target_location.id,
+        memo: memo,
+        recorded_at: recorded_at
+      )
+    end
+  end
+
+  def change_status!(status:, memo: nil, recorded_at: Time.current)
+    with_lock do
+      previous_status = self.status
+      self.status = status
+
+      if self.status == previous_status
+        errors.add(:status, :unchanged)
+        raise ActiveRecord::RecordInvalid, self
+      end
+
+      save!
+      stock_action_logs.create!(
+        action_type: :status_changed,
+        status_before: previous_status,
+        status_after: self.status,
+        memo: memo,
         recorded_at: recorded_at
       )
     end

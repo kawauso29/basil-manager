@@ -19,6 +19,14 @@ class Location < ActiveRecord::Base
   # 子を1つでも持つ場合は削除せず引き止めます。
   has_many :stocks, dependent: :restrict_with_error
   has_many :location_observations, dependent: :restrict_with_error
+  has_many :outgoing_stock_action_logs,
+           class_name: "StockActionLog",
+           foreign_key: :from_location_id,
+           dependent: :restrict_with_error
+  has_many :incoming_stock_action_logs,
+           class_name: "StockActionLog",
+           foreign_key: :to_location_id,
+           dependent: :restrict_with_error
 
   enum :environment, {
     indoor: "indoor",

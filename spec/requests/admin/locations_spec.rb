@@ -133,6 +133,23 @@ RSpec.describe "Admin::Locations", type: :request do
       end
     end
     context "子のStockを持たない場合" do
+      it "移動履歴から参照されるLocationを削除できない" do
+        plant = Plant.create!(name: "テストプラント", code: "test", prefix: "TST")
+        source = Location.create!(name: "移動元", code: "src", prefix: "SRC")
+        destination = Location.create!(name: "移動先", code: "dst", prefix: "DST")
+        stock = Stocks::Creator.call(
+          plant_id: plant.id,
+          location_id: source.id,
+          growing_method: "pot",
+          propagation_method: "seed"
+        )
+        stock.move_to!(location_id: destination.id)
+
+        delete admin_location_path(source), headers: admin_headers
+
+        expect(flash.now[:alert]).to include("削除に失敗しました")
+      end
+
       it "Locationを削除できる" do
         location = Location.create!(name: "テストロケーション", code: "test", prefix: "TST")
 

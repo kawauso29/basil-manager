@@ -28,8 +28,11 @@
 - `Location has_one_attached Image`
 - `Location has_many Stocks`
 - `Location has_many LocationObservations`
-- `stocks.location_id`と`location_observations.location_id`から参照される
-- StockまたはLocationObservationが存在するLocationは削除できない
+- `Location has_many OutgoingStockActionLogs`
+- `Location has_many IncomingStockActionLogs`
+- `stocks.location_id`、`location_observations.location_id`、
+  `stock_action_logs.from_location_id`、`stock_action_logs.to_location_id`から参照される
+- Stock、LocationObservation、または移動履歴が存在するLocationは削除できない
 
 ## 業務ルール
 

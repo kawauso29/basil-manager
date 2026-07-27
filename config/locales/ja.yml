@@ -53,6 +53,12 @@ ja:
         stock: 対象株
         stock_id: 対象株
         action_type: 作業種別
+        from_location: 変更前の管理場所
+        to_location: 変更後の管理場所
+        quantity_before: 変更前の数量
+        quantity_after: 変更後の数量
+        status_before: 変更前の管理状態
+        status_after: 変更後の管理状態
         memo: メモ
         recorded_at: 作業日時
       stock_observation:
@@ -81,12 +87,15 @@ ja:
               cannot_be_different_plant: に異なる植物を親に指定できません
             status:
               inclusion: を選択してください
+              unchanged: は変更前と異なる値を選択してください
             growing_method:
               inclusion: を選択してください
             propagation_method:
               inclusion: を選択してください
             quantity:
               unchanged: は変更前と異なる値を入力してください
+            location_id:
+              unchanged: は変更前と異なる値を選択してください
         stock_action_log:
           attributes:
             stock:
@@ -123,6 +132,7 @@ ja:
         water_replaced: 水交換
         harvested: 収穫
         moved: 管理場所変更
+        status_changed: 管理状態変更
         transplanted: 植え替え
         quantity_changed: 数量変更
     stock:

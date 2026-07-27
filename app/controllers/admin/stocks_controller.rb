@@ -43,15 +43,25 @@ class Admin::StocksController < Admin::BaseController
 
   def update
     @stock = Stock.find(params[:id])
-    attach_resized_image(@stock, stock_params[:image])
-    if @stock.update(stock_params)
-      admin_update_success_message(@stock)
-      redirect_to admin_stock_path(@stock)
-    else
-      admin_update_error_message(@stock)
-      set_form_data
-      render :edit, status: :unprocessable_content
+    _params = stock_params
+    location_changed = _params.key?(:location_id) && _params[:location_id].to_s != @stock.location_id.to_s
+    status_changed = _params.key?(:status) && _params[:status] != @stock.status
+
+    Stock.transaction do
+      @stock.assign_attributes(_params.except(:image, :history_memo, :location_id, :status))
+      attach_resized_image(@stock, _params[:image])
+      @stock.save!
+      @stock.move_to!(location_id: _params[:location_id], memo: _params[:history_memo]) if location_changed
+      @stock.change_status!(status: _params[:status], memo: _params[:history_memo]) if status_changed
     end
+
+    admin_update_success_message(@stock)
+    redirect_to admin_stock_path(@stock)
+  rescue ActiveRecord::RecordInvalid => e
+    @stock = e.record
+    admin_update_error_message(@stock)
+    set_form_data
+    render :edit, status: :unprocessable_content
   end
 
   def change_quantity
@@ -116,6 +126,7 @@ class Admin::StocksController < Admin::BaseController
       :completion_reason,
       :completed_at,
       :memo,
+      :history_memo,
       :image
     )
   end

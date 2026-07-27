@@ -24,6 +24,8 @@ erDiagram
     LOCATION ||--o{ STOCK : stores
     STOCK o|--o{ STOCK : parent_of
     STOCK ||--o{ STOCK_ACTION_LOG : has
+    LOCATION o|--o{ STOCK_ACTION_LOG : from
+    LOCATION o|--o{ STOCK_ACTION_LOG : to
     STOCK ||--o{ STOCK_OBSERVATION : has
     LOCATION ||--o{ LOCATION_OBSERVATION : has
 
@@ -63,6 +65,12 @@ erDiagram
         bigint id PK
         bigint stock_id FK
         string action_type
+        bigint from_location_id FK "NULL可"
+        bigint to_location_id FK "NULL可"
+        integer quantity_before "NULL可"
+        integer quantity_after "NULL可"
+        string status_before "NULL可"
+        string status_after "NULL可"
         text memo "NULL可"
         datetime recorded_at "NULL可"
     }

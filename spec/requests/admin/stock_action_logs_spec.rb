@@ -125,6 +125,21 @@ RSpec.describe "Admin::StockActionLogs", type: :request do
 
         expect(flash.now[:alert]).to include("作成に失敗しました")
       end
+
+      it "構造化履歴の作業種別は通常の作業ログとして作成できない" do
+        params = {
+          stock_action_log: {
+            stock_id: create_stock.id,
+            action_type: "moved"
+          }
+        }
+
+        expect {
+          post admin_stock_action_logs_path, params: params, headers: admin_headers
+        }.not_to change(StockActionLog, :count)
+
+        expect(flash.now[:alert]).to include("作成に失敗しました")
+      end
     end
   end
 
@@ -143,10 +158,10 @@ RSpec.describe "Admin::StockActionLogs", type: :request do
       it "StockActionLogを更新できる" do
         stock_action_log = create_stock_action_log
         params = {
-          stock_action_log: { action_type: "moved" }
+          stock_action_log: { action_type: "watered" }
         }
         patch admin_stock_action_log_path(stock_action_log, params), headers: admin_headers
-        expect(stock_action_log.reload.action_type).to eq("moved")
+        expect(stock_action_log.reload.action_type).to eq("watered")
         expect(response).to redirect_to(admin_stock_action_log_path(stock_action_log))
         expect(flash[:notice]).to include("更新しました")
       end
