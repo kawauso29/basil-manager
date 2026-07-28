@@ -2,7 +2,23 @@ class Admin::StocksController < Admin::BaseController
   include Admin::ImageAttachment
 
   def index
-    @stocks = Stock.active
+    @stock_filters = stock_filter_params
+    @environment_filter_options = Location.environments_i18n.map { |key, label| [ label, key ] }
+    @location_filter_options = Location.order(:name).map do |location|
+      [ "#{location.name}（#{location.environment_i18n}）", location.id ]
+    end
+    @plant_filter_options = Plant.order(:name).pluck(:name, :id)
+    @status_filter_options = Stock.statuses_i18n.map { |key, label| [ label, key ] }
+
+    stocks = Stock.active
+    if Location.environments.key?(@stock_filters[:environment])
+      stocks = stocks.joins(:location).where(locations: { environment: @stock_filters[:environment] })
+    end
+    stocks = stocks.where(location_id: @stock_filters[:location_id]) if @stock_filters[:location_id].present?
+    stocks = stocks.where(plant_id: @stock_filters[:plant_id]) if @stock_filters[:plant_id].present?
+    stocks = stocks.where(status: @stock_filters[:status]) if Stock.statuses.key?(@stock_filters[:status])
+
+    @stocks = stocks
                    .includes(:plant, :location, image_attachment: :blob)
                    .order(id: :asc)
                    .load
@@ -100,6 +116,10 @@ class Admin::StocksController < Admin::BaseController
   end
 
   private
+
+  def stock_filter_params
+    params.permit(:environment, :location_id, :plant_id, :status)
+  end
 
   def set_form_data_for_new
     @location_data = Location.pluck(:name, :id)

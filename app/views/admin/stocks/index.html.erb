@@ -1,4 +1,28 @@
 <div class="page-header"><div><h1 class="page-title">株</h1><p class="page-subtitle">現在育成中の管理単位を一覧で確認できます。</p></div><div class="page-actions"><%= link_to "株を作成", new_admin_stock_path, class: "button" %></div></div>
+
+<%= form_with url: admin_stocks_path, method: :get, class: "panel filter-form", data: { turbo: false } do |f| %>
+  <div class="filter-field">
+    <%= f.label :environment, "環境" %>
+    <%= f.select :environment, @environment_filter_options, { include_blank: "すべて", selected: @stock_filters[:environment] } %>
+  </div>
+  <div class="filter-field">
+    <%= f.label :location_id, "ロケーション" %>
+    <%= f.select :location_id, @location_filter_options, { include_blank: "すべて", selected: @stock_filters[:location_id] } %>
+  </div>
+  <div class="filter-field">
+    <%= f.label :plant_id, "植物" %>
+    <%= f.select :plant_id, @plant_filter_options, { include_blank: "すべて", selected: @stock_filters[:plant_id] } %>
+  </div>
+  <div class="filter-field">
+    <%= f.label :status, "状態" %>
+    <%= f.select :status, @status_filter_options, { include_blank: "すべて", selected: @stock_filters[:status] } %>
+  </div>
+  <div class="filter-actions">
+    <%= f.submit "絞り込む" %>
+    <%= link_to "クリア", admin_stocks_path, class: "button button-secondary" %>
+  </div>
+<% end %>
+
 <section class="panel table-wrap">
   <% if @stocks.any? %>
     <table>

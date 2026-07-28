@@ -81,6 +81,78 @@ RSpec.describe "Admin::Stocks", type: :request do
       expect(response.body).to include(edit_admin_stock_path(stock))
     end
 
+    it "環境とロケーションを組み合わせて絞り込む" do
+      indoor_stock = create_stock
+      indoor_stock.update!(label: "屋内の株")
+      target_location = Location.create!(
+        name: "対象の屋外ロケーション",
+        code: "target-outdoor",
+        prefix: "TGO",
+        environment: "outdoor"
+      )
+      other_location = Location.create!(
+        name: "別の屋外ロケーション",
+        code: "other-outdoor",
+        prefix: "OGO",
+        environment: "outdoor"
+      )
+      target_stock = Stocks::Creator.call(
+        plant_id: create_plant.id,
+        location_id: target_location.id,
+        growing_method: "pot",
+        propagation_method: "seed",
+        label: "対象の株"
+      )
+      other_stock = Stocks::Creator.call(
+        plant_id: create_plant.id,
+        location_id: other_location.id,
+        growing_method: "pot",
+        propagation_method: "seed",
+        label: "別の屋外株"
+      )
+
+      get admin_stocks_path,
+          params: { environment: "outdoor", location_id: target_location.id },
+          headers: admin_headers
+
+      expect(response).to have_http_status(:ok)
+      expect(response.body).to include(target_stock.label)
+      expect(response.body).not_to include(indoor_stock.label, other_stock.label)
+    end
+
+    it "植物と状態を組み合わせて絞り込む" do
+      target_stock = create_stock
+      target_stock.update!(label: "対象の株", status: "growing")
+      other_plant = Plant.create!(
+        name: "別のテストプラント",
+        code: "other-test",
+        prefix: "OTH"
+      )
+      other_plant_stock = Stocks::Creator.call(
+        plant_id: other_plant.id,
+        location_id: create_location.id,
+        growing_method: "pot",
+        propagation_method: "seed",
+        label: "別の植物の株"
+      )
+      other_status_stock = Stocks::Creator.call(
+        plant_id: create_plant.id,
+        location_id: create_location.id,
+        growing_method: "pot",
+        propagation_method: "seed",
+        label: "別の状態の株"
+      )
+      other_status_stock.update!(status: "rooting")
+
+      get admin_stocks_path,
+          params: { plant_id: create_plant.id, status: "growing" },
+          headers: admin_headers
+
+      expect(response).to have_http_status(:ok)
+      expect(response.body).to include(target_stock.label)
+      expect(response.body).not_to include(other_plant_stock.label, other_status_stock.label)
+    end
+
     it "一覧表示に必要な関連データを一括取得する" do
       stock = create_stock
       blob = ActiveStorage::Blob.create!(
@@ -135,8 +207,8 @@ RSpec.describe "Admin::Stocks", type: :request do
         "active_storage_blobs"
       )).to eq(
         "stocks" => 1,
-        "plants" => 1,
-        "locations" => 1,
+        "plants" => 2,
+        "locations" => 2,
         "active_storage_attachments" => 1,
         "active_storage_blobs" => 1
       )

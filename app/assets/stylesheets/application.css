@@ -109,6 +109,18 @@ tbody tr:last-child td { border-bottom: 0; }
 tbody tr:hover { background: #fafcfb; }
 .table-actions { display: flex; gap: 10px; white-space: nowrap; }
 
+.filter-form {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) auto;
+  align-items: end;
+  gap: 12px;
+  max-width: none;
+  margin-bottom: 18px;
+  padding: 16px;
+}
+.filter-field label { display: block; margin-bottom: 5px; font-size: 13px; font-weight: 700; }
+.filter-actions { display: flex; gap: 8px; }
+
 .form-card { max-width: 720px; }
 .form-field { margin-bottom: 16px; }
 .form-field label { display: block; margin-bottom: 5px; font-size: 14px; font-weight: 700; }
@@ -254,6 +266,7 @@ input[type="submit"] {
   .detail-layout { grid-template-columns: 1fr; }
   .detail-list { grid-template-columns: 105px minmax(0, 1fr); }
   .log-list li { grid-template-columns: 1fr; gap: 3px; }
+  .filter-form { grid-template-columns: 1fr; }
   .bulk-selection-count { width: 100%; margin-left: 0; }
   th, td { padding: 9px; }
 }
