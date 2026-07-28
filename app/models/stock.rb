@@ -72,6 +72,7 @@ class Stock < ActiveRecord::Base
     planter: "planter",
     flowerpot: "flowerpot",
     water: "water",
+    seeding_tray: "seeding_tray",
     other: "other"
   }, validate: true
 
