@@ -478,6 +478,10 @@ RSpec.describe "Admin::Stocks", type: :request do
       get edit_admin_stock_path(stock), headers: admin_headers
       expect(response).to have_http_status(:ok)
       expect(response.body).to include("テスト株")
+
+      update_button = Nokogiri::HTML(response.body)
+                              .at_css('form.form-card .form-actions--sticky input[type="submit"][value="更新"]')
+      expect(update_button).to be_present
     end
 
     it "ID順で前後のStock編集画面へ移動できる" do

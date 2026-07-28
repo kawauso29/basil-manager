@@ -1,5 +1,6 @@
 <div class="page-header"><div><h1 class="page-title">株を編集</h1><p class="page-subtitle"><%= @stock.display_name %>（ID: <%= @stock.id %>）</p></div><%= render "actions", stock: @stock, current_action: :edit, previous_record: @previous_record, next_record: @next_record %></div>
 <%= form_with model: [:admin, @stock], class: "form-card" do |f| %>
+  <div class="form-actions form-actions--sticky"><%= f.submit "更新" %></div>
   <div class="form-field"><%= f.label :location_id, "場所" %><%= f.select :location_id, @location_data, prompt: "選択してください" %></div>
   <div class="form-field"><%= f.label :plant_id, "植物" %><%= f.select :plant_id, @plant_data, prompt: "選択してください" %></div>
   <div class="form-field"><%= f.label :label, "ラベル" %><%= f.text_field :label %></div>
@@ -11,5 +12,4 @@
   <div class="form-field"><%= f.label :memo, "現在のメモ" %><%= f.text_area :memo %></div>
   <div class="form-field"><%= f.label :history_memo, "履歴メモ" %><%= f.text_area :history_memo %><p class="form-hint">場所または状態を変更した場合に、その変更履歴へ残します。</p></div>
   <div class="form-field" data-controller="image-preview"><%= f.label :image, "画像" %><%= expandable_thumbnail(@stock.icon_path, @stock.image, alt: "現在の画像") if @stock.has_image? %><%= f.file_field :image, data: { action: "change->image-preview#preview" } %><img data-image-preview-target="image" width="100" hidden></div>
-  <%= f.submit "更新" %>
 <% end %>
