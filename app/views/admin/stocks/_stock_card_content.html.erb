@@ -1,0 +1,13 @@
+<div class="stock-card-header">
+  <%= expandable_thumbnail(stock.icon_path, stock.image, alt: stock.code) if stock.has_image? %>
+  <div><h3 class="stock-card-title"><%= stock.code %></h3><span class="status status--<%= stock.status %>"><%= stock.status_i18n %></span></div>
+</div>
+<dl class="detail-list">
+  <dt>ラベル</dt><dd><%= stock.label %></dd>
+  <dt>植物</dt><dd><%= stock.plant.name %></dd>
+  <dt>場所</dt><dd><%= stock.location.name %></dd>
+  <dt>数量</dt><dd><%= stock.quantity %> 株</dd>
+  <dt>栽培方法</dt><dd><%= stock.growing_method_i18n %></dd>
+  <dt>増殖方法</dt><dd><%= stock.propagation_method_i18n || "未設定" %></dd>
+  <dt>メモ</dt><dd><%= stock.memo.presence || "—" %></dd>
+</dl>

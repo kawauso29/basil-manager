@@ -83,6 +83,20 @@ RSpec.describe "Admin::Stocks", type: :request do
 
   # show
   describe "GET /admin/stocks/:id" do
+    it "操作をヘッダーにまとめ、株カード内の詳細リンクを表示しない" do
+      stock = create_stock
+
+      get admin_stock_path(stock), headers: admin_headers
+
+      expect(response).to have_http_status(:ok)
+      expect(response.body).to include("作業を記録")
+      expect(response.body).to include("観察を記録")
+      expect(response.body).to include("数量を変更")
+      expect(response.body).to include("編集")
+      expect(response.body).to include("削除")
+      expect(response.body).not_to include(">詳細<")
+    end
+
     context "親株である" do
       it "Stock詳細が表示される" do
         stock = create_parent_stock
