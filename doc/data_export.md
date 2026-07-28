@@ -4,12 +4,16 @@
 
 ## 出力対象
 
-- Plant
 - Location
+- Plant
 - Stock
-- StockActionLog
-- StockObservation
-- LocationObservation
+
+上記3モデルを主レコードとして出力する。ログ系レコードは、対応する主レコードの
+直後へ次の関連単位で出力する。
+
+- `Location`の`location_observations`（LocationObservation）
+- `Stock`の`stock_action_logs`（StockActionLog）
+- `Stock`の`stock_observations`（StockObservation）
 
 Active Storageの内部テーブルは出力しない。画像はレコードに対応する行の`image_*`列へ含めるため、画像だけが別データになることはない。
 
@@ -19,6 +23,10 @@ Active Storageの内部テーブルは出力しない。画像はレコードに
 | --- | --- |
 | `record_type` | モデル名 |
 | `record_id` | レコードID |
+| `record_role` | 主レコードは`main`、ログ系レコードは`log` |
+| `main_record_type` | この行をまとめる主レコードのモデル名 |
+| `main_record_id` | この行をまとめる主レコードのID |
+| `association_name` | ログ系レコードを取得した関連名。主レコードの場合は空 |
 | `attributes_json` | そのレコードの全カラム値を含むJSON |
 | `image_filename` | 添付画像のファイル名。画像なしの場合は空 |
 | `image_content_type` | 添付画像のMIMEタイプ。画像なしの場合は空 |
@@ -26,6 +34,11 @@ Active Storageの内部テーブルは出力しない。画像はレコードに
 | `image_data_url` | `data:<MIMEタイプ>;base64,...` 形式の画像本体。画像なしの場合は空 |
 
 `attributes_json`は出力時点の全カラムを含む。Plantの学名、生育条件、
-水やり、肥料、風通しなどの育成ガイドもこのJSON内へ出力される。
+水やり、肥料、風通しなどの育成ガイド、Stockの数量・メモ・ラベル、
+StockActionLogの移動元・移動先、変更前後の状態・数量もこのJSON内へ出力される。
+
+主レコード行では`main_record_type`と`main_record_id`が自身を指す。ログ系レコードは
+同じ2列で対応するLocationまたはStockを指すため、`attributes_json`を解析しなくても
+主レコードとのまとまりを判別できる。各主レコードとそのログはID順に出力する。
 
 画像を持つのは現在、Plant、Location、Stock、StockObservationである。CSVは画像本体をBase64化するため、元画像より大きくなる。画像理解に対応したAIへ渡す場合は、`image_data_url`列を画像入力として取り出して渡す。
