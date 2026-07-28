@@ -422,6 +422,18 @@ RSpec.describe "Admin::Stocks", type: :request do
     end
   end
 
+  describe "GET /admin/stocks/:id/edit_quantity" do
+    it "数量変更画面を表示する" do
+      stock = create_stock
+
+      get edit_quantity_admin_stock_path(stock), headers: admin_headers
+
+      expect(response).to have_http_status(:ok)
+      expect(response.body).to include("数量を変更")
+      expect(response.body).to include(stock.display_name)
+    end
+  end
+
   # destroy
   describe "DELETE /admin/stocks/:id" do
     context "子を持つ場合" do

@@ -17,6 +17,7 @@ Rails.application.routes.draw do
       end
     end
     resources :stocks do
+      get :edit_quantity, on: :member
       patch :change_quantity, on: :member
     end
     resources :stock_action_logs do

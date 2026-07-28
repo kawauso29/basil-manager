@@ -75,9 +75,12 @@ class Admin::StocksController < Admin::BaseController
     admin_update_success_message(@stock)
     redirect_to admin_stock_path(@stock)
   rescue ActiveRecord::RecordInvalid => e
-    set_stock_logs
     admin_flash_now_alert("数量変更に失敗しました #{e.record.errors.full_messages.join(', ')}")
-    render :show, status: :unprocessable_content
+    render :edit_quantity, status: :unprocessable_content
+  end
+
+  def edit_quantity
+    @stock = Stock.find(params[:id])
   end
 
   def destroy
