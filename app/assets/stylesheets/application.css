@@ -84,7 +84,8 @@ a:hover { color: var(--green-900); }
 
 .page-title { margin: 0; font-size: 24px; line-height: 1.35; }
 .page-subtitle { margin: 4px 0 0; color: var(--muted); }
-.page-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.page-actions,
+.record-navigation { display: flex; flex-wrap: wrap; gap: 8px; }
 
 .panel,
 .form-card,
@@ -159,7 +160,10 @@ input[type="submit"] {
   border-radius: 5px;
 }
 .button:hover, input[type="submit"]:hover { color: #fff; background: var(--green-900); border-color: var(--green-900); }
-.button:disabled, input[type="submit"]:disabled { color: #758179; cursor: not-allowed; background: #e7ece9; border-color: #d3dbd6; }
+.button:disabled,
+.button[aria-disabled="true"],
+input[type="submit"]:disabled { color: #758179; cursor: not-allowed; background: #e7ece9; border-color: #d3dbd6; }
+.button[aria-disabled="true"] { pointer-events: none; }
 .button-secondary { color: var(--green-900); background: #fff; border-color: #b9d5c4; }
 .button-secondary:hover { color: var(--green-900); background: var(--green-100); border-color: #9bc0aa; }
 .button-danger, input.button-danger { background: var(--danger); border-color: var(--danger); }

@@ -1,0 +1,13 @@
+<nav class="record-navigation" aria-label="前後のレコードへ移動">
+  <% if previous_record %>
+    <%= link_to "← 前", polymorphic_path([:admin, previous_record], action: navigation_action), class: "button button-secondary", rel: "prev" %>
+  <% else %>
+    <span class="button button-secondary" aria-disabled="true">← 前</span>
+  <% end %>
+
+  <% if next_record %>
+    <%= link_to "次 →", polymorphic_path([:admin, next_record], action: navigation_action), class: "button button-secondary", rel: "next" %>
+  <% else %>
+    <span class="button button-secondary" aria-disabled="true">次 →</span>
+  <% end %>
+</nav>

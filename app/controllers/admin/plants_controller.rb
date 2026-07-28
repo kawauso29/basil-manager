@@ -23,10 +23,12 @@ class Admin::PlantsController < Admin::BaseController
 
   def show
     @plant = Plant.find(params[:id])
+    set_record_navigation(@plant)
   end
 
   def edit
     @plant = Plant.find(params[:id])
+    set_record_navigation(@plant)
   end
 
   def update
@@ -37,6 +39,7 @@ class Admin::PlantsController < Admin::BaseController
       admin_update_success_message(@plant)
       redirect_to admin_plant_path(@plant)
     else
+      set_record_navigation(@plant)
       admin_update_error_message(@plant)
       render :edit, status: :unprocessable_content
     end
@@ -48,6 +51,7 @@ class Admin::PlantsController < Admin::BaseController
       admin_destroy_success_message
       redirect_to admin_plants_path
     else
+      set_record_navigation(@plant)
       admin_destroy_error_message(@plant)
       render :show, status: :unprocessable_content
     end

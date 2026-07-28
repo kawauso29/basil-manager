@@ -18,6 +18,18 @@ RSpec.describe "Admin::Locations", type: :request do
       get admin_location_path(location), headers: admin_headers
       expect(response).to have_http_status(:ok)
     end
+
+    it "ID順で前後のLocation詳細へ移動できる" do
+      previous_location = Location.create!(name: "前の場所", code: "previous", prefix: "PRV")
+      location = Location.create!(name: "現在の場所", code: "current", prefix: "CUR")
+      next_location = Location.create!(name: "次の場所", code: "next", prefix: "NXT")
+
+      get admin_location_path(location), headers: admin_headers
+
+      document = Nokogiri::HTML(response.body)
+      expect(document.at_css('a[rel="prev"]')["href"]).to eq(admin_location_path(previous_location))
+      expect(document.at_css('a[rel="next"]')["href"]).to eq(admin_location_path(next_location))
+    end
   end
 
   # new
@@ -85,6 +97,18 @@ RSpec.describe "Admin::Locations", type: :request do
       location = Location.create!(name: "テストロケーション", code: "test", prefix: "TST")
       get edit_admin_location_path(location), headers: admin_headers
       expect(response).to have_http_status(:ok)
+    end
+
+    it "ID順で前後のLocation編集画面へ移動できる" do
+      previous_location = Location.create!(name: "前の場所", code: "previous", prefix: "PRV")
+      location = Location.create!(name: "現在の場所", code: "current", prefix: "CUR")
+      next_location = Location.create!(name: "次の場所", code: "next", prefix: "NXT")
+
+      get edit_admin_location_path(location), headers: admin_headers
+
+      document = Nokogiri::HTML(response.body)
+      expect(document.at_css('a[rel="prev"]')["href"]).to eq(edit_admin_location_path(previous_location))
+      expect(document.at_css('a[rel="next"]')["href"]).to eq(edit_admin_location_path(next_location))
     end
   end
 

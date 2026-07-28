@@ -44,6 +44,18 @@ RSpec.describe "Admin::Plants", type: :request do
       expect(response.body).to include("Ocimum basilicum")
       expect(response.body).to include("土の表面が乾いたらたっぷり")
     end
+
+    it "ID順で前後のPlant詳細へ移動できる" do
+      previous_plant = Plant.create!(name: "前の植物", code: "previous", prefix: "PRV")
+      plant = Plant.create!(name: "現在の植物", code: "current", prefix: "CUR")
+      next_plant = Plant.create!(name: "次の植物", code: "next", prefix: "NXT")
+
+      get admin_plant_path(plant), headers: admin_headers
+
+      document = Nokogiri::HTML(response.body)
+      expect(document.at_css('a[rel="prev"]')["href"]).to eq(admin_plant_path(previous_plant))
+      expect(document.at_css('a[rel="next"]')["href"]).to eq(admin_plant_path(next_plant))
+    end
   end
 
   # new
@@ -114,6 +126,18 @@ RSpec.describe "Admin::Plants", type: :request do
       plant = Plant.create!(name: "テストプラント", code: "test", prefix: "TST")
       get edit_admin_plant_path(plant), headers: admin_headers
       expect(response).to have_http_status(:ok)
+    end
+
+    it "ID順で前後のPlant編集画面へ移動できる" do
+      previous_plant = Plant.create!(name: "前の植物", code: "previous", prefix: "PRV")
+      plant = Plant.create!(name: "現在の植物", code: "current", prefix: "CUR")
+      next_plant = Plant.create!(name: "次の植物", code: "next", prefix: "NXT")
+
+      get edit_admin_plant_path(plant), headers: admin_headers
+
+      document = Nokogiri::HTML(response.body)
+      expect(document.at_css('a[rel="prev"]')["href"]).to eq(edit_admin_plant_path(previous_plant))
+      expect(document.at_css('a[rel="next"]')["href"]).to eq(edit_admin_plant_path(next_plant))
     end
   end
 

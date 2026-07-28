@@ -231,6 +231,24 @@ RSpec.describe "Admin::Stocks", type: :request do
       expect(response.body).not_to include(">詳細<")
     end
 
+    it "ID順で前後のStock詳細へ移動できる" do
+      stocks = 3.times.map do |index|
+        Stocks::Creator.call(
+          plant_id: create_plant.id,
+          location_id: create_location.id,
+          growing_method: "pot",
+          propagation_method: "seed",
+          label: "ナビゲーション用株#{index}"
+        )
+      end
+
+      get admin_stock_path(stocks.second), headers: admin_headers
+
+      document = Nokogiri::HTML(response.body)
+      expect(document.at_css('a[rel="prev"]')["href"]).to eq(admin_stock_path(stocks.first))
+      expect(document.at_css('a[rel="next"]')["href"]).to eq(admin_stock_path(stocks.third))
+    end
+
     context "親株である" do
       it "Stock詳細が表示される" do
         stock = create_parent_stock
@@ -419,6 +437,24 @@ RSpec.describe "Admin::Stocks", type: :request do
       get edit_admin_stock_path(stock), headers: admin_headers
       expect(response).to have_http_status(:ok)
       expect(response.body).to include("テスト株")
+    end
+
+    it "ID順で前後のStock編集画面へ移動できる" do
+      stocks = 3.times.map do |index|
+        Stocks::Creator.call(
+          plant_id: create_plant.id,
+          location_id: create_location.id,
+          growing_method: "pot",
+          propagation_method: "seed",
+          label: "ナビゲーション用株#{index}"
+        )
+      end
+
+      get edit_admin_stock_path(stocks.second), headers: admin_headers
+
+      document = Nokogiri::HTML(response.body)
+      expect(document.at_css('a[rel="prev"]')["href"]).to eq(edit_admin_stock_path(stocks.first))
+      expect(document.at_css('a[rel="next"]')["href"]).to eq(edit_admin_stock_path(stocks.third))
     end
   end
 

@@ -53,11 +53,13 @@ class Admin::StocksController < Admin::BaseController
 
   def show
     @stock = Stock.find(params[:id])
+    set_record_navigation(@stock)
     set_stock_logs
   end
 
   def edit
     @stock = Stock.find(params[:id])
+    set_record_navigation(@stock)
     set_form_data
   end
 
@@ -79,6 +81,7 @@ class Admin::StocksController < Admin::BaseController
     redirect_to admin_stock_path(@stock)
   rescue ActiveRecord::RecordInvalid => e
     @stock = e.record
+    set_record_navigation(@stock)
     admin_update_error_message(@stock)
     set_form_data
     render :edit, status: :unprocessable_content
@@ -109,6 +112,7 @@ class Admin::StocksController < Admin::BaseController
       redirect_to admin_stocks_path
     else
       # 基本ここには流れてこないはず
+      set_record_navigation(@stock)
       admin_destroy_error_message(@stock)
       @stock_logs = Admin::StockLogsPresenter.call(@stock.stock_action_logs, @stock.stock_observations)
       render :show, status: :unprocessable_content

@@ -25,11 +25,13 @@ class Admin::LocationsController < Admin::BaseController
 
   def show
     @location = Location.find(params[:id])
+    set_record_navigation(@location)
   end
 
   def edit
     set_form_options
     @location = Location.find(params[:id])
+    set_record_navigation(@location)
   end
 
   def update
@@ -41,6 +43,7 @@ class Admin::LocationsController < Admin::BaseController
       redirect_to admin_location_path(@location)
     else
       set_form_options
+      set_record_navigation(@location)
       admin_update_error_message(@location)
       render :edit, status: :unprocessable_content
     end
@@ -52,6 +55,7 @@ class Admin::LocationsController < Admin::BaseController
       admin_destroy_success_message
       redirect_to admin_locations_path
     else
+      set_record_navigation(@location)
       admin_destroy_error_message(@location)
       render :show, status: :unprocessable_content
     end
