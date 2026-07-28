@@ -24,6 +24,7 @@ RSpec.describe "Admin::Locations", type: :request do
     it "新規Location作成画面が表示される" do
       get new_admin_location_path, headers: admin_headers
       expect(response).to have_http_status(:ok)
+      expect(response.body).to include('name="location[image]"')
     end
   end
 
@@ -36,7 +37,8 @@ RSpec.describe "Admin::Locations", type: :request do
             name: "テストロケーション",
             code: "test",
             prefix: "TST",
-            environment: "outdoor"
+            environment: "outdoor",
+            image: fixture_file_upload(Rails.root.join("public/icon.png"), "image/png")
           }
         }
 
@@ -51,6 +53,7 @@ RSpec.describe "Admin::Locations", type: :request do
         expect(created_location.code).to eq("test")
         expect(created_location.prefix).to eq("TST")
         expect(created_location.environment).to eq("outdoor")
+        expect(created_location.image).to be_attached
 
         # 遷移先がshowになるかどうか
         expect(response).to redirect_to(admin_location_path(created_location))

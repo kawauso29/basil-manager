@@ -12,6 +12,7 @@ class Admin::StocksController < Admin::BaseController
 
   def create
     @stock = Stocks::Creator.call(**create_stock_hash)
+    attach_resized_image(@stock, create_stock_params[:image])
     admin_create_success_message
     redirect_to admin_stock_path(@stock)
 
@@ -139,7 +140,8 @@ class Admin::StocksController < Admin::BaseController
       :propagation_method,
       :quantity,
       :label,
-      :memo
+      :memo,
+      :image
     )
   end
 

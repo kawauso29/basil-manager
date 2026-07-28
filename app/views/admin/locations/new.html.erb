@@ -4,5 +4,6 @@
   <div class="form-field"><%= f.label :code, "コード" %><%= f.text_field :code, placeholder: "例: kitchen_back" %></div>
   <div class="form-field"><%= f.label :prefix, "プレフィックス" %><%= f.text_field :prefix, placeholder: "例: KTB" %></div>
   <div class="form-field"><%= f.label :environment, "環境" %><%= f.select :environment, @environment_data, prompt: "選択してください" %></div>
+  <div class="form-field" data-controller="image-preview"><%= f.label :image, "画像" %><%= f.file_field :image, data: { action: "change->image-preview#preview" } %><img data-image-preview-target="image" width="100" hidden></div>
   <%= f.submit "作成" %>
 <% end %>

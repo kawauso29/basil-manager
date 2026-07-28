@@ -184,6 +184,7 @@ RSpec.describe "Admin::Stocks", type: :request do
     it "新規Stock作成画面が表示される" do
       get new_admin_stock_path, headers: admin_headers
       expect(response).to have_http_status(:ok)
+      expect(response.body).to include('name="stock[image]"')
     end
   end
 
@@ -191,8 +192,12 @@ RSpec.describe "Admin::Stocks", type: :request do
   describe "POST /admin/stocks" do
     context "パラメータが正常な場合" do
       it "Stockを作成できる" do
+        params = valid_params.deep_merge(
+          stock: { image: fixture_file_upload(Rails.root.join("public/icon.png"), "image/png") }
+        )
+
         expect {
-          post admin_stocks_path, params: valid_params, headers: admin_headers
+          post admin_stocks_path, params: params, headers: admin_headers
         }.to change(Stock, :count).by(1)
 
         created_stock = Stock.last
@@ -203,6 +208,7 @@ RSpec.describe "Admin::Stocks", type: :request do
         expect(created_stock.growing_method).to eq("pot")
         expect(created_stock.propagation_method).to eq("seed")
         expect(created_stock.label).to eq("テスト株")
+        expect(created_stock.image).to be_attached
 
         # 遷移先がshowになるかどうか
         expect(response).to redirect_to(admin_stock_path(created_stock))

@@ -7,5 +7,6 @@
   <div class="form-field"><%= f.label :quantity, "数量" %><%= f.number_field :quantity, min: 1, value: @stock.quantity || 1 %></div>
   <div class="form-field"><%= f.label :label, "ラベル" %><%= f.text_field :label %></div>
   <div class="form-field"><%= f.label :memo, "メモ" %><%= f.text_area :memo %></div>
+  <div class="form-field" data-controller="image-preview"><%= f.label :image, "画像" %><%= f.file_field :image, data: { action: "change->image-preview#preview" } %><img data-image-preview-target="image" width="100" hidden></div>
   <%= f.submit "作成" %>
 <% end %>

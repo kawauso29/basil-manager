@@ -5,13 +5,14 @@
 
   <% if plant.persisted? %>
     <p class="form-hint">最終株番号: <%= plant.last_stock_number %>（自動管理）</p>
-    <div class="form-field" data-controller="image-preview">
-      <%= f.label :image, "画像" %>
-      <%= expandable_thumbnail(plant.icon_path, plant.image, alt: "現在の画像") if plant.has_image? %>
-      <%= f.file_field :image, data: { action: "change->image-preview#preview" } %>
-      <img data-image-preview-target="image" width="100" hidden>
-    </div>
   <% end %>
+
+  <div class="form-field" data-controller="image-preview">
+    <%= f.label :image, "画像" %>
+    <%= expandable_thumbnail(plant.icon_path, plant.image, alt: "現在の画像") if plant.has_image? %>
+    <%= f.file_field :image, data: { action: "change->image-preview#preview" } %>
+    <img data-image-preview-target="image" width="100" hidden>
+  </div>
 
   <fieldset class="form-section">
     <legend>生育条件・お手入れ</legend>

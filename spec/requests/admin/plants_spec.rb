@@ -50,6 +50,7 @@ RSpec.describe "Admin::Plants", type: :request do
     it "新規Plant作成画面が表示される" do
       get new_admin_plant_path, headers: admin_headers
       expect(response).to have_http_status(:ok)
+      expect(response.body).to include('name="plant[image]"')
     end
   end
 
@@ -62,6 +63,7 @@ RSpec.describe "Admin::Plants", type: :request do
             name: "テストプラント",
             code: "test",
             prefix: "TST",
+            image: fixture_file_upload(Rails.root.join("public/icon.png"), "image/png"),
             **care_guide_params
           }
         }
@@ -77,6 +79,7 @@ RSpec.describe "Admin::Plants", type: :request do
         expect(created_plant.code).to eq("test")
         expect(created_plant.prefix).to eq("TST")
         expect(created_plant.last_stock_number).to eq(0)
+        expect(created_plant.image).to be_attached
         expect(created_plant.attributes).to include(
           care_guide_params.stringify_keys
         )
