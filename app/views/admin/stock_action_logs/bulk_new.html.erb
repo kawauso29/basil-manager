@@ -1,20 +1,139 @@
-<div class="page-header"><div><h1 class="page-title">水やりを一括記録</h1><p class="page-subtitle">屋外で育成中の株を選択して、水やりを記録します。</p></div></div>
+<div class="page-header">
+  <div>
+    <h1 class="page-title">アクションを一括記録</h1>
+    <p class="page-subtitle">環境とロケーションで絞り込み、選択した育成中の株へ同じ作業を記録します。</p>
+  </div>
+</div>
 
 <%= form_with(
       scope: :stock_action_log,
       url: bulk_create_admin_stock_action_logs_path,
       method: :post,
-      class: "form-card"
+      class: "form-card bulk-action-form",
+      data: { controller: "bulk-action-filter" }
     ) do |f| %>
-  <div class="form-field"><label>対象株</label><div class="checkbox-list">
-    <%= f.collection_check_boxes(:stock_ids, @stocks, :id, :code, { include_hidden: false, checked: @selected_stock_ids }) do |checkbox| %>
-      <%= checkbox.label do %>
-        <%= checkbox.check_box %>
-        <%= checkbox.object.display_name %> / <%= checkbox.object.plant.name %> / <%= checkbox.object.location.name %>
+  <fieldset class="form-section bulk-action-section">
+    <legend>環境</legend>
+    <div class="segmented-control">
+      <% Location.environments_i18n.each do |environment, label| %>
+        <% input_id = "stock_action_log_environment_#{environment}" %>
+        <%= radio_button_tag(
+              "stock_action_log[environment]",
+              environment,
+              @selected_environment == environment,
+              id: input_id,
+              data: {
+                bulk_action_filter_target: "environment",
+                action: "change->bulk-action-filter#filter"
+              }
+            ) %>
+        <%= label_tag input_id, label, class: "segmented-control-label" %>
       <% end %>
-    <% end %>
-  </div></div>
-  <div class="form-field"><%= f.label :memo, "メモ" %><%= f.text_area :memo, value: @memo %></div>
-  <div class="form-field"><%= f.label :recorded_at, "作業日時" %><%= f.datetime_local_field :recorded_at, value: @recorded_at %></div>
-  <%= f.submit "水やりを一括記録" %>
+    </div>
+  </fieldset>
+
+  <fieldset class="form-section bulk-action-section">
+    <legend>ロケーション</legend>
+    <p class="form-hint">複数選択できます。未選択の場合は、選んだ環境の全ロケーションを対象にします。</p>
+    <div class="checkbox-list bulk-location-list">
+      <% @locations.each do |location| %>
+        <% available = location.environment == @selected_environment %>
+        <label
+          class="bulk-location-option"
+          data-bulk-action-filter-target="locationRow"
+          data-environment="<%= location.environment %>"
+          <%= "hidden" unless available %>
+        >
+          <%= check_box_tag(
+                "stock_action_log[location_ids][]",
+                location.id,
+                location.id.in?(@selected_location_ids),
+                id: "stock_action_log_location_ids_#{location.id}",
+                disabled: !available,
+                data: {
+                  bulk_action_filter_target: "locationCheckbox",
+                  action: "change->bulk-action-filter#filter"
+                }
+              ) %>
+          <span><%= location.name %></span>
+        </label>
+      <% end %>
+    </div>
+  </fieldset>
+
+  <% visible_stocks = @stocks.select {
+       |stock| stock.location.environment == @selected_environment &&
+         (@selected_location_ids.blank? || stock.location_id.in?(@selected_location_ids))
+     } %>
+  <% visible_selected_stock_ids = visible_stocks.map(&:id) & @selected_stock_ids %>
+
+  <fieldset class="form-section bulk-action-section">
+    <legend>対象株</legend>
+    <p class="form-hint">初期状態では条件に一致する株を全選択しています。現在表示している株だけが記録対象になります。</p>
+    <div class="bulk-selection-actions">
+      <button type="button" class="button button-secondary" data-action="bulk-action-filter#selectAll">全選択</button>
+      <button type="button" class="button button-secondary" data-action="bulk-action-filter#clearAll">全解除</button>
+      <span class="bulk-selection-count" data-bulk-action-filter-target="selectionCount">
+        <%= visible_selected_stock_ids.length %>株を選択中
+      </span>
+    </div>
+
+    <div class="checkbox-list bulk-stock-list">
+      <% @stocks.each do |stock| %>
+        <% visible = stock.in?(visible_stocks) %>
+        <label
+          class="bulk-stock-option"
+          data-bulk-action-filter-target="stockRow"
+          data-environment="<%= stock.location.environment %>"
+          data-location-id="<%= stock.location_id %>"
+          <%= "hidden" unless visible %>
+        >
+          <%= check_box_tag(
+                "stock_action_log[stock_ids][]",
+                stock.id,
+                stock.id.in?(@selected_stock_ids),
+                id: "stock_action_log_stock_ids_#{stock.id}",
+                disabled: !visible,
+                data: {
+                  bulk_action_filter_target: "stockCheckbox",
+                  action: "change->bulk-action-filter#updateSelection"
+                }
+              ) %>
+          <span>
+            <strong><%= stock.display_name %></strong>
+            <span class="bulk-stock-meta">
+              <%= stock.plant.name %> / <%= stock.location.name %> / <%= stock.quantity %>株
+            </span>
+          </span>
+        </label>
+      <% end %>
+      <p
+        class="empty-state"
+        data-bulk-action-filter-target="emptyState"
+        <%= "hidden" if visible_stocks.any? %>
+      >条件に一致する育成中の株はありません。</p>
+    </div>
+  </fieldset>
+
+  <fieldset class="form-section bulk-action-section">
+    <legend>アクション</legend>
+    <div class="form-field">
+      <%= f.label :action_type, "アクション種別" %>
+      <%= f.select :action_type, @action_type_data, { selected: @action_type, prompt: "選択してください" }, required: true %>
+    </div>
+    <div class="form-field">
+      <%= f.label :memo, "メモ" %>
+      <%= f.text_area :memo, value: @memo %>
+    </div>
+    <div class="form-field">
+      <%= f.label :recorded_at, "作業日時" %>
+      <%= f.datetime_local_field :recorded_at, value: @recorded_at, required: true %>
+    </div>
+  </fieldset>
+
+  <%= f.submit(
+        "選択した#{visible_selected_stock_ids.length}株に記録",
+        disabled: visible_selected_stock_ids.empty?,
+        data: { bulk_action_filter_target: "submit" }
+      ) %>
 <% end %>

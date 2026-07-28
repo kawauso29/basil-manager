@@ -50,7 +50,14 @@
   `status_before`と`status_after`、`quantity_changed`は`quantity_before`と
   `quantity_after`を必ず記録する
 - これらの専用操作は、Stockの現在値更新とログ作成を同一トランザクションで行う
-- 一括水やりでは、`outdoor`のLocationにある育成中のStockだけを対象にする
-- 一括水やりの`action_type`はリクエストから受け取らず、サーバー側で`watered`に固定する
+- 一括記録画面では、`Location.environment`と複数のLocationで育成中のStockを
+  絞り込み、対象のStockを個別に選択する。Locationが未選択の場合は、
+  指定した環境の全Locationを対象にする
+- 一括記録では、選択したStockごとに同じ`action_type`、`memo`、`recorded_at`を持つ
+  `stock_action_logs`を1件ずつ作成する。各Stockの履歴は既存の関連から確認できる
+- `moved`、`status_changed`、`quantity_changed`は現在値の更新を伴うため、一括記録の
+  `action_type`には使用しない
+- 一括記録の対象は育成中かつ指定した環境・Locationに一致するStockに限り、
+  画面の絞り込みとは別にサーバー側でも検証する
 - 一括作成はトランザクション内で行い、1件でも保存に失敗した場合は全件をロールバックする
 - enumの日本語表示と変更手順は[`enum 運用ガイド`](../enum/README.md)に従う

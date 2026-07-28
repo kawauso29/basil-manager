@@ -41,5 +41,6 @@
 - 株ごとの現在地は`stocks.location_id`で管理する
 - 場所単位の気象・環境情報は`location_observations`に記録する
 - `environment`は`indoor`または`outdoor`とする
-- 一括水やりの対象には`outdoor`のLocationにある育成中のStockだけを使用する
+- `environment`と複数のLocationは、アクション一括記録画面で育成中のStockを
+  絞り込む条件として使用する
 - enumの日本語表示と変更手順は[`enum 運用ガイド`](../enum/README.md)に従う

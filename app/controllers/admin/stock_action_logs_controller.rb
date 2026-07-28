@@ -28,15 +28,18 @@ class Admin::StockActionLogsController < Admin::BaseController
   end
 
   def bulk_create
-    _params = bulk_watering_params
-    StockActionLogs::BulkWateringCreator.call(
+    _params = bulk_create_params
+    StockActionLogs::BulkCreator.call(
       stock_ids: _params[:stock_ids],
+      environment: _params[:environment],
+      location_ids: _params[:location_ids],
+      action_type: _params[:action_type],
       recorded_at: _params[:recorded_at],
       memo: _params[:memo]
     )
     admin_create_success_message
     redirect_to admin_stock_action_logs_path
-  rescue StockActionLogs::BulkWateringCreator::InvalidSelection => e
+  rescue StockActionLogs::BulkCreator::InvalidSelection => e
     set_form_options_for_bulk_new
     admin_flash_now_alert(e.message)
     render :bulk_new, status: :unprocessable_content
@@ -90,19 +93,40 @@ class Admin::StockActionLogsController < Admin::BaseController
     @stock_data = Stock.active.includes(:plant, :location).map do |stock|
       [ "#{stock.display_name} / #{stock.plant.name} / #{stock.location.name}", stock.id ]
     end
+    @action_type_data = available_action_type_data
+  end
+
+  def available_action_type_data
     action_types = StockActionLog.action_types_i18n.except(*StockActionLog::HISTORY_MANAGED_ACTION_TYPES)
     if @stock_action_log.history_managed?
       action_types[@stock_action_log.action_type] = @stock_action_log.action_type_i18n
     end
-    @action_type_data = action_types.map do |key, value|
+    action_types.map do |key, value|
       [ value, key ]
     end
   end
 
   def set_form_options_for_bulk_new
-    @stocks = Stock.active.joins(:location).merge(Location.outdoor).includes(:plant, :location).order(:id)
-    @selected_stock_ids = @stocks.ids
-    @recorded_at = Time.current
+    @stock_action_log ||= StockActionLog.new
+    @stocks = Stock.active.joins(:location).includes(:plant, :location).order("locations.name", "stocks.id")
+    @locations = Location.order(:name)
+    @action_type_data = available_action_type_data
+
+    if params[:stock_action_log].present?
+      _params = bulk_form_params
+      @selected_environment = _params[:environment].presence_in(Location.environments.keys) || "outdoor"
+      @selected_location_ids = Array(_params[:location_ids]).compact_blank.map(&:to_i)
+      @selected_stock_ids = Array(_params[:stock_ids]).compact_blank.map(&:to_i)
+      @action_type = _params[:action_type]
+      @memo = _params[:memo]
+      @recorded_at = _params[:recorded_at]
+    else
+      @selected_environment = "outdoor"
+      @selected_location_ids = []
+      @selected_stock_ids = @stocks.map(&:id)
+      @action_type = "watered"
+      @recorded_at = Time.current
+    end
   end
 
   def set_stock_relation
@@ -120,10 +144,24 @@ class Admin::StockActionLogsController < Admin::BaseController
     )
   end
 
-  def bulk_watering_params
+  def bulk_create_params
     params.require(:stock_action_log).permit(
+      :environment,
+      :action_type,
       :memo,
       :recorded_at,
+      location_ids: [],
+      stock_ids: []
+    )
+  end
+
+  def bulk_form_params
+    params.require(:stock_action_log).permit(
+      :environment,
+      :action_type,
+      :memo,
+      :recorded_at,
+      location_ids: [],
       stock_ids: []
     )
   end
