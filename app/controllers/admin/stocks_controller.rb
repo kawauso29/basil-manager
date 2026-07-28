@@ -139,7 +139,13 @@ class Admin::StocksController < Admin::BaseController
     @propagation_method_data = Stock.propagation_methods_i18n.map { |key, name| [ name, key ] }
     @status_data = Stock.statuses_i18n.map { |key, name| [ name, key ] }
     @completion_reason_data = Stock.completion_reasons_i18n.map { |key, name| [ name, key ] }
-    @parent_data = Stock.active.where.not(id: params[:id]).map do |stock|
+    parent_candidates = Stock.active
+                             .parent_candidates
+                             .where(plant_id: @stock.plant_id)
+    selectable_parents = parent_candidates.or(Stock.where(id: @stock.parent_stock_id))
+                                          .where.not(id: @stock.id)
+                                          .order(:id)
+    @parent_data = selectable_parents.map do |stock|
       [ stock.display_name, stock.id ]
     end
   end
@@ -149,6 +155,7 @@ class Admin::StocksController < Admin::BaseController
       :plant_id,
       :location_id,
       :parent_stock_id,
+      :parent_stock_candidate,
       :code,
       :status,
       :growing_method,
@@ -169,6 +176,7 @@ class Admin::StocksController < Admin::BaseController
       :growing_method,
       :propagation_method,
       :quantity,
+      :parent_stock_candidate,
       :label,
       :memo,
       :image
@@ -183,6 +191,7 @@ class Admin::StocksController < Admin::BaseController
       growing_method: _params[:growing_method],
       propagation_method: _params[:propagation_method],
       quantity: _params[:quantity],
+      parent_stock_candidate: _params[:parent_stock_candidate],
       label: _params[:label],
       memo: _params[:memo]
     }

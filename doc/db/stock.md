@@ -15,6 +15,7 @@
 | `plant_id` | `bigint` | 不可 | なし | FK | 植物ID |
 | `location_id` | `bigint` | 不可 | なし | FK | 現在の保管場所ID |
 | `parent_stock_id` | `bigint` | 可 | `NULL` | FK | 増殖元となった株ID |
+| `parent_stock_candidate` | `boolean` | 不可 | `false` | なし | 新しい株の親株として選択可能か |
 | `public_token` | `string` | 不可 | なし | UK | 公開画面で株を識別するトークン |
 | `code` | `string` | 不可 | なし | UK | 株の管理コード |
 | `status` | `string` | 不可 | なし | なし | 現在の管理状態 |
@@ -37,6 +38,7 @@
 - `quantity`は1以上の整数とする
 - `parent_stock_id`には自身の`id`を指定できない
 - 親株と子株の`plant_id`は同一とする
+- 新しく`parent_stock_id`へ指定するStockは`parent_stock_candidate = true`とする
 
 ## 関連
 
@@ -58,6 +60,11 @@
 - `memo`には管理単位の現在の補足を記録する。作業時点の履歴は
   `stock_action_logs.memo`へ記録する
 - 増殖元がある場合は`parent_stock_id`で生物学的な元の株を参照する
+- `parent_stock_candidate`は新しい子株の親として選択できるかを表す。
+  実際に子株を持つかどうかとは別に管理する
+- 親株の選択肢には、同じ植物に属する育成中の
+  `parent_stock_candidate = true`のStockだけを表示する
+- 既存の親子関係は親株候補フラグを外した後も保持する
 - 管理上の分割では分割元を親株にせず、新しいStockにも分割前と同じ
   `parent_stock_id`を設定する
 - `quantity`は通常編集では変更せず、専用の数量変更操作を使用する

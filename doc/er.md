@@ -55,6 +55,7 @@ erDiagram
         bigint plant_id FK
         bigint location_id FK
         bigint parent_stock_id FK "NULL可"
+        boolean parent_stock_candidate
         string public_token UK
         string code UK
         string status

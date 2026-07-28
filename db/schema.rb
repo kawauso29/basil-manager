@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_27_233045) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_28_090000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -248,6 +248,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_27_233045) do
     t.string "label", comment: "表示名"
     t.bigint "location_id", null: false, comment: "管理場所ID"
     t.text "memo", comment: "管理単位についてのメモ"
+    t.boolean "parent_stock_candidate", default: false, null: false, comment: "親株として選択可能か"
     t.bigint "parent_stock_id", comment: "親株のID"
     t.bigint "plant_id", null: false, comment: "植物ID"
     t.string "propagation_method", comment: "株の増殖方法"

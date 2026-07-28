@@ -7,6 +7,7 @@
 # plant_id           : 植物ID
 # location_id        : 現在の管理場所ID
 # parent_stock_id    : 増殖元となった親株ID
+# parent_stock_candidate : 親株として選択可能か
 # code               : 株を識別する管理コード
 # label              : 画面上の表示名
 # public_token       : 外部公開用トークン
@@ -24,6 +25,7 @@
 # parent_stock_idがある場合: 子が確定。必ず親株を持つ。
 # => ただし自身が子でもさらに子を持つ場合は子でもあり親でもあることが成り立つ。
 # parent_stock_idがない場合: 親であることは確定しない。子から指定されていれば親が確定。指定されていなければ親株ではない。
+# parent_stock_candidateは新しい子株の親として選択できるかを表し、実際に子株を持つかとは別に管理する。
 
 class Stock < ActiveRecord::Base
   has_secure_token :public_token
@@ -85,12 +87,14 @@ class Stock < ActiveRecord::Base
 
   validate :valid_cannot_self_be_parent
   validate :valid_parent_stock_must_have_same_plant
+  validate :valid_parent_stock_must_be_candidate, if: :will_save_change_to_parent_stock_id?
 
   #######################
   # scope
   #######################
   scope :active, -> { where(completed_at: nil) }
   scope :parents, -> { where(id: parent_select_relation) }
+  scope :parent_candidates, -> { where(parent_stock_candidate: true) }
   scope :children, -> { where.not(parent_stock_id: nil) }
 
   # n+1注意
@@ -229,5 +233,12 @@ class Stock < ActiveRecord::Base
     if parent.plant_id != self.plant_id
       errors.add(:parent_stock_id, :must_have_same_plant)
     end
+  end
+
+  def valid_parent_stock_must_be_candidate
+    return if parent_stock_id.nil?
+    return if parent_stock&.parent_stock_candidate?
+
+    errors.add(:parent_stock_id, :must_be_candidate)
   end
 end
