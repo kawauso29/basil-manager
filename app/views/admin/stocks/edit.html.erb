@@ -1,7 +1,8 @@
-<div class="page-header"><div><h1 class="page-title">株を編集</h1><p class="page-subtitle"><%= @stock.code %>（ID: <%= @stock.id %>）</p></div></div>
+<div class="page-header"><div><h1 class="page-title">株を編集</h1><p class="page-subtitle"><%= @stock.display_name %>（ID: <%= @stock.id %>）</p></div></div>
 <%= form_with model: [:admin, @stock], class: "form-card" do |f| %>
   <div class="form-field"><%= f.label :location_id, "場所" %><%= f.select :location_id, @location_data, prompt: "選択してください" %></div>
   <div class="form-field"><%= f.label :plant_id, "植物" %><%= f.select :plant_id, @plant_data, prompt: "選択してください" %></div>
+  <div class="form-field"><%= f.label :label, "ラベル" %><%= f.text_field :label %></div>
   <div class="form-field"><%= f.label :parent_stock_id, "親株" %><%= f.select :parent_stock_id, @parent_data, include_blank: "親株なし" %></div>
   <div class="form-field"><%= f.label :status, "状態" %><%= f.select :status, @status_data, prompt: "選択してください" %></div>
   <div class="form-field"><%= f.label :code, "管理コード" %><%= f.text_field :code %></div>

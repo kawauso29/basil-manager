@@ -69,7 +69,9 @@ class Admin::StockObservationsController < Admin::BaseController
   private
 
   def set_form_options
-    @stock_data = Stock.active.pluck(:code, :id)
+    @stock_data = Stock.active.includes(:plant, :location).map do |stock|
+      [ "#{stock.display_name} / #{stock.plant.name} / #{stock.location.name}", stock.id ]
+    end
   end
 
   def set_stock_relation

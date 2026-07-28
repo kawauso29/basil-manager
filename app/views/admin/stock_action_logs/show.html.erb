@@ -1,3 +1,11 @@
-<div class="page-header"><div><h1 class="page-title"><%= @stock_action_log.action_type_i18n %></h1><p class="page-subtitle"><%= @stock.code %> / <%= @plant.name %></p></div><div class="page-actions"><%= link_to "編集", edit_admin_stock_action_log_path(@stock_action_log), class: "button" %><%= link_to "一覧へ戻る", admin_stock_action_logs_path, class: "button button-secondary" %></div></div>
-<section class="detail-card"><dl class="detail-list"><dt>株</dt><dd><%= link_to @stock.code, admin_stock_path(@stock) %></dd><dt>現在の場所</dt><dd><%= @location.name %></dd><dt>作業日時</dt><dd><%= @stock_action_log.recorded_at&.strftime("%Y/%m/%d %H:%M") || "未設定" %></dd><dt>メモ</dt><dd><%= @stock_action_log.memo.presence || "—" %></dd></dl></section>
+<div class="page-header"><div><h1 class="page-title"><%= @stock_action_log.action_type_i18n %></h1><p class="page-subtitle"><%= @stock.display_name %> / <%= @plant.name %></p></div><div class="page-actions"><%= link_to "編集", edit_admin_stock_action_log_path(@stock_action_log), class: "button" %><%= link_to "一覧へ戻る", admin_stock_action_logs_path, class: "button button-secondary" %></div></div>
+<section class="detail-card"><dl class="detail-list">
+<dt>株</dt>
+<dd><%= link_to @stock.display_name, admin_stock_path(@stock) %></dd>
+<dt>現在の場所</dt>
+<dd><%= @location.name %></dd>
+<dt>作業日時</dt>
+<dd><%= @stock_action_log.recorded_at&.strftime("%Y/%m/%d %H:%M") || "未設定" %></dd>
+<dt>メモ</dt>
+<dd><%= @stock_action_log.memo.presence || "—" %></dd></dl></section>
 <%= form_with model: [:admin, @stock_action_log], method: :delete, class: "inline-form" do |f| %><%= f.submit "削除", class: "button-danger", data: { turbo_confirm: "本当に削除しますか？" } %><% end %>

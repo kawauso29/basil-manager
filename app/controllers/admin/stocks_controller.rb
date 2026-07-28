@@ -109,8 +109,7 @@ class Admin::StocksController < Admin::BaseController
     @status_data = Stock.statuses_i18n.map { |key, name| [ name, key ] }
     @completion_reason_data = Stock.completion_reasons_i18n.map { |key, name| [ name, key ] }
     @parent_data = Stock.active.where.not(id: params[:id]).map do |stock|
-      label = "#{stock.plant.name}(id:#{stock.id}, code:#{stock.code})"
-      [ label, stock.id ]
+      [ stock.display_name, stock.id ]
     end
   end
 
@@ -127,6 +126,7 @@ class Admin::StocksController < Admin::BaseController
       :completed_at,
       :memo,
       :history_memo,
+      :label,
       :image
     )
   end
@@ -138,6 +138,7 @@ class Admin::StocksController < Admin::BaseController
       :growing_method,
       :propagation_method,
       :quantity,
+      :label,
       :memo
     )
   end
@@ -150,6 +151,7 @@ class Admin::StocksController < Admin::BaseController
       growing_method: _params[:growing_method],
       propagation_method: _params[:propagation_method],
       quantity: _params[:quantity],
+      label: _params[:label],
       memo: _params[:memo]
     }
   end

@@ -10,7 +10,7 @@
     <%= f.collection_check_boxes(:stock_ids, @stocks, :id, :code, { include_hidden: false, checked: @selected_stock_ids }) do |checkbox| %>
       <%= checkbox.label do %>
         <%= checkbox.check_box %>
-        <%= checkbox.object.code %> / <%= checkbox.object.plant.name %> / <%= checkbox.object.location.name %>
+        <%= checkbox.object.display_name %> / <%= checkbox.object.plant.name %> / <%= checkbox.object.location.name %>
       <% end %>
     <% end %>
   </div></div>

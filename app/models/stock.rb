@@ -8,6 +8,7 @@
 # location_id        : 現在の管理場所ID
 # parent_stock_id    : 増殖元となった親株ID
 # code               : 株を識別する管理コード
+# label              : 画面上の表示名
 # public_token       : 外部公開用トークン
 # status             : 現在の管理状態
 # growing_method     : 栽培方法
@@ -125,6 +126,10 @@ class Stock < ActiveRecord::Base
   def thumb_path
     return "" if missing_image?
     self.image.variant(:main_thumb)
+  end
+
+  def display_name
+    [ label.presence, code ].compact.join(" / ")
   end
 
   def change_quantity!(quantity:, memo: nil, recorded_at: Time.current)

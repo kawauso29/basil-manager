@@ -20,7 +20,8 @@ RSpec.describe "Admin::StockActionLogs", type: :request do
       plant_id: create_plant.id,
       location_id: create_location.id,
       growing_method: "pot",
-      propagation_method: "seed"
+      propagation_method: "seed",
+      label: "テスト株"
     )
   end
   let(:create_other_stock) do
@@ -76,6 +77,7 @@ RSpec.describe "Admin::StockActionLogs", type: :request do
       stock_action_log2 = create_stock_action_log
       get admin_stock_action_logs_path, headers: admin_headers
       expect(response).to have_http_status(:ok)
+      expect(response.body).to include("テスト株")
     end
   end
 
@@ -85,14 +87,17 @@ RSpec.describe "Admin::StockActionLogs", type: :request do
       stock_action_log = create_stock_action_log
       get admin_stock_action_log_path(stock_action_log), headers: admin_headers
       expect(response).to have_http_status(:ok)
+      expect(response.body).to include("テスト株")
     end
   end
 
   # new
   describe "GET /admin/stock_action_logs/new" do
     it "新規StockActionLog作成画面が表示される" do
+      create_stock
       get new_admin_stock_action_log_path, headers: admin_headers
       expect(response).to have_http_status(:ok)
+      expect(response.body).to include("テスト株")
     end
   end
 
@@ -149,6 +154,7 @@ RSpec.describe "Admin::StockActionLogs", type: :request do
       stock_action_log = create_stock_action_log
       get edit_admin_stock_action_log_path(stock_action_log), headers: admin_headers
       expect(response).to have_http_status(:ok)
+      expect(response.body).to include("テスト株")
     end
   end
 

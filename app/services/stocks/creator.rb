@@ -1,25 +1,27 @@
 module Stocks
   class Creator
-    attr_reader :plant, :plant_id, :location_id, :growing_method, :propagation_method, :quantity, :memo
+    attr_reader :plant, :plant_id, :location_id, :growing_method, :propagation_method, :quantity, :memo, :label
 
-    def self.call(plant_id:, location_id:, growing_method:, propagation_method: nil, quantity: 1, memo: nil)
+    def self.call(plant_id:, location_id:, growing_method:, propagation_method: nil, quantity: 1, memo: nil, label: nil)
       new(
           plant_id: plant_id,
           location_id: location_id,
           growing_method: growing_method,
           propagation_method: propagation_method,
           quantity: quantity,
-          memo: memo
+          memo: memo,
+          label: label,
       ).call
     end
 
-    def initialize(plant_id:, location_id:, growing_method:, propagation_method: nil, quantity: 1, memo: nil)
+    def initialize(plant_id:, location_id:, growing_method:, propagation_method: nil, quantity: 1, memo: nil, label: nil)
       @plant_id = plant_id
       @location_id = location_id
       @growing_method = growing_method
       @propagation_method = propagation_method
       @quantity = quantity.presence || 1
       @memo = memo
+      @label = label
 
       @plant = load_plant(plant_id)
     end
@@ -59,7 +61,8 @@ module Stocks
         growing_method: growing_method,
         propagation_method: propagation_method,
         quantity: quantity,
-        memo: memo
+        memo: memo,
+        label: label,
       )
       stock
     end

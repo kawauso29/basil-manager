@@ -87,7 +87,9 @@ class Admin::StockActionLogsController < Admin::BaseController
   private
 
   def set_form_options
-    @stock_data = Stock.active.pluck(:code, :id)
+    @stock_data = Stock.active.includes(:plant, :location).map do |stock|
+      [ "#{stock.display_name} / #{stock.plant.name} / #{stock.location.name}", stock.id ]
+    end
     action_types = StockActionLog.action_types_i18n.except(*StockActionLog::HISTORY_MANAGED_ACTION_TYPES)
     if @stock_action_log.history_managed?
       action_types[@stock_action_log.action_type] = @stock_action_log.action_type_i18n

@@ -20,7 +20,8 @@ RSpec.describe "Admin::Stocks", type: :request do
       plant_id: create_plant.id,
       location_id: create_location.id,
       growing_method: "pot",
-      propagation_method: "seed"
+      propagation_method: "seed",
+      label: "テスト株"
     )
   end
   let(:create_other_stock) do
@@ -49,7 +50,8 @@ RSpec.describe "Admin::Stocks", type: :request do
         plant_id: create_plant.id,
         location_id: create_location.id,
         growing_method: "pot",
-        propagation_method: "seed"
+        propagation_method: "seed",
+        label: "テスト株"
       }
     }
   end
@@ -59,7 +61,8 @@ RSpec.describe "Admin::Stocks", type: :request do
         plant_id: nil,
         location_id: create_location.id,
         growing_method: "pot",
-        propagation_method: "seed"
+        propagation_method: "seed",
+        label: "テスト株"
       }
     }
   end
@@ -72,6 +75,7 @@ RSpec.describe "Admin::Stocks", type: :request do
       create_stock
       get admin_stocks_path, headers: admin_headers
       expect(response).to have_http_status(:ok)
+      expect(response.body).to include("テスト株")
       expect(response.body).to include("遮光ラックの上段")
       expect(response.body).to include(stock.created_at.strftime("%Y/%m/%d"))
     end
@@ -86,6 +90,7 @@ RSpec.describe "Admin::Stocks", type: :request do
 
         expect(stock.parent?).to eq(true)
         expect(response).to have_http_status(:ok)
+        expect(response.body).to include("テスト株")
       end
     end
     context "親株ではない" do
@@ -197,6 +202,7 @@ RSpec.describe "Admin::Stocks", type: :request do
         expect(created_stock.location.name).to eq("テストロケーション")
         expect(created_stock.growing_method).to eq("pot")
         expect(created_stock.propagation_method).to eq("seed")
+        expect(created_stock.label).to eq("テスト株")
 
         # 遷移先がshowになるかどうか
         expect(response).to redirect_to(admin_stock_path(created_stock))
@@ -258,6 +264,7 @@ RSpec.describe "Admin::Stocks", type: :request do
       stock = create_stock
       get edit_admin_stock_path(stock), headers: admin_headers
       expect(response).to have_http_status(:ok)
+      expect(response.body).to include("テスト株")
     end
   end
 

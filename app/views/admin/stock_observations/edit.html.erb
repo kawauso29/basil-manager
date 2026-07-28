@@ -1,4 +1,4 @@
-<div class="page-header"><div><h1 class="page-title">観察記録を編集</h1><p class="page-subtitle"><%= @stock.code %> / <%= @plant.name %> / <%= @location.name %></p></div></div>
+<div class="page-header"><div><h1 class="page-title">観察記録を編集</h1><p class="page-subtitle"><%= @stock.display_name %> / <%= @plant.name %> / <%= @location.name %></p></div></div>
 <%= form_with model: [:admin, @stock_observation], class: "form-card" do |f| %>
   <div class="form-field"><%= f.label :height_cm, "高さ（cm）" %><%= f.number_field :height_cm, step: 0.1 %></div>
   <div class="form-field"><%= f.label :memo, "メモ" %><%= f.text_area :memo %></div>
