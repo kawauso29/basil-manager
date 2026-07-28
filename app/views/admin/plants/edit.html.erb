@@ -1,2 +1,2 @@
-<div class="page-header"><div><h1 class="page-title">植物を編集</h1><p class="page-subtitle"><%= @plant.name %>（ID: <%= @plant.id %>）</p></div><div class="page-actions"><%= render "admin/shared/record_navigation", previous_record: @previous_record, next_record: @next_record, navigation_action: :edit %></div></div>
+<div class="page-header"><div><h1 class="page-title">植物を編集</h1><p class="page-subtitle"><%= @plant.name %>（ID: <%= @plant.id %>）</p></div><%= render "actions", plant: @plant, current_action: :edit, previous_record: @previous_record, next_record: @next_record %></div>
 <%= render "form", plant: @plant %>

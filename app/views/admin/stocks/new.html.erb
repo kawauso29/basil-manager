@@ -1,4 +1,4 @@
-<div class="page-header"><div><h1 class="page-title">株を作成</h1><p class="page-subtitle">同じ条件で管理する株をひとつの単位として登録します。</p></div></div>
+<div class="page-header"><div><h1 class="page-title">株を作成</h1><p class="page-subtitle">同じ条件で管理する株をひとつの単位として登録します。</p></div><%= render "actions", stock: @stock, current_action: :new, previous_record: nil, next_record: nil %></div>
 <%= form_with model: [:admin, @stock], class: "form-card" do |f| %>
   <div class="form-field"><%= f.label :location_id, "場所" %><%= f.select :location_id, @location_data, prompt: "選択してください" %></div>
   <div class="form-field"><%= f.label :plant_id, "植物" %><%= f.select :plant_id, @plant_data, prompt: "選択してください" %></div>

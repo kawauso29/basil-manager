@@ -1,0 +1,47 @@
+<div class="page-actions resource-actions stock-actions" aria-label="株の操作">
+  <% if stock&.persisted? && current_action.in?([:show, :edit]) %>
+    <%= render "admin/shared/record_navigation",
+               previous_record: previous_record,
+               next_record: next_record,
+               navigation_action: current_action == :edit ? :edit : nil %>
+  <% end %>
+
+  <% if stock&.persisted? %>
+    <% if current_action == :show %>
+      <span class="button button-secondary" aria-current="page">詳細</span>
+    <% else %>
+      <%= link_to "詳細", admin_stock_path(stock), class: "button button-secondary" %>
+    <% end %>
+
+    <%= link_to "作業を記録", new_admin_stock_action_log_path(stock_id: stock.id), class: "button button-secondary" %>
+    <%= link_to "観察を記録", new_admin_stock_observation_path(stock_id: stock.id), class: "button button-secondary" %>
+
+    <% if current_action == :edit_quantity %>
+      <span class="button button-secondary" aria-current="page">数量を変更</span>
+    <% else %>
+      <%= link_to "数量を変更", edit_quantity_admin_stock_path(stock), class: "button button-secondary" %>
+    <% end %>
+
+    <% if current_action == :edit %>
+      <span class="button" aria-current="page">編集</span>
+    <% else %>
+      <%= link_to "編集", edit_admin_stock_path(stock), class: "button" %>
+    <% end %>
+
+    <%= form_with model: [:admin, stock], method: :delete, class: "inline-form" do |f| %>
+      <%= f.submit "削除", class: "button-danger", data: { turbo_confirm: "本当に削除しますか？" } %>
+    <% end %>
+  <% end %>
+
+  <% if current_action == :new %>
+    <span class="button button-secondary" aria-current="page">株を作成</span>
+  <% else %>
+    <%= link_to "株を作成", new_admin_stock_path, class: "button button-secondary" %>
+  <% end %>
+
+  <% if current_action == :index %>
+    <span class="button button-secondary" aria-current="page">株一覧</span>
+  <% else %>
+    <%= link_to "株一覧", admin_stocks_path, class: "button button-secondary" %>
+  <% end %>
+</div>

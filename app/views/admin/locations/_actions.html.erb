@@ -1,0 +1,40 @@
+<div class="page-actions resource-actions" aria-label="場所の操作">
+  <% if location&.persisted? && current_action.in?([:show, :edit]) %>
+    <%= render "admin/shared/record_navigation",
+               previous_record: previous_record,
+               next_record: next_record,
+               navigation_action: current_action == :edit ? :edit : nil %>
+  <% end %>
+
+  <% if location&.persisted? %>
+    <% if current_action == :show %>
+      <span class="button button-secondary" aria-current="page">詳細</span>
+    <% else %>
+      <%= link_to "詳細", admin_location_path(location), class: "button button-secondary" %>
+    <% end %>
+
+    <%= link_to "この場所の記録", admin_location_observations_path(location_id: location.id), class: "button button-secondary" %>
+
+    <% if current_action == :edit %>
+      <span class="button" aria-current="page">編集</span>
+    <% else %>
+      <%= link_to "編集", edit_admin_location_path(location), class: "button" %>
+    <% end %>
+
+    <%= form_with model: [:admin, location], method: :delete, class: "inline-form" do |f| %>
+      <%= f.submit "削除", class: "button-danger", data: { turbo_confirm: "本当に削除しますか？" } %>
+    <% end %>
+  <% end %>
+
+  <% if current_action == :new %>
+    <span class="button button-secondary" aria-current="page">場所を追加</span>
+  <% else %>
+    <%= link_to "場所を追加", new_admin_location_path, class: "button button-secondary" %>
+  <% end %>
+
+  <% if current_action == :index %>
+    <span class="button button-secondary" aria-current="page">場所一覧</span>
+  <% else %>
+    <%= link_to "場所一覧", admin_locations_path, class: "button button-secondary" %>
+  <% end %>
+</div>

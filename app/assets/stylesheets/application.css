@@ -86,6 +86,7 @@ a:hover { color: var(--green-900); }
 .page-subtitle { margin: 4px 0 0; color: var(--muted); }
 .page-actions,
 .record-navigation { display: flex; flex-wrap: wrap; gap: 8px; }
+.resource-actions { flex: 1; justify-content: flex-end; }
 
 .panel,
 .form-card,
@@ -166,6 +167,7 @@ input[type="submit"]:disabled { color: #758179; cursor: not-allowed; background:
 .button[aria-disabled="true"] { pointer-events: none; }
 .button-secondary { color: var(--green-900); background: #fff; border-color: #b9d5c4; }
 .button-secondary:hover { color: var(--green-900); background: var(--green-100); border-color: #9bc0aa; }
+.button[aria-current="page"] { color: #fff; cursor: default; pointer-events: none; background: var(--green-900); border-color: var(--green-900); }
 .button-danger, input.button-danger { background: var(--danger); border-color: var(--danger); }
 .header-export { margin-left: auto; font-size: 13px; }
 
@@ -267,6 +269,7 @@ input[type="submit"]:disabled { color: #758179; cursor: not-allowed; background:
   .header-export { margin-left: 0; }
   .app-main { padding-top: 20px; }
   .page-header { align-items: flex-start; flex-direction: column; }
+  .resource-actions { justify-content: flex-start; }
   .detail-layout { grid-template-columns: 1fr; }
   .detail-list { grid-template-columns: 105px minmax(0, 1fr); }
   .log-list li { grid-template-columns: 1fr; gap: 3px; }

@@ -67,6 +67,46 @@ RSpec.describe "Admin::Stocks", type: :request do
     }
   end
 
+  describe "共通アクション" do
+    it "一覧と作成画面で共通のコレクション操作を表示する" do
+      {
+        admin_stocks_path => "株一覧",
+        new_admin_stock_path => "株を作成"
+      }.each do |path, current_label|
+        get path, headers: admin_headers
+
+        actions = Nokogiri::HTML(response.body).at_css('[aria-label="株の操作"]')
+        expect(actions.text).to include("株を作成", "株一覧")
+        expect(actions.at_css('[aria-current="page"]').text.strip).to eq(current_label)
+      end
+    end
+
+    it "詳細・編集・数量変更画面で共通のレコード操作を表示する" do
+      stock = create_stock
+
+      {
+        admin_stock_path(stock) => "詳細",
+        edit_admin_stock_path(stock) => "編集",
+        edit_quantity_admin_stock_path(stock) => "数量を変更"
+      }.each do |path, current_label|
+        get path, headers: admin_headers
+
+        actions = Nokogiri::HTML(response.body).at_css('[aria-label="株の操作"]')
+        expect(actions.text).to include(
+          "詳細",
+          "作業を記録",
+          "観察を記録",
+          "数量を変更",
+          "編集",
+          "株を作成",
+          "株一覧"
+        )
+        expect(actions.at_css('input[value="削除"]')).to be_present
+        expect(actions.at_css('[aria-current="page"]').text.strip).to eq(current_label)
+      end
+    end
+  end
+
   # index
   describe "GET /admin/stocks" do
     it "保存済みのStockが一覧に表示される" do
@@ -228,7 +268,8 @@ RSpec.describe "Admin::Stocks", type: :request do
       expect(response.body).to include("数量を変更")
       expect(response.body).to include("編集")
       expect(response.body).to include("削除")
-      expect(response.body).not_to include(">詳細<")
+      document = Nokogiri::HTML(response.body)
+      expect(document.css(".stock-card a").map { |link| link.text.strip }).not_to include("詳細")
     end
 
     it "ID順で前後のStock詳細へ移動できる" do

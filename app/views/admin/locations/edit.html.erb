@@ -1,4 +1,4 @@
-<div class="page-header"><div><h1 class="page-title">場所を編集</h1><p class="page-subtitle"><%= @location.name %>（ID: <%= @location.id %>）</p></div><div class="page-actions"><%= render "admin/shared/record_navigation", previous_record: @previous_record, next_record: @next_record, navigation_action: :edit %></div></div>
+<div class="page-header"><div><h1 class="page-title">場所を編集</h1><p class="page-subtitle"><%= @location.name %>（ID: <%= @location.id %>）</p></div><%= render "actions", location: @location, current_action: :edit, previous_record: @previous_record, next_record: @next_record %></div>
 <%= form_with model: [:admin, @location], class: "form-card" do |f| %>
   <div class="form-field"><%= f.label :name, "名前" %><%= f.text_field :name %></div>
   <div class="form-field"><%= f.label :code, "コード" %><%= f.text_field :code %></div>

@@ -19,6 +19,37 @@ RSpec.describe "Admin::Plants", type: :request do
     }
   end
 
+  describe "共通アクション" do
+    it "一覧と作成画面で共通のコレクション操作を表示する" do
+      {
+        admin_plants_path => "植物一覧",
+        new_admin_plant_path => "植物を追加"
+      }.each do |path, current_label|
+        get path, headers: admin_headers
+
+        actions = Nokogiri::HTML(response.body).at_css('[aria-label="植物の操作"]')
+        expect(actions.text).to include("植物を追加", "植物一覧")
+        expect(actions.at_css('[aria-current="page"]').text.strip).to eq(current_label)
+      end
+    end
+
+    it "詳細と編集画面で共通のレコード操作を表示する" do
+      plant = Plant.create!(name: "共通操作の植物", code: "common-actions", prefix: "CMA")
+
+      {
+        admin_plant_path(plant) => "詳細",
+        edit_admin_plant_path(plant) => "編集"
+      }.each do |path, current_label|
+        get path, headers: admin_headers
+
+        actions = Nokogiri::HTML(response.body).at_css('[aria-label="植物の操作"]')
+        expect(actions.text).to include("詳細", "編集", "植物を追加", "植物一覧")
+        expect(actions.at_css('input[value="削除"]')).to be_present
+        expect(actions.at_css('[aria-current="page"]').text.strip).to eq(current_label)
+      end
+    end
+  end
+
   # index
   describe "GET /admin/plants" do
     it "保存済みのPlantが一覧に表示される" do

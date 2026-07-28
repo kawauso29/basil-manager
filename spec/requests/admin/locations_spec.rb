@@ -1,6 +1,37 @@
 require "rails_helper"
 
 RSpec.describe "Admin::Locations", type: :request do
+  describe "共通アクション" do
+    it "一覧と作成画面で共通のコレクション操作を表示する" do
+      {
+        admin_locations_path => "場所一覧",
+        new_admin_location_path => "場所を追加"
+      }.each do |path, current_label|
+        get path, headers: admin_headers
+
+        actions = Nokogiri::HTML(response.body).at_css('[aria-label="場所の操作"]')
+        expect(actions.text).to include("場所を追加", "場所一覧")
+        expect(actions.at_css('[aria-current="page"]').text.strip).to eq(current_label)
+      end
+    end
+
+    it "詳細と編集画面で共通のレコード操作を表示する" do
+      location = Location.create!(name: "共通操作の場所", code: "common-actions", prefix: "CMA")
+
+      {
+        admin_location_path(location) => "詳細",
+        edit_admin_location_path(location) => "編集"
+      }.each do |path, current_label|
+        get path, headers: admin_headers
+
+        actions = Nokogiri::HTML(response.body).at_css('[aria-label="場所の操作"]')
+        expect(actions.text).to include("詳細", "この場所の記録", "編集", "場所を追加", "場所一覧")
+        expect(actions.at_css('input[value="削除"]')).to be_present
+        expect(actions.at_css('[aria-current="page"]').text.strip).to eq(current_label)
+      end
+    end
+  end
+
   # index
   describe "GET /admin/locations" do
     it "保存済みのLocationが一覧に表示される" do

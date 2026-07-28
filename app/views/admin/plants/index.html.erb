@@ -1,6 +1,6 @@
 <div class="page-header">
   <div><h1 class="page-title">植物</h1><p class="page-subtitle">植物の種類と株コードのプレフィックスを管理します。</p></div>
-  <div class="page-actions"><%= link_to "植物を追加", new_admin_plant_path, class: "button" %></div>
+  <%= render "actions", plant: nil, current_action: :index, previous_record: nil, next_record: nil %>
 </div>
 
 <section class="panel table-wrap">
@@ -11,7 +11,10 @@
         <% @plants.each do |plant| %>
           <tr>
             <td><%= expandable_thumbnail(plant.icon_path, plant.image, alt: plant.name) if plant.has_image? %></td>
-            <td><%= plant.name %></td><td><%= plant.code %></td><td><%= plant.prefix %></td><td><%= plant.last_stock_number %></td>
+            <td>
+              <%= link_to plant.name, admin_plant_path(plant) %>
+            </td>
+            <td><%= plant.code %></td><td><%= plant.prefix %></td><td><%= plant.last_stock_number %></td>
             <td>
               <div class="table-actions">
                 <%= link_to "詳細", admin_plant_path(plant) %>

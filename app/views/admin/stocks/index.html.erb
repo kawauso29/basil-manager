@@ -1,4 +1,4 @@
-<div class="page-header"><div><h1 class="page-title">株</h1><p class="page-subtitle">現在育成中の管理単位を一覧で確認できます。</p></div><div class="page-actions"><%= link_to "株を作成", new_admin_stock_path, class: "button" %></div></div>
+<div class="page-header"><div><h1 class="page-title">株</h1><p class="page-subtitle">現在育成中の管理単位を一覧で確認できます。</p></div><%= render "actions", stock: nil, current_action: :index, previous_record: nil, next_record: nil %></div>
 
 <%= form_with url: admin_stocks_path, method: :get, class: "panel filter-form", data: { turbo: false } do |f| %>
   <div class="filter-field">
