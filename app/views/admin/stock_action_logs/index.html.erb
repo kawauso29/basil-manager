@@ -20,7 +20,12 @@
     <td><%= log.stock.plant.name %> / <%= log.stock.location.name %></td>
     <td><%= log.action_type_i18n %></td>
     <td><%= log.memo %></td>
-    <td><%= link_to "詳細", admin_stock_action_log_path(log) %></td>
+    <td>
+      <div class="table-actions">
+        <%= link_to "詳細", admin_stock_action_log_path(log) %>
+        <%= link_to "編集", edit_admin_stock_action_log_path(log) %>
+      </div>
+    </td>
   </tr>
 <% end %>
 </tbody>

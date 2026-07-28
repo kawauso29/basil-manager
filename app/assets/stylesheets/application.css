@@ -107,6 +107,7 @@ th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--li
 th { color: var(--muted); font-size: 12px; font-weight: 700; white-space: nowrap; }
 tbody tr:last-child td { border-bottom: 0; }
 tbody tr:hover { background: #fafcfb; }
+.table-actions { display: flex; gap: 10px; white-space: nowrap; }
 
 .form-card { max-width: 720px; }
 .form-field { margin-bottom: 16px; }

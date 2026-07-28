@@ -30,7 +30,12 @@
             <td><%= stock.quantity %> 株</td>
             <td><%= stock.memo.presence || "—" %></td>
             <td><%= stock.created_at.strftime("%Y/%m/%d") %></td>
-            <td><%= link_to "詳細", admin_stock_path(stock) %></td>
+            <td>
+              <div class="table-actions">
+                <%= link_to "詳細", admin_stock_path(stock) %>
+                <%= link_to "編集", edit_admin_stock_path(stock) %>
+              </div>
+            </td>
           </tr>
         <% end %>
       </tbody>

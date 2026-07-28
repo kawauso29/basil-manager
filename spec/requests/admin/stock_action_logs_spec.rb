@@ -275,6 +275,7 @@ RSpec.describe "Admin::StockActionLogs", type: :request do
       get admin_stock_action_logs_path, headers: admin_headers
       expect(response).to have_http_status(:ok)
       expect(response.body).to include("テスト株")
+      expect(response.body).to include(edit_admin_stock_action_log_path(stock_action_log))
     end
   end
 

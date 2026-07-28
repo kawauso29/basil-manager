@@ -12,7 +12,12 @@
           <tr>
             <td><%= expandable_thumbnail(plant.icon_path, plant.image, alt: plant.name) if plant.has_image? %></td>
             <td><%= plant.name %></td><td><%= plant.code %></td><td><%= plant.prefix %></td><td><%= plant.last_stock_number %></td>
-            <td><%= link_to "詳細", admin_plant_path(plant) %></td>
+            <td>
+              <div class="table-actions">
+                <%= link_to "詳細", admin_plant_path(plant) %>
+                <%= link_to "編集", edit_admin_plant_path(plant) %>
+              </div>
+            </td>
           </tr>
         <% end %>
       </tbody>

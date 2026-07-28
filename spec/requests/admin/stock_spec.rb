@@ -78,6 +78,68 @@ RSpec.describe "Admin::Stocks", type: :request do
       expect(response.body).to include("テスト株")
       expect(response.body).to include("遮光ラックの上段")
       expect(response.body).to include(stock.created_at.strftime("%Y/%m/%d"))
+      expect(response.body).to include(edit_admin_stock_path(stock))
+    end
+
+    it "一覧表示に必要な関連データを一括取得する" do
+      stock = create_stock
+      blob = ActiveStorage::Blob.create!(
+        key: SecureRandom.hex(20),
+        filename: "stock.png",
+        content_type: "image/png",
+        metadata: { identified: true },
+        service_name: ActiveStorage::Blob.service.name,
+        byte_size: 100,
+        checksum: "test-checksum"
+      )
+      ActiveStorage::Attachment.create!(name: "image", record: stock, blob: blob)
+
+      other_plant = Plant.create!(
+        name: "別のテストプラント",
+        code: "other-test",
+        prefix: "OTH"
+      )
+      other_location = Location.create!(
+        name: "別のテストロケーション",
+        code: "other-test",
+        prefix: "OTH"
+      )
+      Stocks::Creator.call(
+        plant_id: other_plant.id,
+        location_id: other_location.id,
+        growing_method: "pot",
+        propagation_method: "seed"
+      )
+
+      sql_queries = []
+      subscriber = lambda do |_name, _started, _finished, _id, payload|
+        next if payload[:cached] || payload[:name].in?(%w[ SCHEMA TRANSACTION ])
+
+        sql_queries << payload[:sql]
+      end
+
+      ActiveSupport::Notifications.subscribed(subscriber, "sql.active_record") do
+        get admin_stocks_path, headers: admin_headers
+      end
+
+      table_query_counts = sql_queries.filter_map do |sql|
+        sql[/FROM\s+"([a-z_]+)"/, 1]
+      end.tally
+
+      expect(response).to have_http_status(:ok)
+      expect(table_query_counts.slice(
+        "stocks",
+        "plants",
+        "locations",
+        "active_storage_attachments",
+        "active_storage_blobs"
+      )).to eq(
+        "stocks" => 1,
+        "plants" => 1,
+        "locations" => 1,
+        "active_storage_attachments" => 1,
+        "active_storage_blobs" => 1
+      )
     end
   end
 

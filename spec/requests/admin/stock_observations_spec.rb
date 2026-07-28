@@ -68,6 +68,7 @@ RSpec.describe "Admin::StockObservations", type: :request do
       get admin_stock_observations_path, headers: admin_headers
       expect(response).to have_http_status(:ok)
       expect(response.body).to include("テスト株")
+      expect(response.body).to include(edit_admin_stock_observation_path(stock_observation))
     end
   end
 

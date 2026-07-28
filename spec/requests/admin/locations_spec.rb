@@ -7,6 +7,7 @@ RSpec.describe "Admin::Locations", type: :request do
       location = Location.create!(name: "テストロケーション", code: "test", prefix: "TST")
       get admin_locations_path, headers: admin_headers
       expect(response).to have_http_status(:ok)
+      expect(response.body).to include(edit_admin_location_path(location))
     end
   end
 

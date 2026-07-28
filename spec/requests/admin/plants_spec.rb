@@ -25,6 +25,7 @@ RSpec.describe "Admin::Plants", type: :request do
       plant = Plant.create!(name: "テストプラント", code: "test", prefix: "TST")
       get admin_plants_path, headers: admin_headers
       expect(response).to have_http_status(:ok)
+      expect(response.body).to include(edit_admin_plant_path(plant))
     end
   end
 

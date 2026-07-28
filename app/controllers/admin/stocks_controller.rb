@@ -2,7 +2,10 @@ class Admin::StocksController < Admin::BaseController
   include Admin::ImageAttachment
 
   def index
-    @stocks = Stock.active.order(id: :asc)
+    @stocks = Stock.active
+                   .includes(:plant, :location, image_attachment: :blob)
+                   .order(id: :asc)
+                   .load
   end
 
   def new
