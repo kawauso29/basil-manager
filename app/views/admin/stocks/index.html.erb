@@ -23,6 +23,23 @@
   </div>
 <% end %>
 
+<section class="panel">
+  <h2>絞り込み結果</h2>
+  <%= render "admin/shared/summary_cards",
+             items: [
+               {
+                 label: "管理株数",
+                 value: @stock_summary.quantity,
+                 unit: "株"
+               },
+               {
+                 label: "管理単位数",
+                 value: @stock_summary.management_unit_count,
+                 unit: "件"
+               }
+             ] %>
+</section>
+
 <section class="panel table-wrap">
   <% if @stocks.any? %>
     <table>

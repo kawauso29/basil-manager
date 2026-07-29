@@ -1,0 +1,24 @@
+<% if summary.status_rows.any? %>
+  <table>
+    <thead>
+      <tr>
+        <th>状態</th>
+        <th>管理株数</th>
+        <th>管理単位数</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% summary.status_rows.each do |row| %>
+        <tr>
+          <td>
+            <span class="status status--<%= row[:key] %>"><%= row[:label] %></span>
+          </td>
+          <td><%= row[:quantity] %> 株</td>
+          <td><%= row[:management_unit_count] %> 件</td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% else %>
+  <p class="empty-state">育成中の株はありません。</p>
+<% end %>

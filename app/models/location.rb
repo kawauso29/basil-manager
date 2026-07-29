@@ -51,4 +51,10 @@ class Location < ActiveRecord::Base
     return "" if missing_image?
     self.image.variant(:main_thumb)
   end
+
+  def latest_observation
+    location_observations.max_by do |observation|
+      observation.recorded_at || observation.created_at
+    end
+  end
 end

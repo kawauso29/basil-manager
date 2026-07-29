@@ -3,6 +3,9 @@ class Admin::LocationsController < Admin::BaseController
 
   def index
     @locations = Location.all.order(id: :asc)
+    active_stocks = Stock.active.includes(:plant, :location)
+    summary = Admin::StockSummaryPresenter.call(active_stocks)
+    @location_summaries = summary.location_rows.index_by { |row| row[:record].id }
   end
 
   def new
@@ -26,6 +29,7 @@ class Admin::LocationsController < Admin::BaseController
   def show
     @location = Location.find(params[:id])
     set_record_navigation(@location)
+    set_show_data
   end
 
   def edit
@@ -56,12 +60,20 @@ class Admin::LocationsController < Admin::BaseController
       redirect_to admin_locations_path
     else
       set_record_navigation(@location)
+      set_show_data
       admin_destroy_error_message(@location)
       render :show, status: :unprocessable_content
     end
   end
 
   private
+
+  def set_show_data
+    @stocks = @location.stocks.order(:id).to_a
+    active_stocks = @stocks.select { |stock| stock.completed_at.nil? }
+    @stock_summary = Admin::StockSummaryPresenter.call(active_stocks)
+    @latest_location_observation = @location.latest_observation
+  end
 
   def location_params
     params.require(:location).permit(

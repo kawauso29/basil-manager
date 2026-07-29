@@ -123,6 +123,43 @@ RSpec.describe "Admin::Stocks", type: :request do
       expect(response.body).to include(edit_admin_stock_path(stock))
     end
 
+    it "絞り込み結果の管理単位数と管理株数を表示する" do
+      target_stock = Stocks::Creator.call(
+        plant_id: create_plant.id,
+        location_id: create_location.id,
+        growing_method: "pot",
+        propagation_method: "seed",
+        quantity: 3
+      )
+      target_stock.update!(status: "growing")
+      other_plant = Plant.create!(
+        name: "集計対象外の植物",
+        code: "excluded-summary-plant",
+        prefix: "ESP"
+      )
+      Stocks::Creator.call(
+        plant_id: other_plant.id,
+        location_id: create_location.id,
+        growing_method: "pot",
+        propagation_method: "seed",
+        quantity: 7
+      )
+
+      get admin_stocks_path,
+          params: { plant_id: create_plant.id, status: "growing" },
+          headers: admin_headers
+
+      document = Nokogiri::HTML(response.body)
+      cards = document.css(".summary-card").to_h do |card|
+        [ card.at_css("dt").text.strip, card.at_css("dd").text.squish ]
+      end
+
+      expect(cards).to include(
+        "管理株数" => "3 株",
+        "管理単位数" => "1 件"
+      )
+    end
+
     it "環境とロケーションを組み合わせて絞り込む" do
       indoor_stock = create_stock
       indoor_stock.update!(label: "屋内の株")
@@ -272,6 +309,42 @@ RSpec.describe "Admin::Stocks", type: :request do
       expect(response.body).to include("削除")
       document = Nokogiri::HTML(response.body)
       expect(document.css(".stock-card a").map { |link| link.text.strip }).not_to include("詳細")
+    end
+
+    it "直近の作業・観察と育成中の子株数を表示する" do
+      stock = create_stock
+      stock.update!(parent_stock_candidate: true)
+      child_stock = Stocks::Creator.call(
+        plant_id: create_plant.id,
+        location_id: create_location.id,
+        growing_method: "pot",
+        propagation_method: "seed",
+        quantity: 3
+      )
+      child_stock.update!(parent_stock_id: stock.id)
+      stock.stock_action_logs.create!(
+        action_type: "watered",
+        recorded_at: Time.zone.local(2026, 7, 27, 8)
+      )
+      stock.stock_action_logs.create!(
+        action_type: "fertilized",
+        recorded_at: Time.zone.local(2026, 7, 28, 9)
+      )
+      stock.stock_observations.create!(
+        height_cm: 12.5,
+        recorded_at: Time.zone.local(2026, 7, 28, 8)
+      )
+
+      get admin_stock_path(stock), headers: admin_headers
+
+      expect(response).to have_http_status(:ok)
+      expect(response.body).to include(
+        "直近の状況",
+        "2026/07/27 08:00",
+        "2026/07/28 09:00",
+        "12.5 cm",
+        "3 株"
+      )
     end
 
     it "ID順で前後のStock詳細へ移動できる" do

@@ -22,6 +22,7 @@ class Admin::StocksController < Admin::BaseController
                    .includes(:plant, :location, image_attachment: :blob)
                    .order(id: :asc)
                    .load
+    @stock_summary = Admin::StockSummaryPresenter.call(@stocks)
   end
 
   def new
@@ -54,7 +55,7 @@ class Admin::StocksController < Admin::BaseController
   def show
     @stock = Stock.find(params[:id])
     set_record_navigation(@stock)
-    set_stock_logs
+    set_show_data
   end
 
   def edit
@@ -114,7 +115,7 @@ class Admin::StocksController < Admin::BaseController
       # 基本ここには流れてこないはず
       set_record_navigation(@stock)
       admin_destroy_error_message(@stock)
-      @stock_logs = Admin::StockLogsPresenter.call(@stock.stock_action_logs, @stock.stock_observations)
+      set_show_data
       render :show, status: :unprocessable_content
     end
   end
@@ -201,7 +202,15 @@ class Admin::StocksController < Admin::BaseController
     params.require(:stock_quantity).permit(:quantity, :memo)
   end
 
-  def set_stock_logs
-    @stock_logs = Admin::StockLogsPresenter.call(@stock.stock_action_logs, @stock.stock_observations)
+  def set_show_data
+    action_logs = @stock.stock_action_logs.to_a
+    observations = @stock.stock_observations.to_a
+    @child_stocks = @stock.child_stocks.order(:id).to_a
+    @stock_logs = Admin::StockLogsPresenter.call(action_logs, observations)
+    @stock_activity_summary = Admin::StockActivitySummaryPresenter.call(
+      action_logs: action_logs,
+      observations: observations,
+      child_stocks: @child_stocks
+    )
   end
 end

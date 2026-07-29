@@ -34,11 +34,36 @@ RSpec.describe "Admin::Locations", type: :request do
 
   # index
   describe "GET /admin/locations" do
-    it "保存済みのLocationが一覧に表示される" do
+    it "保存済みのLocationと管理株数・植物種数が一覧に表示される" do
       location = Location.create!(name: "テストロケーション", code: "test", prefix: "TST")
+      first_plant = Plant.create!(name: "一覧の第一植物", code: "index-first", prefix: "IFR")
+      second_plant = Plant.create!(name: "一覧の第二植物", code: "index-second", prefix: "ISC")
+      Stocks::Creator.call(
+        plant_id: first_plant.id,
+        location_id: location.id,
+        growing_method: "pot",
+        propagation_method: "seed",
+        quantity: 4
+      )
+      Stocks::Creator.call(
+        plant_id: second_plant.id,
+        location_id: location.id,
+        growing_method: "pot",
+        propagation_method: "seed",
+        quantity: 2
+      )
+
       get admin_locations_path, headers: admin_headers
+
       expect(response).to have_http_status(:ok)
       expect(response.body).to include(edit_admin_location_path(location))
+      row = Nokogiri::HTML(response.body)
+                    .at_css("a[href='#{admin_location_path(location)}']")
+                    .ancestors("tr")
+                    .first
+      cells = row.css("td").map { |cell| cell.text.squish }
+      expect(cells[5]).to include("一覧の第一植物", "一覧の第二植物", "2 種")
+      expect(cells[6]).to eq("6 株")
     end
   end
 
@@ -48,6 +73,65 @@ RSpec.describe "Admin::Locations", type: :request do
       location = Location.create!(name: "テストロケーション", code: "test", prefix: "TST")
       get admin_location_path(location), headers: admin_headers
       expect(response).to have_http_status(:ok)
+    end
+
+    it "育成中Stockの管理株数、植物内訳、最新の環境記録を表示する" do
+      location = Location.create!(name: "集計する場所", code: "summary", prefix: "SUM")
+      first_plant = Plant.create!(name: "第一植物", code: "first-plant", prefix: "FST")
+      second_plant = Plant.create!(name: "第二植物", code: "second-plant", prefix: "SND")
+      Stocks::Creator.call(
+        plant_id: first_plant.id,
+        location_id: location.id,
+        growing_method: "pot",
+        propagation_method: "seed",
+        quantity: 4
+      )
+      Stocks::Creator.call(
+        plant_id: second_plant.id,
+        location_id: location.id,
+        growing_method: "pot",
+        propagation_method: "seed",
+        quantity: 2
+      )
+      LocationObservation.create!(
+        location: location,
+        temperature: 20,
+        weather: "cloudy",
+        memo: "古い環境記録",
+        recorded_at: Time.zone.local(2026, 7, 27, 8)
+      )
+      LocationObservation.create!(
+        location: location,
+        temperature: 25.5,
+        weather: "sunny",
+        memo: "最新の環境記録",
+        recorded_at: Time.zone.local(2026, 7, 28, 8)
+      )
+
+      get admin_location_path(location), headers: admin_headers
+
+      document = Nokogiri::HTML(response.body)
+      cards = document.css(".summary-card").to_h do |card|
+        [ card.at_css("dt").text.strip, card.at_css("dd").text.squish ]
+      end
+
+      expect(cards).to include(
+        "管理株数" => "6 株",
+        "管理単位数" => "2 件",
+        "植物種数" => "2 種"
+      )
+      expect(document.at_css(".summary-lead").text.squish).to include(
+        "2種類",
+        "2管理単位・6株"
+      )
+      expect(document.text.squish).to include("育成開始 6 株")
+      expect(response.body).to include(
+        admin_plant_path(first_plant),
+        admin_plant_path(second_plant),
+        "25.5",
+        "最新の環境記録"
+      )
+      expect(response.body).not_to include("古い環境記録")
     end
 
     it "ID順で前後のLocation詳細へ移動できる" do

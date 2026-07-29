@@ -103,6 +103,28 @@ a:hover { color: var(--green-900); }
 .detail-card + .panel,
 .form-card + .panel { margin-top: 18px; }
 
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  margin: 0;
+}
+.summary-card {
+  padding: 14px 16px;
+  background: var(--canvas);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+}
+.summary-card dt { color: var(--muted); font-size: 13px; font-weight: 700; }
+.summary-card dd { margin: 4px 0 0; }
+.summary-value { color: var(--green-900); font-size: 28px; line-height: 1.2; }
+.summary-note { margin: 4px 0 0; color: var(--muted); font-size: 12px; }
+.summary-lead { margin: 0 0 16px; font-size: 16px; }
+.summary-subtitle { margin: 20px 0 8px; font-size: 15px; }
+.summary-related-count { display: block; color: var(--muted); font-size: 12px; }
+.summary-statuses { display: flex; flex-wrap: wrap; gap: 5px; }
+.summary-observation-date { display: block; color: var(--muted); font-size: 12px; }
+
 .table-wrap { overflow-x: auto; }
 table { width: 100%; border-collapse: collapse; }
 th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--line); vertical-align: middle; }

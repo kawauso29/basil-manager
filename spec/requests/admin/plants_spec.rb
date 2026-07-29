@@ -52,11 +52,36 @@ RSpec.describe "Admin::Plants", type: :request do
 
   # index
   describe "GET /admin/plants" do
-    it "保存済みのPlantが一覧に表示される" do
+    it "保存済みのPlantと管理株数・ロケーション数が一覧に表示される" do
       plant = Plant.create!(name: "テストプラント", code: "test", prefix: "TST")
+      first_location = Location.create!(name: "一覧の第一場所", code: "index-first", prefix: "IFR")
+      second_location = Location.create!(name: "一覧の第二場所", code: "index-second", prefix: "ISC")
+      Stocks::Creator.call(
+        plant_id: plant.id,
+        location_id: first_location.id,
+        growing_method: "pot",
+        propagation_method: "seed",
+        quantity: 3
+      )
+      Stocks::Creator.call(
+        plant_id: plant.id,
+        location_id: second_location.id,
+        growing_method: "pot",
+        propagation_method: "seed",
+        quantity: 2
+      )
+
       get admin_plants_path, headers: admin_headers
+
       expect(response).to have_http_status(:ok)
       expect(response.body).to include(edit_admin_plant_path(plant))
+      row = Nokogiri::HTML(response.body)
+                    .at_css("a[href='#{admin_plant_path(plant)}']")
+                    .ancestors("tr")
+                    .first
+      cells = row.css("td").map { |cell| cell.text.squish }
+      expect(cells[4]).to include("一覧の第一場所", "一覧の第二場所", "2 か所")
+      expect(cells[5]).to eq("5 株")
     end
   end
 
@@ -74,6 +99,60 @@ RSpec.describe "Admin::Plants", type: :request do
       expect(response).to have_http_status(:ok)
       expect(response.body).to include("Ocimum basilicum")
       expect(response.body).to include("土の表面が乾いたらたっぷり")
+    end
+
+    it "育成中Stockの管理株数とロケーション数を表示する" do
+      plant = Plant.create!(name: "集計する植物", code: "summary", prefix: "SUM")
+      first_location = Location.create!(name: "第一配置場所", code: "first-location", prefix: "FST")
+      second_location = Location.create!(name: "第二配置場所", code: "second-location", prefix: "SND")
+      Stocks::Creator.call(
+        plant_id: plant.id,
+        location_id: first_location.id,
+        growing_method: "pot",
+        propagation_method: "seed",
+        quantity: 3
+      )
+      Stocks::Creator.call(
+        plant_id: plant.id,
+        location_id: second_location.id,
+        growing_method: "pot",
+        propagation_method: "seed",
+        quantity: 2
+      )
+      completed_stock = Stocks::Creator.call(
+        plant_id: plant.id,
+        location_id: first_location.id,
+        growing_method: "pot",
+        propagation_method: "seed",
+        quantity: 9
+      )
+      completed_stock.update!(
+        completed_at: Time.zone.local(2026, 7, 1, 10),
+        completion_reason: "harvested"
+      )
+
+      get admin_plant_path(plant), headers: admin_headers
+
+      document = Nokogiri::HTML(response.body)
+      cards = document.css(".summary-card").to_h do |card|
+        [ card.at_css("dt").text.strip, card.at_css("dd").text.squish ]
+      end
+
+      expect(cards).to include(
+        "管理株数" => "5 株",
+        "管理単位数" => "2 件",
+        "ロケーション数" => "2 か所"
+      )
+      expect(document.at_css(".summary-lead").text.squish).to include(
+        "5株",
+        "2管理単位",
+        "2か所"
+      )
+      expect(document.text.squish).to include("育成開始 5 株")
+      expect(response.body).to include(
+        admin_location_path(first_location),
+        admin_location_path(second_location)
+      )
     end
 
     it "ID順で前後のPlant詳細へ移動できる" do

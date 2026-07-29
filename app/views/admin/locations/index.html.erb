@@ -1,12 +1,59 @@
-<div class="page-header"><div><h1 class="page-title">場所</h1><p class="page-subtitle">栽培・保管場所を管理します。</p></div><%= render "actions", location: nil, current_action: :index, previous_record: nil, next_record: nil %></div>
+<div class="page-header">
+  <div>
+    <h1 class="page-title">場所</h1>
+    <p class="page-subtitle">栽培・保管場所を管理します。</p>
+  </div>
+  <%= render "actions",
+             location: nil,
+             current_action: :index,
+             previous_record: nil,
+             next_record: nil %>
+</div>
+
 <section class="panel table-wrap">
   <% if @locations.any? %>
-    <table><thead><tr><th>画像</th><th>名前</th><th>コード</th><th>プレフィックス</th><th>環境</th><th></th></tr></thead><tbody>
-      <% @locations.each do |location| %><tr>
-        <td><%= expandable_thumbnail(location.icon_path, location.image, alt: location.name) if location.has_image? %></td>
-        <td><%= link_to location.name, admin_location_path(location) %></td>
-        <td><%= location.code %></td><td><%= location.prefix %></td><td><span class="tag"><%= location.environment_i18n %></span></td><td><div class="table-actions"><%= link_to "詳細", admin_location_path(location) %><%= link_to "編集", edit_admin_location_path(location) %></div></td>
-      </tr><% end %>
-    </tbody></table>
-  <% else %><p class="empty-state">登録されている場所はありません。</p><% end %>
+    <table>
+      <thead>
+        <tr>
+          <th>画像</th>
+          <th>名前</th>
+          <th>コード</th>
+          <th>プレフィックス</th>
+          <th>環境</th>
+          <th>植物</th>
+          <th>管理株数</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @locations.each do |location| %>
+          <% summary = @location_summaries[location.id] || { plant_count: 0, plants: [], quantity: 0 } %>
+          <tr>
+            <td><%= expandable_thumbnail(location.icon_path, location.image, alt: location.name) if location.has_image? %></td>
+            <td><%= link_to location.name, admin_location_path(location) %></td>
+            <td><%= location.code %></td>
+            <td><%= location.prefix %></td>
+            <td><span class="tag"><%= location.environment_i18n %></span></td>
+            <td>
+              <% if summary[:plants].any? %>
+                <%= admin_plant_links(summary[:plants]) %>
+                <span class="summary-related-count"><%= summary[:plant_count] %> 種</span>
+              <% else %>
+                <span class="muted">—</span>
+              <% end %>
+            </td>
+            <td><%= summary[:quantity] %> 株</td>
+            <td>
+              <div class="table-actions">
+                <%= link_to "詳細", admin_location_path(location) %>
+                <%= link_to "編集", edit_admin_location_path(location) %>
+              </div>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% else %>
+    <p class="empty-state">登録されている場所はありません。</p>
+  <% end %>
 </section>

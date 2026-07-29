@@ -1,3 +1,125 @@
-<div class="page-header"><div><h1 class="page-title"><%= @location.name %></h1><p class="page-subtitle">管理場所</p></div><%= render "actions", location: @location, current_action: :show, previous_record: @previous_record, next_record: @next_record %></div>
-<section class="detail-card detail-layout"><dl class="detail-list"><dt>コード</dt><dd><%= @location.code %></dd><dt>プレフィックス</dt><dd><%= @location.prefix %></dd><dt>環境</dt><dd><span class="tag"><%= @location.environment_i18n %></span></dd><dt>作成日</dt><dd><%= @location.created_at.strftime("%Y/%m/%d %H:%M") %></dd><dt>更新日</dt><dd><%= @location.updated_at.strftime("%Y/%m/%d %H:%M") %></dd></dl><%= image_tag(@location.thumb_path, class: "record-image", alt: @location.name) if @location.has_image? %></section>
-<section class="panel"><h2>この場所の株</h2><% if @location.stocks.any? %><% @location.stocks.each do |stock| %><%= render "/admin/stocks/stock_attr", stock: stock %><% end %><% else %><p class="empty-state">現在この場所にある株はありません。</p><% end %></section>
+<div class="page-header">
+  <div>
+    <h1 class="page-title"><%= @location.name %></h1>
+    <p class="page-subtitle">管理場所</p>
+  </div>
+  <%= render "actions",
+             location: @location,
+             current_action: :show,
+             previous_record: @previous_record,
+             next_record: @next_record %>
+</div>
+
+<section class="detail-card detail-layout">
+  <dl class="detail-list">
+    <dt>コード</dt>
+    <dd><%= @location.code %></dd>
+    <dt>プレフィックス</dt>
+    <dd><%= @location.prefix %></dd>
+    <dt>環境</dt>
+    <dd><span class="tag"><%= @location.environment_i18n %></span></dd>
+    <dt>作成日</dt>
+    <dd><%= @location.created_at.strftime("%Y/%m/%d %H:%M") %></dd>
+    <dt>更新日</dt>
+    <dd><%= @location.updated_at.strftime("%Y/%m/%d %H:%M") %></dd>
+  </dl>
+  <%= image_tag(@location.thumb_path, class: "record-image", alt: @location.name) if @location.has_image? %>
+</section>
+
+<section class="panel">
+  <h2>現在の管理状況</h2>
+  <% if @stock_summary.management_unit_count.positive? %>
+    <p class="summary-lead">
+      現在、<strong><%= @stock_summary.plant_count %>種類</strong>の植物を
+      <strong><%= @stock_summary.management_unit_count %>管理単位・<%= @stock_summary.quantity %>株</strong>
+      配置しています。
+    </p>
+  <% else %>
+    <p class="summary-lead">現在管理中の株はありません。</p>
+  <% end %>
+  <%= render "admin/shared/summary_cards",
+             items: [
+               {
+                 label: "管理株数",
+                 value: @stock_summary.quantity,
+                 unit: "株"
+               },
+               {
+                 label: "管理単位数",
+                 value: @stock_summary.management_unit_count,
+                 unit: "件"
+               },
+               {
+                 label: "植物種数",
+                 value: @stock_summary.plant_count,
+                 unit: "種"
+               }
+             ] %>
+  <h3 class="summary-subtitle">状態の内訳</h3>
+  <div class="table-wrap">
+    <%= render "admin/shared/stock_status_summary", summary: @stock_summary %>
+  </div>
+</section>
+
+<section class="panel">
+  <h2>最新の環境記録</h2>
+  <% if @latest_location_observation %>
+    <dl class="detail-list">
+      <dt>記録日時</dt>
+      <dd><%= @latest_location_observation.recorded_at&.strftime("%Y/%m/%d %H:%M") || "未設定" %></dd>
+      <dt>気温</dt>
+      <dd>
+        <% if @latest_location_observation.temperature %>
+          <%= number_with_precision(@latest_location_observation.temperature, precision: 2, strip_insignificant_zeros: true) %> ℃
+        <% else %>
+          —
+        <% end %>
+      </dd>
+      <dt>天候</dt>
+      <dd><%= @latest_location_observation.weather.present? ? @latest_location_observation.weather_i18n : "—" %></dd>
+      <dt>メモ</dt>
+      <dd><%= @latest_location_observation.memo.presence || "—" %></dd>
+    </dl>
+  <% else %>
+    <p class="empty-state">環境記録はまだありません。</p>
+  <% end %>
+</section>
+
+<section class="panel table-wrap">
+  <h2>植物ごとの内訳</h2>
+  <% if @stock_summary.plant_rows.any? %>
+    <table>
+      <thead>
+        <tr>
+          <th>植物</th>
+          <th>管理株数</th>
+          <th>管理単位数</th>
+          <th>状態</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @stock_summary.plant_rows.each do |row| %>
+          <tr>
+            <td><%= link_to row[:record].name, admin_plant_path(row[:record]) %></td>
+            <td><%= row[:quantity] %> 株</td>
+            <td><%= row[:management_unit_count] %> 件</td>
+            <td><%= render "admin/shared/inline_status_summary", rows: row[:status_rows] %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% else %>
+    <p class="empty-state">育成中の株はありません。</p>
+  <% end %>
+</section>
+
+<section class="panel">
+  <h2>この場所の株</h2>
+  <% if @stocks.any? %>
+    <% @stocks.each do |stock| %>
+      <%= render "/admin/stocks/stock_attr", stock: stock %>
+    <% end %>
+  <% else %>
+    <p class="empty-state">現在この場所にある株はありません。</p>
+  <% end %>
+</section>

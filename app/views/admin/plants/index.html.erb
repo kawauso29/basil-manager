@@ -1,20 +1,48 @@
 <div class="page-header">
-  <div><h1 class="page-title">植物</h1><p class="page-subtitle">植物の種類と株コードのプレフィックスを管理します。</p></div>
-  <%= render "actions", plant: nil, current_action: :index, previous_record: nil, next_record: nil %>
+  <div>
+    <h1 class="page-title">植物</h1>
+    <p class="page-subtitle">植物の種類と株コードのプレフィックスを管理します。</p>
+  </div>
+  <%= render "actions",
+             plant: nil,
+             current_action: :index,
+             previous_record: nil,
+             next_record: nil %>
 </div>
 
 <section class="panel table-wrap">
   <% if @plants.any? %>
     <table>
-      <thead><tr><th>画像</th><th>名前</th><th>コード</th><th>プレフィックス</th><th>最終株番号</th><th></th></tr></thead>
+      <thead>
+        <tr>
+          <th>画像</th>
+          <th>名前</th>
+          <th>コード</th>
+          <th>プレフィックス</th>
+          <th>ロケーション</th>
+          <th>管理株数</th>
+          <th>最終株番号</th>
+          <th></th>
+        </tr>
+      </thead>
       <tbody>
         <% @plants.each do |plant| %>
+          <% summary = @plant_summaries[plant.id] || { location_count: 0, locations: [], quantity: 0 } %>
           <tr>
             <td><%= expandable_thumbnail(plant.icon_path, plant.image, alt: plant.name) if plant.has_image? %></td>
+            <td><%= link_to plant.name, admin_plant_path(plant) %></td>
+            <td><%= plant.code %></td>
+            <td><%= plant.prefix %></td>
             <td>
-              <%= link_to plant.name, admin_plant_path(plant) %>
+              <% if summary[:locations].any? %>
+                <%= admin_location_links(summary[:locations]) %>
+                <span class="summary-related-count"><%= summary[:location_count] %> か所</span>
+              <% else %>
+                <span class="muted">—</span>
+              <% end %>
             </td>
-            <td><%= plant.code %></td><td><%= plant.prefix %></td><td><%= plant.last_stock_number %></td>
+            <td><%= summary[:quantity] %> 株</td>
+            <td><%= plant.last_stock_number %></td>
             <td>
               <div class="table-actions">
                 <%= link_to "詳細", admin_plant_path(plant) %>

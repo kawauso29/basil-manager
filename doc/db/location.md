@@ -40,6 +40,7 @@
 - 同じ`prefix`または`name`を持つ場所は重複登録できない
 - 株ごとの現在地は`stocks.location_id`で管理する
 - 場所単位の気象・環境情報は`location_observations`に記録する
+- 最新の場所観察記録は`recorded_at`で判定し、未設定の場合は`created_at`を使用する
 - `environment`は`indoor`または`outdoor`とする
 - `environment`と複数のLocationは、アクション一括記録画面で育成中のStockを
   絞り込む条件として使用する

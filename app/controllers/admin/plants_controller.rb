@@ -3,6 +3,9 @@ class Admin::PlantsController < Admin::BaseController
 
   def index
     @plants = Plant.all.order(id: :asc)
+    active_stocks = Stock.active.includes(:plant, :location)
+    summary = Admin::StockSummaryPresenter.call(active_stocks)
+    @plant_summaries = summary.plant_rows.index_by { |row| row[:record].id }
   end
 
   def new
@@ -24,6 +27,7 @@ class Admin::PlantsController < Admin::BaseController
   def show
     @plant = Plant.find(params[:id])
     set_record_navigation(@plant)
+    set_show_data
   end
 
   def edit
@@ -52,12 +56,19 @@ class Admin::PlantsController < Admin::BaseController
       redirect_to admin_plants_path
     else
       set_record_navigation(@plant)
+      set_show_data
       admin_destroy_error_message(@plant)
       render :show, status: :unprocessable_content
     end
   end
 
   private
+
+  def set_show_data
+    @stocks = @plant.stocks.order(:id).to_a
+    active_stocks = @stocks.select { |stock| stock.completed_at.nil? }
+    @stock_summary = Admin::StockSummaryPresenter.call(active_stocks)
+  end
 
   def plant_params
     params.require(:plant).permit(
