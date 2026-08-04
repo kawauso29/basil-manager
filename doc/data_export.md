@@ -1,6 +1,8 @@
-# データCSVエクスポート
+# データZIPエクスポート
 
-管理画面の「CSVを出力」から、現在の業務データを1つのCSVとしてダウンロードできる。CSVと画像はリクエスト中にメモリへ全件保持せず、順に書き出す。
+管理画面の「データを出力」から、現在の業務データと添付画像を1つのZIPとして
+ダウンロードできる。レコードは通常のCSV、画像は独立したバイナリファイルとして
+格納する。
 
 ## 出力対象
 
@@ -15,7 +17,31 @@
 - `Stock`の`stock_action_logs`（StockActionLog）
 - `Stock`の`stock_observations`（StockObservation）
 
-Active Storageの内部テーブルは出力しない。画像はレコードに対応する行の`image_*`列へ含めるため、画像だけが別データになることはない。
+Active Storageの内部テーブルは出力しない。画像を持つPlant、Location、Stock、
+StockObservationは、CSV行の`image_path`からZIP内の画像を参照できる。
+
+## ZIPの構成
+
+```text
+basil-manager-data-YYYY-MM-DD.zip
+├── data.csv
+└── images
+    ├── locations
+    │   └── <location_id>
+    │       └── <filename>
+    ├── plants
+    │   └── <plant_id>
+    │       └── <filename>
+    └── stocks
+        └── <stock_id>
+            ├── <filename>
+            └── observations
+                └── <stock_observation_id>
+                    └── <filename>
+```
+
+レコードIDをディレクトリへ含めるため、同名画像があっても衝突しない。
+StockObservationの画像は、対応するStockの配下へ格納する。
 
 ## CSVの形式
 
@@ -31,7 +57,7 @@ Active Storageの内部テーブルは出力しない。画像はレコードに
 | `image_filename` | 添付画像のファイル名。画像なしの場合は空 |
 | `image_content_type` | 添付画像のMIMEタイプ。画像なしの場合は空 |
 | `image_byte_size` | 添付画像のバイト数。画像なしの場合は空 |
-| `image_data_url` | `data:<MIMEタイプ>;base64,...` 形式の画像本体。画像なしの場合は空 |
+| `image_path` | ZIP内の画像パス。画像なしの場合は空 |
 
 `attributes_json`は出力時点の全カラムを含む。Plantの学名、生育条件、
 水やり、肥料、風通しなどの育成ガイド、Stockの数量・メモ・ラベル、
@@ -41,4 +67,12 @@ StockActionLogの移動元・移動先、変更前後の状態・数量もこの
 同じ2列で対応するLocationまたはStockを指すため、`attributes_json`を解析しなくても
 主レコードとのまとまりを判別できる。各主レコードとそのログはID順に出力する。
 
-画像を持つのは現在、Plant、Location、Stock、StockObservationである。CSVは画像本体をBase64化するため、元画像より大きくなる。画像理解に対応したAIへ渡す場合は、`image_data_url`列を画像入力として取り出して渡す。
+## 生成方法
+
+ZIPは一時ファイルへ完成させてからレスポンスへチャンク転送する。アーカイブ全体や
+画像全体をメモリへ保持しない。画像はActive Storageからチャンク単位で読み出して
+ZIPへ書き込む。
+
+CSV生成時はRubyのCSVライブラリへ各行を渡し、Base64や引用符を手作業で連結しない。
+このため画像サイズはCSVの構文へ影響せず、`data.csv`は通常のCSVとして最後まで
+解析できる。
