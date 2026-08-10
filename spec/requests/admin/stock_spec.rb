@@ -32,20 +32,6 @@ RSpec.describe "Admin::Stocks", type: :request do
       propagation_method: "seed"
     )
   end
-  let(:create_parent_stock) do
-    parent_stock = create_stock
-    parent_stock.update!(parent_stock_candidate: true)
-    child_stock = create_other_stock
-    child_stock.update!(parent_stock_id: parent_stock.id)
-    parent_stock
-  end
-  let(:create_child_stock) do
-    parent_stock = create_stock
-    parent_stock.update!(parent_stock_candidate: true)
-    child_stock = create_other_stock
-    child_stock.update!(parent_stock_id: parent_stock.id)
-    child_stock
-  end
   let(:valid_params) do
     {
       stock: {
@@ -311,17 +297,8 @@ RSpec.describe "Admin::Stocks", type: :request do
       expect(document.css(".stock-card a").map { |link| link.text.strip }).not_to include("詳細")
     end
 
-    it "直近の作業・観察と育成中の子株数を表示する" do
+    it "直近の作業・観察を表示する" do
       stock = create_stock
-      stock.update!(parent_stock_candidate: true)
-      child_stock = Stocks::Creator.call(
-        plant_id: create_plant.id,
-        location_id: create_location.id,
-        growing_method: "pot",
-        propagation_method: "seed",
-        quantity: 3
-      )
-      child_stock.update!(parent_stock_id: stock.id)
       stock.stock_action_logs.create!(
         action_type: "watered",
         recorded_at: Time.zone.local(2026, 7, 27, 8)
@@ -342,8 +319,7 @@ RSpec.describe "Admin::Stocks", type: :request do
         "直近の状況",
         "2026/07/27 08:00",
         "2026/07/28 09:00",
-        "12.5 cm",
-        "3 株"
+        "12.5 cm"
       )
     end
 
@@ -363,80 +339,6 @@ RSpec.describe "Admin::Stocks", type: :request do
       document = Nokogiri::HTML(response.body)
       expect(document.at_css('a[rel="prev"]')["href"]).to eq(admin_stock_path(stocks.first))
       expect(document.at_css('a[rel="next"]')["href"]).to eq(admin_stock_path(stocks.third))
-    end
-
-    context "親株である" do
-      it "Stock詳細が表示される" do
-        stock = create_parent_stock
-        get admin_stock_path(stock), headers: admin_headers
-
-        expect(stock.parent?).to eq(true)
-        expect(response).to have_http_status(:ok)
-        expect(response.body).to include("テスト株")
-      end
-    end
-    context "親株ではない" do
-      it "Stock詳細が表示される" do
-        stock = create_stock
-        get admin_stock_path(stock), headers: admin_headers
-
-        expect(stock.parent?).to eq(false)
-        expect(response).to have_http_status(:ok)
-      end
-    end
-    context "子株である" do
-      it "Stock詳細が表示される" do
-        stock = create_child_stock
-        get admin_stock_path(stock), headers: admin_headers
-
-        expect(stock.child?).to eq(true)
-        expect(response).to have_http_status(:ok)
-      end
-    end
-    context "子株ではない" do
-      it "Stock詳細が表示される" do
-        stock = create_stock
-        get admin_stock_path(stock), headers: admin_headers
-
-        expect(stock.child?).to eq(false)
-        expect(response).to have_http_status(:ok)
-      end
-    end
-    context "親株を持つ" do
-      it "Stock詳細が表示される" do
-        stock = create_child_stock
-        get admin_stock_path(stock), headers: admin_headers
-
-        expect(stock.has_parent?).to eq(true)
-        expect(response).to have_http_status(:ok)
-      end
-    end
-    context "親株を持たない" do
-      it "Stock詳細が表示される" do
-        stock = create_stock
-        get admin_stock_path(stock), headers: admin_headers
-
-        expect(stock.has_parent?).to eq(false)
-        expect(response).to have_http_status(:ok)
-      end
-    end
-    context "子株を持つ" do
-      it "Stock詳細が表示される" do
-        stock = create_parent_stock
-        get admin_stock_path(stock), headers: admin_headers
-
-        expect(stock.has_children?).to eq(true)
-        expect(response).to have_http_status(:ok)
-      end
-    end
-    context "子株を持たない" do
-      it "Stock詳細が表示される" do
-        stock = create_stock
-        get admin_stock_path(stock), headers: admin_headers
-
-        expect(stock.has_children?).to eq(false)
-        expect(response).to have_http_status(:ok)
-      end
     end
     context "作業ログと観察ログを持つ" do
       it "ログを含むStock詳細が表示される" do
@@ -467,7 +369,6 @@ RSpec.describe "Admin::Stocks", type: :request do
       get new_admin_stock_path, headers: admin_headers
       expect(response).to have_http_status(:ok)
       expect(response.body).to include('name="stock[image]"')
-      expect(response.body).to include('name="stock[parent_stock_candidate]"')
     end
   end
 
@@ -534,14 +435,6 @@ RSpec.describe "Admin::Stocks", type: :request do
         expect(created_stock.quantity).to eq(20)
         expect(created_stock.memo).to eq("摘芯で作った挿し穂")
       end
-
-      it "親株候補としてStockを作成できる" do
-        params = valid_params.deep_merge(stock: { parent_stock_candidate: "1" })
-
-        post admin_stocks_path, params: params, headers: admin_headers
-
-        expect(Stock.last).to be_parent_stock_candidate
-      end
     end
 
     context "パラメータが不正な場合" do
@@ -566,56 +459,6 @@ RSpec.describe "Admin::Stocks", type: :request do
       update_button = Nokogiri::HTML(response.body)
                               .at_css('form.form-card .form-actions--sticky input[type="submit"][value="更新"]')
       expect(update_button).to be_present
-    end
-
-    it "同じ植物の育成中の親株候補だけを親株の選択肢に表示する" do
-      stock = create_stock
-      candidate = create_other_stock
-      candidate.update!(parent_stock_candidate: true)
-      non_candidate = Stocks::Creator.call(
-        plant_id: create_plant.id,
-        location_id: create_location.id,
-        growing_method: "pot"
-      )
-      completed_candidate = Stocks::Creator.call(
-        plant_id: create_plant.id,
-        location_id: create_location.id,
-        growing_method: "pot",
-        parent_stock_candidate: true
-      )
-      completed_candidate.update!(completed_at: Time.current, completion_reason: "cultivation_ended")
-      other_plant = Plant.create!(name: "別の植物", code: "other", prefix: "OTH")
-      other_plant_candidate = Stocks::Creator.call(
-        plant_id: other_plant.id,
-        location_id: create_location.id,
-        growing_method: "pot",
-        parent_stock_candidate: true
-      )
-
-      get edit_admin_stock_path(stock), headers: admin_headers
-
-      option_values = Nokogiri::HTML(response.body)
-                              .css('select[name="stock[parent_stock_id]"] option')
-                              .filter_map { |option| option["value"].presence }
-      expect(option_values).to contain_exactly(candidate.id.to_s)
-      expect(option_values).not_to include(
-        stock.id.to_s,
-        non_candidate.id.to_s,
-        completed_candidate.id.to_s,
-        other_plant_candidate.id.to_s
-      )
-    end
-
-    it "親株候補から外れた設定済みの親株は選択肢に残す" do
-      child_stock = create_child_stock
-      parent_stock = child_stock.parent_stock
-      parent_stock.update!(parent_stock_candidate: false)
-
-      get edit_admin_stock_path(child_stock), headers: admin_headers
-
-      selected_option = Nokogiri::HTML(response.body)
-                                .at_css('select[name="stock[parent_stock_id]"] option[selected]')
-      expect(selected_option["value"]).to eq(parent_stock.id.to_s)
     end
 
     it "ID順で前後のStock編集画面へ移動できる" do
@@ -666,28 +509,6 @@ RSpec.describe "Admin::Stocks", type: :request do
               headers: admin_headers
 
         expect(stock.reload.memo).to eq("南側の青いトレー")
-      end
-
-      it "親株候補フラグを更新できる" do
-        stock = create_stock
-
-        patch admin_stock_path(stock),
-              params: { stock: { parent_stock_candidate: "1" } },
-              headers: admin_headers
-
-        expect(stock.reload).to be_parent_stock_candidate
-      end
-
-      it "親株候補のStockを親株に設定できる" do
-        parent_stock = create_stock
-        parent_stock.update!(parent_stock_candidate: true)
-        child_stock = create_other_stock
-
-        patch admin_stock_path(child_stock),
-              params: { stock: { parent_stock_id: parent_stock.id } },
-              headers: admin_headers
-
-        expect(child_stock.reload.parent_stock).to eq(parent_stock)
       end
 
       it "管理場所を変更して構造化された作業ログを作成する" do
@@ -744,19 +565,6 @@ RSpec.describe "Admin::Stocks", type: :request do
         stock = create_stock
         patch admin_stock_path(stock, invalid_params), headers: admin_headers
         expect(flash.now[:alert]).to include("更新に失敗しました")
-      end
-
-      it "親株候補ではないStockを親株に設定できない" do
-        parent_stock = create_stock
-        child_stock = create_other_stock
-
-        patch admin_stock_path(child_stock),
-              params: { stock: { parent_stock_id: parent_stock.id } },
-              headers: admin_headers
-
-        expect(child_stock.reload.parent_stock).to be_nil
-        expect(response).to have_http_status(:unprocessable_content)
-        expect(response.body).to include("親株候補に設定されている株を選択してください")
       end
     end
   end
@@ -834,26 +642,13 @@ RSpec.describe "Admin::Stocks", type: :request do
 
   # destroy
   describe "DELETE /admin/stocks/:id" do
-    context "子を持つ場合" do
-      it "親Stockを削除できない" do
-        stock = create_parent_stock
-        delete admin_stock_path(stock), headers: admin_headers
-        expect(flash.now[:alert]).to include("削除に失敗しました")
-      end
-    end
-    context "子のStockを持たない場合" do
-      it "親でも子でもないStockを削除できる" do
-        stock = create_stock
-        delete admin_stock_path(stock), headers: admin_headers
-        expect(response).to redirect_to(admin_stocks_path)
-        expect(flash[:notice]).to eq("削除しました")
-      end
-      it "子であるStockを削除できる" do
-        stock = create_child_stock
-        delete admin_stock_path(stock), headers: admin_headers
-        expect(response).to redirect_to(admin_stocks_path)
-        expect(flash[:notice]).to eq("削除しました")
-      end
+    it "Stockを削除できる" do
+      stock = create_stock
+
+      delete admin_stock_path(stock), headers: admin_headers
+
+      expect(response).to redirect_to(admin_stocks_path)
+      expect(flash[:notice]).to eq("削除しました")
     end
   end
 end

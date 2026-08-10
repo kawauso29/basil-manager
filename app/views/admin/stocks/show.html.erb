@@ -52,34 +52,10 @@
         記録なし
       <% end %>
     </dd>
-    <dt>育成中の子株</dt>
-    <dd>
-      <%= @stock_activity_summary.active_child_quantity %> 株
-      （<%= @stock_activity_summary.active_child_management_unit_count %> 管理単位）
-    </dd>
   </dl>
 </section>
 
 <section class="panel">
   <h2>履歴</h2>
   <%= render "/admin/stocks/logs", logs: @stock_logs %>
-</section>
-
-<section class="panel">
-  <h2>系譜</h2>
-  <dl class="detail-list">
-    <dt>親株</dt>
-    <dd>
-      <% if @stock.has_parent? %>
-        <%= link_to @stock.parent_stock.display_name, admin_stock_path(@stock.parent_stock) %>
-      <% else %>
-        なし
-      <% end %>
-    </dd>
-    <dt>子株</dt>
-    <dd><%= @child_stocks.size %> 件</dd>
-  </dl>
-  <% @child_stocks.each do |child_stock| %>
-    <%= render "/admin/stocks/stock_attr", stock: child_stock %>
-  <% end %>
 </section>

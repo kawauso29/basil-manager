@@ -5,7 +5,6 @@
   <div class="form-field"><%= f.label :growing_method, "栽培方法" %><%= f.select :growing_method, @growing_method_data, prompt: "選択してください" %></div>
   <div class="form-field"><%= f.label :propagation_method, "増殖方法" %><%= f.select :propagation_method, @propagation_method_data, include_blank: "未設定" %></div>
   <div class="form-field"><%= f.label :quantity, "数量" %><%= f.number_field :quantity, min: 1, value: @stock.quantity || 1 %></div>
-  <div class="form-field"><%= f.label :parent_stock_candidate do %><%= f.check_box :parent_stock_candidate %> 親株候補にする<% end %><p class="form-hint">新しい株の親株として選択できるようにします。</p></div>
   <div class="form-field"><%= f.label :label, "ラベル" %><%= f.text_field :label %></div>
   <div class="form-field"><%= f.label :memo, "メモ" %><%= f.text_area :memo %></div>
   <div class="form-field" data-controller="image-preview"><%= f.label :image, "画像" %><%= f.file_field :image, data: { action: "change->image-preview#preview" } %><img data-image-preview-target="image" width="100" hidden></div>

@@ -22,7 +22,6 @@ ER図には含めません。`Plant`、`Location`、`StockObservation`が
 erDiagram
     PLANT ||--o{ STOCK : has
     LOCATION ||--o{ STOCK : stores
-    STOCK o|--o{ STOCK : parent_of
     STOCK ||--o{ STOCK_ACTION_LOG : has
     LOCATION o|--o{ STOCK_ACTION_LOG : from
     LOCATION o|--o{ STOCK_ACTION_LOG : to
@@ -54,8 +53,6 @@ erDiagram
         bigint id PK
         bigint plant_id FK
         bigint location_id FK
-        bigint parent_stock_id FK "NULL可"
-        boolean parent_stock_candidate
         string public_token UK
         string code UK
         string status

@@ -3,21 +3,17 @@ class Admin::StockActivitySummaryPresenter
               :last_watered_action,
               :last_fertilized_action,
               :latest_observation,
-              :active_child_management_unit_count,
-              :active_child_quantity
 
-  def self.call(action_logs:, observations:, child_stocks:)
+  def self.call(action_logs:, observations:)
     new(
       action_logs: action_logs,
       observations: observations,
-      child_stocks: child_stocks
     ).call
   end
 
-  def initialize(action_logs:, observations:, child_stocks:)
+  def initialize(action_logs:, observations:)
     @action_logs = action_logs.to_a
     @observations = observations.to_a
-    @child_stocks = child_stocks.to_a
   end
 
   def call
@@ -25,10 +21,6 @@ class Admin::StockActivitySummaryPresenter
     @last_watered_action = action_data(latest_action_of_type("watered"))
     @last_fertilized_action = action_data(latest_action_of_type("fertilized"))
     @latest_observation = observation_data(latest_record(@observations))
-
-    active_child_stocks = @child_stocks.select { |stock| stock.completed_at.nil? }
-    @active_child_management_unit_count = active_child_stocks.size
-    @active_child_quantity = active_child_stocks.sum(&:quantity)
     self
   end
 

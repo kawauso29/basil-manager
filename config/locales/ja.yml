@@ -53,9 +53,6 @@ ja:
         plant_id: 植物
         location: 管理場所
         location_id: 管理場所
-        parent_stock: 親株
-        parent_stock_id: 親株
-        parent_stock_candidate: 親株候補
         code: 管理コード
         status: 管理状態
         growing_method: 栽培方法
@@ -94,13 +91,6 @@ ja:
               required: を選択してください
             location:
               required: を選択してください
-            base:
-              restrict_dependent_destroy:
-                has_many: 子株が存在するため削除できません
-            parent_stock_id:
-              cannot_be_self: に自分自身は指定できません
-              cannot_be_different_plant: に異なる植物を親に指定できません
-              must_be_candidate: は親株候補に設定されている株を選択してください
             status:
               inclusion: を選択してください
               unchanged: は変更前と異なる値を選択してください

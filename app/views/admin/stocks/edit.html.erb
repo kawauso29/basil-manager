@@ -4,8 +4,6 @@
   <div class="form-field"><%= f.label :location_id, "場所" %><%= f.select :location_id, @location_data, prompt: "選択してください" %></div>
   <div class="form-field"><%= f.label :plant_id, "植物" %><%= f.select :plant_id, @plant_data, prompt: "選択してください" %></div>
   <div class="form-field"><%= f.label :label, "ラベル" %><%= f.text_field :label %></div>
-  <div class="form-field"><%= f.label :parent_stock_candidate do %><%= f.check_box :parent_stock_candidate %> 親株候補にする<% end %><p class="form-hint">新しい株の親株として選択できるようにします。</p></div>
-  <div class="form-field"><%= f.label :parent_stock_id, "親株" %><%= f.select :parent_stock_id, @parent_data, include_blank: "親株なし" %></div>
   <div class="form-field"><%= f.label :status, "状態" %><%= f.select :status, @status_data, prompt: "選択してください" %></div>
   <div class="form-field"><%= f.label :code, "管理コード" %><%= f.text_field :code %></div>
   <div class="form-field"><%= f.label :growing_method, "栽培方法" %><%= f.select :growing_method, @growing_method_data, prompt: "選択してください" %></div>

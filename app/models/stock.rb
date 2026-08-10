@@ -1,13 +1,11 @@
 # == 役割
 # 同じ条件でまとめて扱う株の管理単位を管理するモデル。
-# 管理単位内の数量、現在の状態、栽培方法、増殖方法、管理場所および親株との関係を保持する。
+# 管理単位内の数量、現在の状態、栽培方法、増殖方法、管理場所の関係を保持する。
 #
 # == カラム
 # id                 : 株ID
 # plant_id           : 植物ID
 # location_id        : 現在の管理場所ID
-# parent_stock_id    : 増殖元となった親株ID
-# parent_stock_candidate : 親株として選択可能か
 # code               : 株を識別する管理コード
 # label              : 画面上の表示名
 # public_token       : 外部公開用トークン
@@ -21,12 +19,6 @@
 # created_at         : 作成日時
 # updated_at         : 更新日時
 
-# 重要
-# parent_stock_idがある場合: 子が確定。必ず親株を持つ。
-# => ただし自身が子でもさらに子を持つ場合は子でもあり親でもあることが成り立つ。
-# parent_stock_idがない場合: 親であることは確定しない。子から指定されていれば親が確定。指定されていなければ親株ではない。
-# parent_stock_candidateは新しい子株の親として選択できるかを表し、実際に子株を持つかとは別に管理する。
-
 class Stock < ActiveRecord::Base
   has_secure_token :public_token
   has_one_attached :image do |attachable|
@@ -39,18 +31,6 @@ class Stock < ActiveRecord::Base
 
   has_many :stock_action_logs, dependent: :destroy
   has_many :stock_observations, dependent: :destroy
-
-
-  # 自己参照の関連
-  belongs_to :parent_stock,          # parent_stock_idを外部キーとして使用
-              class_name: "Stock",   # 別モデルを見ないようにStockモデル参照を指定
-              optional: true         # 親株が存在しない場合もあるためoptional: trueを指定
-
-
-  has_many :child_stocks,                  # child_stocksで子株の関連を取得
-            class_name: "Stock",           # 別モデルを見ないようにStockモデル参照を指定
-            foreign_key: :parent_stock_id, # 子株の外部キーとしてparent_stock_idを使用
-            dependent: :restrict_with_error
 
   enum :status, {
     starting: "starting",
@@ -86,37 +66,10 @@ class Stock < ActiveRecord::Base
 
   validates :quantity, numericality: { only_integer: true, greater_than: 0 }
 
-  validate :valid_cannot_self_be_parent
-  validate :valid_parent_stock_must_have_same_plant
-  validate :valid_parent_stock_must_be_candidate, if: :will_save_change_to_parent_stock_id?
-
   #######################
   # scope
   #######################
   scope :active, -> { where(completed_at: nil) }
-  scope :parents, -> { where(id: parent_select_relation) }
-  scope :parent_candidates, -> { where(parent_stock_candidate: true) }
-  scope :children, -> { where.not(parent_stock_id: nil) }
-
-  # n+1注意
-  # => パフォーマンスに影響するようならchild_idカラムを増やして
-  # 関連付けは専用フォームに切り出す
-  def parent?
-    ids = self.class.parent_select_relation.pluck(:parent_stock_id)
-    ids.include?(self.id)
-  end
-  def child?
-    self.parent_stock_id.present?
-  end
-  def not_child?
-    !child?
-  end
-  def has_parent?
-    child?
-  end
-  def has_children?
-    self.child_stocks.exists?
-  end
 
   def has_image?
     self.image.attached?
@@ -205,11 +158,6 @@ class Stock < ActiveRecord::Base
     end
   end
 
-  # parent_stock_idに指定されているstock_idの関連を抜き出す
-  def self.parent_select_relation
-    Stock.active.children.select(:parent_stock_id)
-  end
-
   private
 
   def quantity_change_log_memo(previous_quantity, new_quantity, memo)
@@ -217,29 +165,5 @@ class Stock < ActiveRecord::Base
     return change_description if memo.blank?
 
     "#{change_description}（#{memo.strip}）"
-  end
-
-  def valid_cannot_self_be_parent
-    return if parent_stock_id.nil?
-
-    if parent_stock_id == id
-      errors.add(:parent_stock_id, :cannot_be_self)
-    end
-  end
-
-  def valid_parent_stock_must_have_same_plant
-    return if parent_stock_id.nil?
-
-    parent = self.parent_stock
-    if parent.plant_id != self.plant_id
-      errors.add(:parent_stock_id, :must_have_same_plant)
-    end
-  end
-
-  def valid_parent_stock_must_be_candidate
-    return if parent_stock_id.nil?
-    return if parent_stock&.parent_stock_candidate?
-
-    errors.add(:parent_stock_id, :must_be_candidate)
   end
 end

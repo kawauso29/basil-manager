@@ -18,10 +18,7 @@ class Admin::StocksController < Admin::BaseController
     stocks = stocks.where(plant_id: @stock_filters[:plant_id]) if @stock_filters[:plant_id].present?
     stocks = stocks.where(status: @stock_filters[:status]) if Stock.statuses.key?(@stock_filters[:status])
 
-    @stocks = stocks
-                   .includes(:plant, :location, image_attachment: :blob)
-                   .order(id: :asc)
-                   .load
+    @stocks = stocks.includes(:plant, :location, image_attachment: :blob).order(id: :asc).load
     @stock_summary = Admin::StockSummaryPresenter.call(@stocks)
   end
 
@@ -140,23 +137,12 @@ class Admin::StocksController < Admin::BaseController
     @propagation_method_data = Stock.propagation_methods_i18n.map { |key, name| [ name, key ] }
     @status_data = Stock.statuses_i18n.map { |key, name| [ name, key ] }
     @completion_reason_data = Stock.completion_reasons_i18n.map { |key, name| [ name, key ] }
-    parent_candidates = Stock.active
-                             .parent_candidates
-                             .where(plant_id: @stock.plant_id)
-    selectable_parents = parent_candidates.or(Stock.where(id: @stock.parent_stock_id))
-                                          .where.not(id: @stock.id)
-                                          .order(:id)
-    @parent_data = selectable_parents.map do |stock|
-      [ stock.display_name, stock.id ]
-    end
   end
 
   def stock_params
     params.require(:stock).permit(
       :plant_id,
       :location_id,
-      :parent_stock_id,
-      :parent_stock_candidate,
       :code,
       :status,
       :growing_method,
@@ -177,7 +163,6 @@ class Admin::StocksController < Admin::BaseController
       :growing_method,
       :propagation_method,
       :quantity,
-      :parent_stock_candidate,
       :label,
       :memo,
       :image
@@ -192,7 +177,6 @@ class Admin::StocksController < Admin::BaseController
       growing_method: _params[:growing_method],
       propagation_method: _params[:propagation_method],
       quantity: _params[:quantity],
-      parent_stock_candidate: _params[:parent_stock_candidate],
       label: _params[:label],
       memo: _params[:memo]
     }
@@ -205,12 +189,10 @@ class Admin::StocksController < Admin::BaseController
   def set_show_data
     action_logs = @stock.stock_action_logs.to_a
     observations = @stock.stock_observations.to_a
-    @child_stocks = @stock.child_stocks.order(:id).to_a
     @stock_logs = Admin::StockLogsPresenter.call(action_logs, observations)
     @stock_activity_summary = Admin::StockActivitySummaryPresenter.call(
       action_logs: action_logs,
       observations: observations,
-      child_stocks: @child_stocks
     )
   end
 end
