@@ -3,9 +3,6 @@ class Admin::PlantsController < Admin::BaseController
 
   def index
     @plants = Plant.all.order(id: :asc)
-    active_stocks = Stock.active.includes(:plant, :location)
-    summary = Admin::StockSummaryPresenter.call(active_stocks)
-    @plant_summaries = summary.plant_rows.index_by { |row| row[:record].id }
   end
 
   def new
@@ -66,8 +63,6 @@ class Admin::PlantsController < Admin::BaseController
 
   def set_show_data
     @stocks = @plant.stocks.order(:id).to_a
-    active_stocks = @stocks.select { |stock| stock.completed_at.nil? }
-    @stock_summary = Admin::StockSummaryPresenter.call(active_stocks)
   end
 
   def plant_params
@@ -77,18 +72,6 @@ class Admin::PlantsController < Admin::BaseController
       :prefix,
       :last_stock_number,
       :scientific_name,
-      :temperature_requirements,
-      :climate_requirements,
-      :growing_season,
-      :sunlight_requirements,
-      :watering_guide,
-      :fertilizing_guide,
-      :ventilation_requirements,
-      :soil_requirements,
-      :pruning_guide,
-      :overwintering_guide,
-      :care_notes,
-      :care_cautions,
       :image
     )
   end

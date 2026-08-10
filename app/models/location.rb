@@ -1,6 +1,6 @@
 # == 役割
 # 株を保管または栽培する場所を管理するマスターモデル。
-# 株の現在地と、場所単位の環境観察記録の参照先になる。
+# 株の現在地としてStockから参照される。
 #
 # == カラム
 # id         : 管理場所ID
@@ -18,7 +18,6 @@ class Location < ActiveRecord::Base
 
   # 子を1つでも持つ場合は削除せず引き止めます。
   has_many :stocks, dependent: :restrict_with_error
-  has_many :location_observations, dependent: :restrict_with_error
   has_many :outgoing_stock_action_logs,
            class_name: "StockActionLog",
            foreign_key: :from_location_id,
@@ -50,11 +49,5 @@ class Location < ActiveRecord::Base
   def thumb_path
     return "" if missing_image?
     self.image.variant(:main_thumb)
-  end
-
-  def latest_observation
-    location_observations.max_by do |observation|
-      observation.recorded_at || observation.created_at
-    end
   end
 end

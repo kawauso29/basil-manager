@@ -16,6 +16,8 @@
     <dd><%= @plant.code %></dd>
     <dt>プレフィックス</dt>
     <dd><%= @plant.prefix %></dd>
+    <dt>学名</dt>
+    <dd><%= @plant.scientific_name.presence || "—" %></dd>
     <dt>最終株番号</dt>
     <dd><%= @plant.last_stock_number %></dd>
     <dt>作成日</dt>
@@ -24,84 +26,6 @@
     <dd><%= @plant.updated_at.strftime("%Y/%m/%d %H:%M") %></dd>
   </dl>
   <%= image_tag(@plant.thumb_path, class: "record-image", alt: @plant.name) if @plant.has_image? %>
-</section>
-
-<section class="panel">
-  <h2>現在の管理状況</h2>
-  <% if @stock_summary.management_unit_count.positive? %>
-    <p class="summary-lead">
-      現在、<strong><%= @stock_summary.quantity %>株</strong>を
-      <strong><%= @stock_summary.management_unit_count %>管理単位</strong>に分け、
-      <strong><%= @stock_summary.location_count %>か所</strong>で管理しています。
-    </p>
-  <% else %>
-    <p class="summary-lead">現在管理中の株はありません。</p>
-  <% end %>
-  <%= render "admin/shared/summary_cards",
-             items: [
-               {
-                 label: "管理株数",
-                 value: @stock_summary.quantity,
-                 unit: "株"
-               },
-               {
-                 label: "管理単位数",
-                 value: @stock_summary.management_unit_count,
-                 unit: "件"
-               },
-               {
-                 label: "ロケーション数",
-                 value: @stock_summary.location_count,
-                 unit: "か所"
-               }
-             ] %>
-  <h3 class="summary-subtitle">状態の内訳</h3>
-  <div class="table-wrap">
-    <%= render "admin/shared/stock_status_summary", summary: @stock_summary %>
-  </div>
-</section>
-
-<section class="panel table-wrap">
-  <h2>ロケーションへの配置</h2>
-  <% if @stock_summary.location_rows.any? %>
-    <table>
-      <thead>
-        <tr>
-          <th>ロケーション</th>
-          <th>管理株数</th>
-          <th>管理単位数</th>
-          <th>状態</th>
-        </tr>
-      </thead>
-      <tbody>
-        <% @stock_summary.location_rows.each do |row| %>
-          <tr>
-            <td><%= link_to row[:record].name, admin_location_path(row[:record]) %></td>
-            <td><%= row[:quantity] %> 株</td>
-            <td><%= row[:management_unit_count] %> 件</td>
-            <td><%= render "admin/shared/inline_status_summary", rows: row[:status_rows] %></td>
-          </tr>
-        <% end %>
-      </tbody>
-    </table>
-  <% else %>
-    <p class="empty-state">育成中の株はありません。</p>
-  <% end %>
-</section>
-
-<section class="panel">
-  <h2>生育条件・お手入れ</h2>
-  <% care_guide_items = plant_care_guide_items(@plant) %>
-  <% if care_guide_items.any? %>
-    <dl class="detail-list detail-list--multiline">
-      <% care_guide_items.each do |label, value| %>
-        <dt><%= label %></dt>
-        <dd><%= value %></dd>
-      <% end %>
-    </dl>
-  <% else %>
-    <p class="empty-state">生育条件はまだ登録されていません。</p>
-  <% end %>
 </section>
 
 <section class="panel">

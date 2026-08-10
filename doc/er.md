@@ -16,7 +16,6 @@ ER図には含めません。`Plant`、`Location`、`StockObservation`が
 - [`locations` テーブル](db/location.md)
 - [`stock_action_logs` テーブル](db/stock_action_log.md)
 - [`stock_observations` テーブル](db/stock_observation.md)
-- [`location_observations` テーブル](db/location_observation.md)
 
 ```mermaid
 erDiagram
@@ -26,7 +25,6 @@ erDiagram
     LOCATION o|--o{ STOCK_ACTION_LOG : from
     LOCATION o|--o{ STOCK_ACTION_LOG : to
     STOCK ||--o{ STOCK_OBSERVATION : has
-    LOCATION ||--o{ LOCATION_OBSERVATION : has
 
     PLANT {
         bigint id PK
@@ -35,18 +33,6 @@ erDiagram
         string name UK
         integer last_stock_number
         string scientific_name "NULL可"
-        text temperature_requirements "NULL可"
-        text climate_requirements "NULL可"
-        text growing_season "NULL可"
-        text sunlight_requirements "NULL可"
-        text watering_guide "NULL可"
-        text fertilizing_guide "NULL可"
-        text ventilation_requirements "NULL可"
-        text soil_requirements "NULL可"
-        text pruning_guide "NULL可"
-        text overwintering_guide "NULL可"
-        text care_notes "NULL可"
-        text care_cautions "NULL可"
     }
 
     STOCK {
@@ -58,7 +44,6 @@ erDiagram
         string status
         string growing_method
         string propagation_method "NULL可"
-        integer quantity
         text memo "NULL可"
         string completion_reason "NULL可"
         datetime completed_at "NULL可"
@@ -78,8 +63,6 @@ erDiagram
         string action_type
         bigint from_location_id FK "NULL可"
         bigint to_location_id FK "NULL可"
-        integer quantity_before "NULL可"
-        integer quantity_after "NULL可"
         string status_before "NULL可"
         string status_after "NULL可"
         text memo "NULL可"
@@ -94,12 +77,4 @@ erDiagram
         datetime recorded_at "NULL可"
     }
 
-    LOCATION_OBSERVATION {
-        bigint id PK
-        bigint location_id FK
-        decimal temperature "NULL可"
-        string weather "NULL可"
-        text memo "NULL可"
-        datetime recorded_at "NULL可"
-    }
 ```

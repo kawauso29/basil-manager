@@ -102,7 +102,6 @@ Stock.growing_methods_i18n
 Stock.propagation_methods_i18n
 StockActionLog.action_types_i18n
 Location.environments_i18n
-LocationObservation.weathers_i18n
 ```
 
 Gemの追加やenum定義の変更後に`*_i18n`メソッドが見つからない場合は、

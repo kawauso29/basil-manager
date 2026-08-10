@@ -69,13 +69,12 @@ RSpec.describe "Admin::Stocks", type: :request do
       end
     end
 
-    it "詳細・編集・数量変更画面で共通のレコード操作を表示する" do
+    it "詳細・編集画面で共通のレコード操作を表示する" do
       stock = create_stock
 
       {
         admin_stock_path(stock) => "詳細",
-        edit_admin_stock_path(stock) => "編集",
-        edit_quantity_admin_stock_path(stock) => "数量を変更"
+        edit_admin_stock_path(stock) => "編集"
       }.each do |path, current_label|
         get path, headers: admin_headers
 
@@ -84,7 +83,6 @@ RSpec.describe "Admin::Stocks", type: :request do
           "詳細",
           "作業を記録",
           "観察を記録",
-          "数量を変更",
           "編集",
           "株を作成",
           "株一覧"
@@ -107,43 +105,6 @@ RSpec.describe "Admin::Stocks", type: :request do
       expect(response.body).to include("遮光ラックの上段")
       expect(response.body).to include(stock.created_at.strftime("%Y/%m/%d"))
       expect(response.body).to include(edit_admin_stock_path(stock))
-    end
-
-    it "絞り込み結果の管理単位数と管理株数を表示する" do
-      target_stock = Stocks::Creator.call(
-        plant_id: create_plant.id,
-        location_id: create_location.id,
-        growing_method: "pot",
-        propagation_method: "seed",
-        quantity: 3
-      )
-      target_stock.update!(status: "growing")
-      other_plant = Plant.create!(
-        name: "集計対象外の植物",
-        code: "excluded-summary-plant",
-        prefix: "ESP"
-      )
-      Stocks::Creator.call(
-        plant_id: other_plant.id,
-        location_id: create_location.id,
-        growing_method: "pot",
-        propagation_method: "seed",
-        quantity: 7
-      )
-
-      get admin_stocks_path,
-          params: { plant_id: create_plant.id, status: "growing" },
-          headers: admin_headers
-
-      document = Nokogiri::HTML(response.body)
-      cards = document.css(".summary-card").to_h do |card|
-        [ card.at_css("dt").text.strip, card.at_css("dd").text.squish ]
-      end
-
-      expect(cards).to include(
-        "管理株数" => "3 株",
-        "管理単位数" => "1 件"
-      )
     end
 
     it "環境とロケーションを組み合わせて絞り込む" do
@@ -290,37 +251,10 @@ RSpec.describe "Admin::Stocks", type: :request do
       expect(response).to have_http_status(:ok)
       expect(response.body).to include("作業を記録")
       expect(response.body).to include("観察を記録")
-      expect(response.body).to include("数量を変更")
       expect(response.body).to include("編集")
       expect(response.body).to include("削除")
       document = Nokogiri::HTML(response.body)
       expect(document.css(".stock-card a").map { |link| link.text.strip }).not_to include("詳細")
-    end
-
-    it "直近の作業・観察を表示する" do
-      stock = create_stock
-      stock.stock_action_logs.create!(
-        action_type: "watered",
-        recorded_at: Time.zone.local(2026, 7, 27, 8)
-      )
-      stock.stock_action_logs.create!(
-        action_type: "fertilized",
-        recorded_at: Time.zone.local(2026, 7, 28, 9)
-      )
-      stock.stock_observations.create!(
-        height_cm: 12.5,
-        recorded_at: Time.zone.local(2026, 7, 28, 8)
-      )
-
-      get admin_stock_path(stock), headers: admin_headers
-
-      expect(response).to have_http_status(:ok)
-      expect(response.body).to include(
-        "直近の状況",
-        "2026/07/27 08:00",
-        "2026/07/28 09:00",
-        "12.5 cm"
-      )
     end
 
     it "ID順で前後のStock詳細へ移動できる" do
@@ -417,14 +351,13 @@ RSpec.describe "Admin::Stocks", type: :request do
         expect(Stock.last.propagation_method).to be_nil
       end
 
-      it "数量とメモを指定してStockを作成できる" do
+      it "メモを指定してStockを作成できる" do
         params = {
           stock: {
             plant_id: create_plant.id,
             location_id: create_location.id,
             growing_method: "pot",
             propagation_method: "cutting_soil",
-            quantity: 20,
             memo: "摘芯で作った挿し穂"
           }
         }
@@ -432,7 +365,6 @@ RSpec.describe "Admin::Stocks", type: :request do
         post admin_stocks_path, params: params, headers: admin_headers
 
         created_stock = Stock.last
-        expect(created_stock.quantity).to eq(20)
         expect(created_stock.memo).to eq("摘芯で作った挿し穂")
       end
     end
@@ -549,94 +481,14 @@ RSpec.describe "Admin::Stocks", type: :request do
           memo: "発根を確認"
         )
       end
-
-      it "通常の更新では数量を変更できない" do
-        stock = create_stock
-
-        patch admin_stock_path(stock),
-              params: { stock: { quantity: 20 } },
-              headers: admin_headers
-
-        expect(stock.reload.quantity).to eq(1)
-      end
     end
+
     context "パラメータが不正な場合" do
       it "Stockを更新できない" do
         stock = create_stock
         patch admin_stock_path(stock, invalid_params), headers: admin_headers
         expect(flash.now[:alert]).to include("更新に失敗しました")
       end
-    end
-  end
-
-  describe "PATCH /admin/stocks/:id/change_quantity" do
-    context "数量が正常な場合" do
-      it "数量を変更して作業ログを作成する" do
-        stock = create_stock
-
-        expect {
-          patch change_quantity_admin_stock_path(stock),
-                params: {
-                  stock_quantity: {
-                    quantity: 20,
-                    memo: "摘芯で作った挿し穂"
-                  }
-                },
-                headers: admin_headers
-        }.to change(StockActionLog, :count).by(1)
-
-        expect(stock.reload.quantity).to eq(20)
-
-        action_log = stock.stock_action_logs.last
-        expect(action_log.action_type).to eq("quantity_changed")
-        expect(action_log.quantity_before).to eq(1)
-        expect(action_log.quantity_after).to eq(20)
-        expect(action_log.memo).to eq("1株 → 20株（摘芯で作った挿し穂）")
-        expect(action_log.recorded_at).to be_present
-        expect(response).to redirect_to(admin_stock_path(stock))
-      end
-    end
-
-    context "数量が不正な場合" do
-      it "数量を変更せず作業ログも作成しない" do
-        stock = create_stock
-
-        expect {
-          patch change_quantity_admin_stock_path(stock),
-                params: { stock_quantity: { quantity: 0 } },
-                headers: admin_headers
-        }.not_to change(StockActionLog, :count)
-
-        expect(stock.reload.quantity).to eq(1)
-        expect(response).to have_http_status(:unprocessable_content)
-        expect(flash.now[:alert]).to include("数量変更に失敗しました")
-      end
-    end
-
-    context "数量が変更前と同じ場合" do
-      it "作業ログを作成しない" do
-        stock = create_stock
-
-        expect {
-          patch change_quantity_admin_stock_path(stock),
-                params: { stock_quantity: { quantity: 1 } },
-                headers: admin_headers
-        }.not_to change(StockActionLog, :count)
-
-        expect(response).to have_http_status(:unprocessable_content)
-      end
-    end
-  end
-
-  describe "GET /admin/stocks/:id/edit_quantity" do
-    it "数量変更画面を表示する" do
-      stock = create_stock
-
-      get edit_quantity_admin_stock_path(stock), headers: admin_headers
-
-      expect(response).to have_http_status(:ok)
-      expect(response.body).to include("数量を変更")
-      expect(response.body).to include(stock.display_name)
     end
   end
 

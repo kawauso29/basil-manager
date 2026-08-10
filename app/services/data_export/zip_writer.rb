@@ -19,7 +19,7 @@ module DataExport
     ].freeze
 
     RECORD_STRUCTURE = {
-      Location => %i[location_observations].freeze,
+      Location => [].freeze,
       Plant => [].freeze,
       Stock => %i[stock_action_logs stock_observations].freeze
     }.freeze

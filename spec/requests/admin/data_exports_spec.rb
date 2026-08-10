@@ -9,8 +9,7 @@ RSpec.describe "Admin::DataExports", type: :request do
         name: "テストプラント",
         code: "test",
         prefix: "TST",
-        watering_guide: "土の表面が乾いたらたっぷり",
-        care_cautions: "冬の過湿に注意"
+        scientific_name: "Ocimum basilicum"
       )
       plant.image.attach(
         io: StringIO.new("plant image"),
@@ -33,8 +32,7 @@ RSpec.describe "Admin::DataExports", type: :request do
         location_id: location.id,
         growing_method: "pot",
         propagation_method: "seed",
-        quantity: 3,
-        memo: "3株をまとめて管理",
+        memo: "南側で管理",
         label: "南側バジル"
       )
       stock.image.attach(
@@ -78,14 +76,12 @@ RSpec.describe "Admin::DataExports", type: :request do
         )
         expect(JSON.parse(plant_row.fetch("attributes_json"))).to include(
           "name" => "テストプラント",
-          "watering_guide" => "土の表面が乾いたらたっぷり",
-          "care_cautions" => "冬の過湿に注意"
+          "scientific_name" => "Ocimum basilicum"
         )
         expect(JSON.parse(stock_row.fetch("attributes_json"))).to include(
           "plant_id" => plant.id,
           "location_id" => location.id,
-          "quantity" => 3,
-          "memo" => "3株をまとめて管理",
+          "memo" => "南側で管理",
           "label" => "南側バジル"
         )
 
@@ -110,23 +106,19 @@ RSpec.describe "Admin::DataExports", type: :request do
       end
     end
 
-    it "観察記録と操作ログを関連する主レコードの直後に出力する" do
+    it "株の観察記録と操作ログを関連する主レコードの直後に出力する" do
       plant = Plant.create!(name: "ログ用プラント", code: "log-plant", prefix: "LGP")
       location = Location.create!(name: "ログ用ロケーション", code: "log-location", prefix: "LGL")
       stock = Stocks::Creator.call(
         plant_id: plant.id,
         location_id: location.id,
-        growing_method: "pot",
-        quantity: 2
+        growing_method: "pot"
       )
-      location_observation = LocationObservation.create!(
-        location: location,
-        temperature: 24.5,
-        weather: "sunny",
-        memo: "風通し良好"
+      stock_action_log = stock.stock_action_logs.create!(
+        action_type: "watered",
+        memo: "水やり",
+        recorded_at: Time.zone.local(2026, 7, 28, 8)
       )
-      stock.change_quantity!(quantity: 4, memo: "株分け")
-      stock_action_log = stock.stock_action_logs.find_by!(action_type: "quantity_changed")
       stock_observation = StockObservation.create!(stock: stock, height_cm: 12.5, memo: "元気")
       stock_observation.image.attach(
         io: StringIO.new("growth image"),
@@ -141,32 +133,16 @@ RSpec.describe "Admin::DataExports", type: :request do
         row_indexes = rows.each_with_index.to_h do |row, index|
           [ [ row.fetch("record_type"), row.fetch("record_id") ], index ]
         end
-        location_row_index = row_indexes.fetch([ "Location", location.id.to_s ])
-        location_log_index = row_indexes.fetch([ "LocationObservation", location_observation.id.to_s ])
         stock_row_index = row_indexes.fetch([ "Stock", stock.id.to_s ])
         stock_action_log_index = row_indexes.fetch([ "StockActionLog", stock_action_log.id.to_s ])
         stock_observation_index = row_indexes.fetch([ "StockObservation", stock_observation.id.to_s ])
 
-        expect(location_log_index).to eq(location_row_index + 1)
         expect(stock_action_log_index).to eq(stock_row_index + 1)
         expect(stock_observation_index).to eq(stock_action_log_index + 1)
 
-        location_log_row = rows[location_log_index]
         stock_action_log_row = rows[stock_action_log_index]
         stock_observation_row = rows[stock_observation_index]
 
-        expect(location_log_row.to_h).to include(
-          "record_role" => "log",
-          "main_record_type" => "Location",
-          "main_record_id" => location.id.to_s,
-          "association_name" => "location_observations"
-        )
-        expect(JSON.parse(location_log_row.fetch("attributes_json"))).to include(
-          "location_id" => location.id,
-          "temperature" => "24.5",
-          "weather" => "sunny",
-          "memo" => "風通し良好"
-        )
         expect(stock_action_log_row.to_h).to include(
           "record_role" => "log",
           "main_record_type" => "Stock",
@@ -175,9 +151,8 @@ RSpec.describe "Admin::DataExports", type: :request do
         )
         expect(JSON.parse(stock_action_log_row.fetch("attributes_json"))).to include(
           "stock_id" => stock.id,
-          "action_type" => "quantity_changed",
-          "quantity_before" => 2,
-          "quantity_after" => 4
+          "action_type" => "watered",
+          "memo" => "水やり"
         )
 
         expected_image_path =

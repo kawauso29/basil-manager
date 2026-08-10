@@ -13,8 +13,6 @@
       <%= link_to "詳細", admin_location_path(location), class: "button button-secondary" %>
     <% end %>
 
-    <%= link_to "この場所の記録", admin_location_observations_path(location_id: location.id), class: "button button-secondary" %>
-
     <% if current_action == :edit %>
       <span class="button" aria-current="page">編集</span>
     <% else %>

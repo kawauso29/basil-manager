@@ -10,16 +10,7 @@ Rails.application.routes.draw do
     resource :data_export, only: :show
     resources :plants
     resources :locations
-    resources :location_observations do
-      collection do
-        get :bulk_new
-        post :bulk_create
-      end
-    end
-    resources :stocks do
-      get :edit_quantity, on: :member
-      patch :change_quantity, on: :member
-    end
+    resources :stocks
     resources :stock_action_logs do
       collection do
         get :bulk_new

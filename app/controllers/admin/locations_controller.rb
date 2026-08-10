@@ -3,9 +3,6 @@ class Admin::LocationsController < Admin::BaseController
 
   def index
     @locations = Location.all.order(id: :asc)
-    active_stocks = Stock.active.includes(:plant, :location)
-    summary = Admin::StockSummaryPresenter.call(active_stocks)
-    @location_summaries = summary.location_rows.index_by { |row| row[:record].id }
   end
 
   def new
@@ -70,9 +67,6 @@ class Admin::LocationsController < Admin::BaseController
 
   def set_show_data
     @stocks = @location.stocks.order(:id).to_a
-    active_stocks = @stocks.select { |stock| stock.completed_at.nil? }
-    @stock_summary = Admin::StockSummaryPresenter.call(active_stocks)
-    @latest_location_observation = @location.latest_observation
   end
 
   def location_params

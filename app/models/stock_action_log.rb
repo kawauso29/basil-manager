@@ -15,12 +15,9 @@ class StockActionLog < ActiveRecord::Base
   belongs_to :from_location, class_name: "Location", optional: true
   belongs_to :to_location, class_name: "Location", optional: true
 
-  HISTORY_MANAGED_ACTION_TYPES = %w[ moved status_changed quantity_changed ].freeze
+  HISTORY_MANAGED_ACTION_TYPES = %w[ moved status_changed ].freeze
 
   validates :action_type,  presence: true
-  validates :quantity_before, :quantity_after,
-            numericality: { only_integer: true, greater_than: 0 },
-            if: -> { quantity_changed? && !legacy_history_log_without_details? }
   validates :status_before, :status_after,
             presence: true,
             inclusion: { in: Stock.statuses.keys },
@@ -41,8 +38,7 @@ class StockActionLog < ActiveRecord::Base
     harvested: "harvested",
     moved: "moved",
     status_changed: "status_changed",
-    transplanted: "transplanted",
-    quantity_changed: "quantity_changed"
+    transplanted: "transplanted"
   }, validate: true
 
   def history_managed?
@@ -63,8 +59,6 @@ class StockActionLog < ActiveRecord::Base
       [ from_location_id, to_location_id ]
     when "status_changed"
       [ status_before, status_after ]
-    when "quantity_changed"
-      [ quantity_before, quantity_after ]
     else
       []
     end

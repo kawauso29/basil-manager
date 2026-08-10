@@ -1,9 +1,0 @@
-<div class="page-header"><h1 class="page-title">場所の記録を追加</h1></div>
-<%= form_with model: [:admin, @location_observation], class: "form-card" do |f| %>
-  <div class="form-field"><%= f.label :location_id, "場所" %><%= f.select :location_id, @location_data, prompt: "選択してください" %></div>
-  <div class="form-field"><%= f.label :weather, "天候" %><%= f.select :weather, @weather_data, prompt: "選択してください" %></div>
-  <div class="form-field"><%= f.label :temperature, "気温（℃）" %><%= f.number_field :temperature, step: 0.1 %></div>
-  <div class="form-field"><%= f.label :memo, "メモ" %><%= f.text_area :memo %></div>
-  <div class="form-field"><%= f.label :recorded_at, "記録日時" %><%= f.datetime_local_field :recorded_at %></div>
-  <%= f.submit "記録" %>
-<% end %>

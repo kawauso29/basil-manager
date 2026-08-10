@@ -13,7 +13,6 @@
 上記3モデルを主レコードとして出力する。ログ系レコードは、対応する主レコードの
 直後へ次の関連単位で出力する。
 
-- `Location`の`location_observations`（LocationObservation）
 - `Stock`の`stock_action_logs`（StockActionLog）
 - `Stock`の`stock_observations`（StockObservation）
 
@@ -59,12 +58,11 @@ StockObservationの画像は、対応するStockの配下へ格納する。
 | `image_byte_size` | 添付画像のバイト数。画像なしの場合は空 |
 | `image_path` | ZIP内の画像パス。画像なしの場合は空 |
 
-`attributes_json`は出力時点の全カラムを含む。Plantの学名、生育条件、
-水やり、肥料、風通しなどの育成ガイド、Stockの数量・メモ・ラベル、
-StockActionLogの移動元・移動先、変更前後の状態・数量もこのJSON内へ出力される。
+`attributes_json`は出力時点の全カラムを含む。Plantの学名、Stockのメモ・ラベル、
+StockActionLogの移動元・移動先、変更前後の状態もこのJSON内へ出力される。
 
 主レコード行では`main_record_type`と`main_record_id`が自身を指す。ログ系レコードは
-同じ2列で対応するLocationまたはStockを指すため、`attributes_json`を解析しなくても
+同じ2列で対応するStockを指すため、`attributes_json`を解析しなくても
 主レコードとのまとまりを判別できる。各主レコードとそのログはID順に出力する。
 
 ## 生成方法

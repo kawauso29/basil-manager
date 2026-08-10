@@ -19,7 +19,6 @@ class Admin::StocksController < Admin::BaseController
     stocks = stocks.where(status: @stock_filters[:status]) if Stock.statuses.key?(@stock_filters[:status])
 
     @stocks = stocks.includes(:plant, :location, image_attachment: :blob).order(id: :asc).load
-    @stock_summary = Admin::StockSummaryPresenter.call(@stocks)
   end
 
   def new
@@ -85,24 +84,6 @@ class Admin::StocksController < Admin::BaseController
     render :edit, status: :unprocessable_content
   end
 
-  def change_quantity
-    @stock = Stock.find(params[:id])
-    _params = quantity_change_params
-    @stock.change_quantity!(
-      quantity: _params[:quantity],
-      memo: _params[:memo]
-    )
-    admin_update_success_message(@stock)
-    redirect_to admin_stock_path(@stock)
-  rescue ActiveRecord::RecordInvalid => e
-    admin_flash_now_alert("数量変更に失敗しました #{e.record.errors.full_messages.join(', ')}")
-    render :edit_quantity, status: :unprocessable_content
-  end
-
-  def edit_quantity
-    @stock = Stock.find(params[:id])
-  end
-
   def destroy
     @stock = Stock.find(params[:id])
     if @stock.destroy
@@ -162,7 +143,6 @@ class Admin::StocksController < Admin::BaseController
       :location_id,
       :growing_method,
       :propagation_method,
-      :quantity,
       :label,
       :memo,
       :image
@@ -176,23 +156,14 @@ class Admin::StocksController < Admin::BaseController
       location_id: _params[:location_id],
       growing_method: _params[:growing_method],
       propagation_method: _params[:propagation_method],
-      quantity: _params[:quantity],
       label: _params[:label],
       memo: _params[:memo]
     }
-  end
-
-  def quantity_change_params
-    params.require(:stock_quantity).permit(:quantity, :memo)
   end
 
   def set_show_data
     action_logs = @stock.stock_action_logs.to_a
     observations = @stock.stock_observations.to_a
     @stock_logs = Admin::StockLogsPresenter.call(action_logs, observations)
-    @stock_activity_summary = Admin::StockActivitySummaryPresenter.call(
-      action_logs: action_logs,
-      observations: observations,
-    )
   end
 end

@@ -1,131 +1,9 @@
 <div class="page-header">
   <div>
     <h1 class="page-title">管理ダッシュボード</h1>
-    <p class="page-subtitle">現在育成中の株数と配置状況をまとめて確認できます。</p>
+    <p class="page-subtitle">植物、株、場所と日々の記録を管理します。</p>
   </div>
 </div>
-
-<section class="panel">
-  <h2>株サマリ</h2>
-  <% if @stock_summary.management_unit_count.positive? %>
-    <p class="summary-lead">
-      現在、<strong><%= @stock_summary.plant_count %>種類</strong>の植物を
-      <strong><%= @stock_summary.management_unit_count %>管理単位・<%= @stock_summary.quantity %>株</strong>として、
-      <strong><%= @stock_summary.location_count %>か所</strong>で管理しています。
-    </p>
-  <% else %>
-    <p class="summary-lead">現在管理中の株はありません。</p>
-  <% end %>
-  <%= render "admin/shared/summary_cards",
-             items: [
-               {
-                 label: "管理株数",
-                 value: @stock_summary.quantity,
-                 unit: "株"
-               },
-               {
-                 label: "管理単位数",
-                 value: @stock_summary.management_unit_count,
-                 unit: "件"
-               },
-               {
-                 label: "管理植物種数",
-                 value: @stock_summary.plant_count,
-                 unit: "種",
-                 note: "登録 #{@registered_plant_count} 種"
-               },
-               {
-                 label: "使用ロケーション数",
-                 value: @stock_summary.location_count,
-                 unit: "か所",
-                 note: "登録 #{@registered_location_count} か所"
-               }
-             ] %>
-  <h3 class="summary-subtitle">状態の内訳</h3>
-  <div class="table-wrap">
-    <%= render "admin/shared/stock_status_summary", summary: @stock_summary %>
-  </div>
-</section>
-
-<section class="panel table-wrap">
-  <h2>植物別サマリ</h2>
-  <% if @stock_summary.plant_rows.any? %>
-    <table>
-      <thead>
-        <tr>
-          <th>植物</th>
-          <th>管理株数</th>
-          <th>管理単位数</th>
-          <th>ロケーション</th>
-          <th>状態</th>
-        </tr>
-      </thead>
-      <tbody>
-        <% @stock_summary.plant_rows.each do |row| %>
-          <tr>
-            <td><%= link_to row[:record].name, admin_plant_path(row[:record]) %></td>
-            <td><%= row[:quantity] %> 株</td>
-            <td><%= row[:management_unit_count] %> 件</td>
-            <td>
-              <%= admin_location_links(row[:locations]) %>
-              <span class="summary-related-count"><%= row[:location_count] %> か所</span>
-            </td>
-            <td><%= render "admin/shared/inline_status_summary", rows: row[:status_rows] %></td>
-          </tr>
-        <% end %>
-      </tbody>
-    </table>
-  <% else %>
-    <p class="empty-state">育成中の株はありません。</p>
-  <% end %>
-</section>
-
-<section class="panel table-wrap">
-  <h2>ロケーション別サマリ</h2>
-  <% if @stock_summary.location_rows.any? %>
-    <table>
-      <thead>
-        <tr>
-          <th>ロケーション</th>
-          <th>管理株数</th>
-          <th>管理単位数</th>
-          <th>植物</th>
-          <th>状態</th>
-          <th>最新の環境記録</th>
-        </tr>
-      </thead>
-      <tbody>
-        <% @stock_summary.location_rows.each do |row| %>
-          <% observation = @latest_location_observations[row[:record].id] %>
-          <tr>
-            <td><%= link_to row[:record].name, admin_location_path(row[:record]) %></td>
-            <td><%= row[:quantity] %> 株</td>
-            <td><%= row[:management_unit_count] %> 件</td>
-            <td>
-              <%= admin_plant_links(row[:plants]) %>
-              <span class="summary-related-count"><%= row[:plant_count] %> 種</span>
-            </td>
-            <td><%= render "admin/shared/inline_status_summary", rows: row[:status_rows] %></td>
-            <td>
-              <% if observation %>
-                <%= number_with_precision(observation.temperature, precision: 2, strip_insignificant_zeros: true) if observation.temperature %>
-                <%= "℃" if observation.temperature %>
-                <%= observation.weather_i18n if observation.weather.present? %>
-                <span class="summary-observation-date">
-                  <%= observation.recorded_at&.strftime("%Y/%m/%d %H:%M") || "日時未設定" %>
-                </span>
-              <% else %>
-                <span class="muted">未記録</span>
-              <% end %>
-            </td>
-          </tr>
-        <% end %>
-      </tbody>
-    </table>
-  <% else %>
-    <p class="empty-state">使用中のロケーションはありません。</p>
-  <% end %>
-</section>
 
 <section class="panel">
   <h2>管理データ</h2>
@@ -135,7 +13,6 @@
     <%= link_to "場所", admin_locations_path, class: "button button-secondary" %>
     <%= link_to "作業履歴", admin_stock_action_logs_path, class: "button button-secondary" %>
     <%= link_to "観察記録", admin_stock_observations_path, class: "button button-secondary" %>
-    <%= link_to "場所の記録", admin_location_observations_path, class: "button button-secondary" %>
   </div>
 </section>
 

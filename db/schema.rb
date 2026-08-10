@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_30_044429) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_10_170937) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -42,17 +42,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_30_044429) do
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
   end
 
-  create_table "location_observations", comment: "管理場所の観察記録を行うテーブル", force: :cascade do |t|
-    t.datetime "created_at", null: false
-    t.bigint "location_id", null: false, comment: "管理場所ID"
-    t.text "memo", comment: "観察メモ"
-    t.datetime "recorded_at", comment: "観察記録日時"
-    t.decimal "temperature", precision: 4, scale: 2, comment: "温度 (℃)"
-    t.datetime "updated_at", null: false
-    t.string "weather", comment: "天候"
-    t.index ["location_id"], name: "index_location_observations_on_location_id"
-  end
-
   create_table "locations", comment: "植物の育成場所を管理するテーブル", force: :cascade do |t|
     t.string "code", null: false, comment: "管理コード"
     t.datetime "created_at", null: false
@@ -66,25 +55,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_30_044429) do
   end
 
   create_table "plants", comment: "植物の種類を管理するテーブル", force: :cascade do |t|
-    t.text "care_cautions", comment: "育成上の注意点"
-    t.text "care_notes", comment: "育成メモ"
-    t.text "climate_requirements", comment: "気候条件"
     t.string "code", null: false, comment: "管理コード"
     t.datetime "created_at", null: false
-    t.text "fertilizing_guide", comment: "施肥の目安"
-    t.text "growing_season", comment: "生育時期"
     t.integer "last_stock_number", default: 0, comment: "最後に発行した株番号"
     t.string "name", null: false, comment: "植物名"
-    t.text "overwintering_guide", comment: "冬越しの目安"
     t.string "prefix", null: false, comment: "管理プレフィックス"
-    t.text "pruning_guide", comment: "剪定の目安"
     t.string "scientific_name", comment: "学名"
-    t.text "soil_requirements", comment: "用土の条件"
-    t.text "sunlight_requirements", comment: "日当たり条件"
-    t.text "temperature_requirements", comment: "温度条件"
     t.datetime "updated_at", null: false
-    t.text "ventilation_requirements", comment: "風通しの条件"
-    t.text "watering_guide", comment: "水やりの目安"
     t.index ["code"], name: "index_plants_on_code", unique: true
     t.index ["name"], name: "index_plants_on_name", unique: true
     t.index ["prefix"], name: "index_plants_on_prefix", unique: true
@@ -216,8 +193,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_30_044429) do
     t.datetime "created_at", null: false
     t.bigint "from_location_id", comment: "変更前の管理場所ID"
     t.text "memo", comment: "アクションログのメモ"
-    t.integer "quantity_after", comment: "変更後の数量"
-    t.integer "quantity_before", comment: "変更前の数量"
     t.datetime "recorded_at", comment: "アクションログの記録日時"
     t.string "status_after", comment: "変更後の管理状態"
     t.string "status_before", comment: "変更前の管理状態"
@@ -247,11 +222,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_30_044429) do
     t.string "growing_method", null: false, comment: "株の栽培方法"
     t.string "label", comment: "表示名"
     t.bigint "location_id", null: false, comment: "管理場所ID"
-    t.text "memo", comment: "管理単位についてのメモ"
+    t.text "memo", comment: "株についてのメモ"
     t.bigint "plant_id", null: false, comment: "植物ID"
     t.string "propagation_method", comment: "株の増殖方法"
     t.string "public_token", null: false, comment: "公開用の株単位のトークン識別子"
-    t.integer "quantity", default: 1, null: false, comment: "管理単位に含まれる株数"
     t.string "status", null: false, comment: "株の管理ステータス"
     t.datetime "updated_at", null: false
     t.index ["code"], name: "index_stocks_on_code", unique: true
@@ -262,7 +236,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_30_044429) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
-  add_foreign_key "location_observations", "locations"
   add_foreign_key "solid_queue_blocked_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_claimed_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_failed_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade

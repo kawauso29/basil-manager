@@ -34,18 +34,6 @@ ja:
     attributes:
       plant:
         scientific_name: 学名
-        temperature_requirements: 温度
-        climate_requirements: 気候
-        growing_season: シーズン
-        sunlight_requirements: 日当たり
-        watering_guide: 水やり
-        fertilizing_guide: 肥料
-        ventilation_requirements: 風通し
-        soil_requirements: 用土
-        pruning_guide: 剪定・切り戻し
-        overwintering_guide: 冬越し
-        care_notes: 育成メモ
-        care_cautions: 注意点
       location:
         environment: 屋内・屋外区分
       stock:
@@ -57,7 +45,6 @@ ja:
         status: 管理状態
         growing_method: 栽培方法
         propagation_method: 増殖方法
-        quantity: 数量
         memo: メモ
         completion_reason: 育成完了理由
         completed_at: 育成完了日時
@@ -67,8 +54,6 @@ ja:
         action_type: 作業種別
         from_location: 変更前の管理場所
         to_location: 変更後の管理場所
-        quantity_before: 変更前の数量
-        quantity_after: 変更後の数量
         status_before: 変更前の管理状態
         status_after: 変更後の管理状態
         memo: メモ
@@ -98,8 +83,6 @@ ja:
               inclusion: を選択してください
             propagation_method:
               inclusion: を選択してください
-            quantity:
-              unchanged: は変更前と異なる値を入力してください
             location_id:
               unchanged: は変更前と異なる値を選択してください
         stock_action_log:
@@ -120,12 +103,6 @@ ja:
       environment:
         indoor: 屋内
         outdoor: 屋外
-    location_observation:
-      weather:
-        sunny:  晴れ
-        cloudy: 曇り
-        rainy:  雨
-        snowy:  雪
     stock_action_log:
       action_type:
         seed_sown: 種まき
@@ -140,7 +117,6 @@ ja:
         moved: 管理場所変更
         status_changed: 管理状態変更
         transplanted: 植え替え
-        quantity_changed: 数量変更
     stock:
       status:
         starting: 育成開始

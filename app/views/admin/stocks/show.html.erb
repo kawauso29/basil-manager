@@ -13,49 +13,6 @@
 <%= render "/admin/stocks/stock_detail", stock: @stock %>
 
 <section class="panel">
-  <h2>直近の状況</h2>
-  <dl class="detail-list">
-    <dt>最新作業</dt>
-    <dd>
-      <% if @stock_activity_summary.latest_action %>
-        <%= @stock_activity_summary.latest_action[:label] %>
-        （<%= @stock_activity_summary.latest_action[:recorded_at] %>）
-      <% else %>
-        記録なし
-      <% end %>
-    </dd>
-    <dt>最終水やり</dt>
-    <dd>
-      <% if @stock_activity_summary.last_watered_action %>
-        <%= @stock_activity_summary.last_watered_action[:recorded_at] %>
-      <% else %>
-        記録なし
-      <% end %>
-    </dd>
-    <dt>最終施肥</dt>
-    <dd>
-      <% if @stock_activity_summary.last_fertilized_action %>
-        <%= @stock_activity_summary.last_fertilized_action[:recorded_at] %>
-      <% else %>
-        記録なし
-      <% end %>
-    </dd>
-    <dt>最新観察</dt>
-    <dd>
-      <% if @stock_activity_summary.latest_observation %>
-        <% if @stock_activity_summary.latest_observation[:height_cm] %>
-          <%= number_with_precision(@stock_activity_summary.latest_observation[:height_cm], precision: 2, strip_insignificant_zeros: true) %> cm
-          /
-        <% end %>
-        <%= @stock_activity_summary.latest_observation[:recorded_at] %>
-      <% else %>
-        記録なし
-      <% end %>
-    </dd>
-  </dl>
-</section>
-
-<section class="panel">
   <h2>履歴</h2>
   <%= render "/admin/stocks/logs", logs: @stock_logs %>
 </section>

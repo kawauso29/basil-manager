@@ -1,6 +1,6 @@
 # == 役割
-# 同じ条件でまとめて扱う株の管理単位を管理するモデル。
-# 管理単位内の数量、現在の状態、栽培方法、増殖方法、管理場所の関係を保持する。
+# 個々の株を管理するモデル。
+# 現在の状態、栽培方法、増殖方法、管理場所の関係を保持する。
 #
 # == カラム
 # id                 : 株ID
@@ -12,8 +12,7 @@
 # status             : 現在の管理状態
 # growing_method     : 栽培方法
 # propagation_method : 増殖方法
-# quantity           : 管理単位に含まれる株数
-# memo               : 管理単位についてのメモ
+# memo               : 株についてのメモ
 # completion_reason  : 育成完了理由
 # completed_at       : 育成完了日時
 # created_at         : 作成日時
@@ -64,8 +63,6 @@ class Stock < ActiveRecord::Base
 
   normalizes :propagation_method, with: ->(value) { value.presence }
 
-  validates :quantity, numericality: { only_integer: true, greater_than: 0 }
-
   #######################
   # scope
   #######################
@@ -88,27 +85,6 @@ class Stock < ActiveRecord::Base
 
   def display_name
     [ label.presence, code ].compact.join(" / ")
-  end
-
-  def change_quantity!(quantity:, memo: nil, recorded_at: Time.current)
-    with_lock do
-      previous_quantity = self.quantity
-      self.quantity = quantity
-
-      if self.quantity == previous_quantity
-        errors.add(:quantity, :unchanged)
-        raise ActiveRecord::RecordInvalid, self
-      end
-
-      save!
-      stock_action_logs.create!(
-        action_type: :quantity_changed,
-        quantity_before: previous_quantity,
-        quantity_after: self.quantity,
-        memo: quantity_change_log_memo(previous_quantity, self.quantity, memo),
-        recorded_at: recorded_at
-      )
-    end
   end
 
   def move_to!(location_id:, memo: nil, recorded_at: Time.current)
@@ -156,14 +132,5 @@ class Stock < ActiveRecord::Base
         recorded_at: recorded_at
       )
     end
-  end
-
-  private
-
-  def quantity_change_log_memo(previous_quantity, new_quantity, memo)
-    change_description = "#{previous_quantity}株 → #{new_quantity}株"
-    return change_description if memo.blank?
-
-    "#{change_description}（#{memo.strip}）"
   end
 end
