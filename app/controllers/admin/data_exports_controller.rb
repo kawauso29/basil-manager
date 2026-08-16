@@ -1,6 +1,8 @@
 require "tempfile"
 
 class Admin::DataExportsController < Admin::BaseController
+  # send_streamによるレスポンスの逐次送信を有効にする。
+  # 生成済みZIPを64KBずつ送り、ZIP全体をレスポンス用メモリへ展開しない。
   include ActionController::Live
 
   def show
