@@ -1,0 +1,31 @@
+<div class="page-header">
+  <div>
+    <h1 class="page-title">苗グループの条件を編集</h1>
+    <p class="page-subtitle">NG-<%= @nursery_group.id %></p>
+  </div>
+  <%= render "actions",
+             nursery_group: @nursery_group,
+             current_action: :edit,
+             previous_record: @previous_record,
+             next_record: @next_record %>
+</div>
+
+<%= form_with model: [:admin, @nursery_group], class: "form-card" do |f| %>
+  <div class="form-field">
+    <%= f.label :location_id, "場所" %>
+    <%= f.select :location_id, @location_options, { prompt: "選択してください" }, required: true %>
+  </div>
+  <div class="form-field">
+    <%= f.label :growing_method, "育成方法" %>
+    <%= f.select :growing_method, @growing_method_options, { prompt: "選択してください" }, required: true %>
+  </div>
+  <div class="form-field">
+    <%= f.label :container_type, "容器種類" %>
+    <%= f.text_field :container_type %>
+  </div>
+  <div class="form-field">
+    <%= f.label :memo, "メモ" %>
+    <%= f.text_area :memo %>
+  </div>
+  <%= f.submit "更新" %>
+<% end %>

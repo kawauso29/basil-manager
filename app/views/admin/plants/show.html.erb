@@ -14,18 +14,27 @@
   <dl class="detail-list">
     <dt>コード</dt>
     <dd><%= @plant.code %></dd>
-    <dt>プレフィックス</dt>
-    <dd><%= @plant.prefix %></dd>
     <dt>学名</dt>
     <dd><%= @plant.scientific_name.presence || "—" %></dd>
-    <dt>最終株番号</dt>
-    <dd><%= @plant.last_stock_number %></dd>
     <dt>作成日</dt>
     <dd><%= @plant.created_at.strftime("%Y/%m/%d %H:%M") %></dd>
     <dt>更新日</dt>
     <dd><%= @plant.updated_at.strftime("%Y/%m/%d %H:%M") %></dd>
   </dl>
   <%= image_tag(@plant.thumb_path, class: "record-image", alt: @plant.name) if @plant.has_image? %>
+</section>
+
+<section class="panel">
+  <h2>この植物の生産ロット</h2>
+  <% if @production_lots.any? %>
+    <div class="page-actions">
+      <% @production_lots.each do |production_lot| %>
+        <%= link_to "LOT-#{production_lot.id}", admin_production_lot_path(production_lot), class: "button button-secondary" %>
+      <% end %>
+    </div>
+  <% else %>
+    <p class="empty-state">生産ロットはまだありません。</p>
+  <% end %>
 </section>
 
 <section class="panel">

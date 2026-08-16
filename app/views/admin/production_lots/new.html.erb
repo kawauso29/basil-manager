@@ -1,0 +1,71 @@
+<div class="page-header">
+  <div>
+    <h1 class="page-title">生産を開始</h1>
+    <p class="page-subtitle">生産ロットと最初の苗グループを同時に作成します。</p>
+  </div>
+  <%= render "actions",
+             production_lot: nil,
+             current_action: :new,
+             previous_record: nil,
+             next_record: nil %>
+</div>
+
+<%= form_with url: admin_production_lots_path, scope: :production, class: "form-card" do |f| %>
+  <div class="form-field">
+    <%= f.label :plant_id, "植物" %>
+    <%= f.select :plant_id,
+                 @plant_options,
+                 { prompt: "選択してください", selected: @form_values[:plant_id] },
+                 required: true %>
+  </div>
+  <div class="form-field">
+    <%= f.label :propagation_method, "増殖方法" %>
+    <%= f.select :propagation_method,
+                 @propagation_method_options,
+                 { prompt: "選択してください", selected: @form_values[:propagation_method] },
+                 required: true %>
+  </div>
+  <div class="form-field">
+    <%= f.label :started_on, "生産開始日" %>
+    <%= f.date_field :started_on, value: @form_values[:started_on], required: true %>
+  </div>
+  <div class="form-field">
+    <%= f.label :initial_quantity, "開始数量" %>
+    <%= f.number_field :initial_quantity, value: @form_values[:initial_quantity], min: 1, required: true %>
+  </div>
+
+  <fieldset class="form-section">
+    <legend>最初の苗グループ</legend>
+    <p class="form-hint">工程は増殖方法から自動で決まります。</p>
+    <div class="form-field">
+      <%= f.label :location_id, "場所" %>
+      <%= f.select :location_id,
+                   @location_options,
+                   { prompt: "選択してください", selected: @form_values[:location_id] },
+                   required: true %>
+    </div>
+    <div class="form-field">
+      <%= f.label :growing_method, "育成方法" %>
+      <%= f.select :growing_method,
+                   @growing_method_options,
+                   { prompt: "選択してください", selected: @form_values[:growing_method] },
+                   required: true %>
+    </div>
+    <div class="form-field">
+      <%= f.label :container_type, "容器種類" %>
+      <%= f.text_field :container_type, value: @form_values[:container_type] %>
+    </div>
+  </fieldset>
+
+  <div class="form-field">
+    <%= f.label :source_stock_id, "親株" %>
+    <%= f.select :source_stock_id,
+                 @source_stock_options,
+                 { include_blank: "指定しない", selected: @form_values[:source_stock_id] } %>
+  </div>
+  <div class="form-field">
+    <%= f.label :memo, "メモ" %>
+    <%= f.text_area :memo, value: @form_values[:memo] %>
+  </div>
+  <%= f.submit "生産を開始" %>
+<% end %>

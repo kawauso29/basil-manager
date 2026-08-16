@@ -13,7 +13,6 @@
       <%= link_to "詳細", admin_stock_path(stock), class: "button button-secondary" %>
     <% end %>
 
-    <%= link_to "作業を記録", new_admin_stock_action_log_path(stock_id: stock.id), class: "button button-secondary" %>
     <%= link_to "観察を記録", new_admin_stock_observation_path(stock_id: stock.id), class: "button button-secondary" %>
 
     <% if current_action == :edit %>
@@ -22,15 +21,24 @@
       <%= link_to "編集", edit_admin_stock_path(stock), class: "button" %>
     <% end %>
 
-    <%= form_with model: [:admin, stock], method: :delete, class: "inline-form" do |f| %>
-      <%= f.submit "削除", class: "button-danger", data: { turbo_confirm: "本当に削除しますか？" } %>
+    <% if stock.completed_at.nil? %>
+      <% if stock.acclimating? %>
+        <%= link_to "次工程へ進める", advance_stage_admin_stock_path(stock), class: "button button-secondary" %>
+      <% elsif stock.sale_ready? %>
+        <%= form_with url: revoke_sale_ready_admin_stock_path(stock), method: :patch, class: "inline-form" do |f| %>
+          <%= f.submit "販売可能を解除", class: "button-secondary" %>
+        <% end %>
+      <% else %>
+        <%= link_to "販売可能にする", sale_ready_admin_stock_path(stock), class: "button button-secondary" %>
+      <% end %>
+      <%= link_to "管理を完了", complete_admin_stock_path(stock), class: "button button-secondary" %>
     <% end %>
   <% end %>
 
   <% if current_action == :new %>
-    <span class="button button-secondary" aria-current="page">株を作成</span>
+    <span class="button button-secondary" aria-current="page">株を直接登録</span>
   <% else %>
-    <%= link_to "株を作成", new_admin_stock_path, class: "button button-secondary" %>
+    <%= link_to "株を直接登録", new_admin_stock_path, class: "button button-secondary" %>
   <% end %>
 
   <% if current_action == :index %>

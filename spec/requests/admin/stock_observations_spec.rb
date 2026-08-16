@@ -1,159 +1,188 @@
 require "rails_helper"
 
 RSpec.describe "Admin::StockObservations", type: :request do
-  let(:create_plant) do
-    Plant.create!(
-      name: "テストプラント",
-      code: "test",
-      prefix: "TST"
-    )
+  let!(:plant) { Plant.create!(name: "バジル", code: "basil") }
+  let!(:location) do
+    Location.create!(name: "育成棚", code: "growing-shelf", environment: "indoor")
   end
-  let(:create_location) do
-    Location.create!(
-      name: "テストロケーション",
-      code: "test",
-      prefix: "TST"
-    )
-  end
-  let(:create_stock) do
-    Stocks::Creator.call(
-      plant_id: create_plant.id,
-      location_id: create_location.id,
-      growing_method: "pot",
-      propagation_method: "seed",
-      label: "テスト株"
-    )
-  end
-  let(:create_other_stock) do
-    Stocks::Creator.call(
-      plant_id: create_plant.id,
-      location_id: create_location.id,
-      growing_method: "pot",
-      propagation_method: "seed"
-    )
-  end
-  let(:create_stock_observation) do
-    StockObservation.create!(
-      stock_id: create_stock.id,
-      height_cm: 5.0,
-      memo: "test",
-      recorded_at: nil
-    )
-  end
-  let(:create_stock_observation2) do
-    StockObservation.create!(
-      stock_id: create_other_stock.id,
-      height_cm: 5.0,
-      memo: "test",
-      recorded_at: nil
+  let!(:stock) do
+    Stock.register_direct!(
+      plant_id: plant.id,
+      location_id: location.id,
+      stage: "growing",
+      stage_started_on: Date.new(2026, 8, 14)
     )
   end
 
-  let(:valid_params) do
-    {
-      stock_observation: {
-        stock_id: create_stock.id,
-        height_cm: 5.0,
-        memo: "test",
-        recorded_at: nil
-      }
-    }
-  end
-
-  # index
   describe "GET /admin/stock_observations" do
-    it "保存済みのStockObservationが一覧に表示される" do
-      stock_observation = create_stock_observation
-      stock_observation2 = create_stock_observation
+    it "新しい観察日時順でST-IDを表示する" do
+      old_observation = stock.stock_observations.create!(
+        height_cm: 8,
+        recorded_at: Time.zone.local(2026, 8, 14, 9)
+      )
+      new_observation = stock.stock_observations.create!(
+        memo: "新しい観察",
+        recorded_at: Time.zone.local(2026, 8, 15, 9)
+      )
+
       get admin_stock_observations_path, headers: admin_headers
+
       expect(response).to have_http_status(:ok)
-      expect(response.body).to include("テスト株")
-      expect(response.body).to include(edit_admin_stock_observation_path(stock_observation))
+      document = Nokogiri::HTML(response.body)
+      rows = document.css("tbody tr")
+      expect(rows.first.text).to include("新しい観察", "ST-#{stock.id}")
+      expect(rows.last.text).to include(old_observation.height_cm.to_s)
+      expect(new_observation.recorded_at).to be > old_observation.recorded_at
     end
   end
 
-  # show
-  describe "GET /admin/stock_observations/:id" do
-    it "StockObservation詳細が表示される" do
-      stock_observation = create_stock_observation
-      get admin_stock_observation_path(stock_observation), headers: admin_headers
-      expect(response).to have_http_status(:ok)
-      expect(response.body).to include("テスト株")
-    end
-  end
-
-  # new
   describe "GET /admin/stock_observations/new" do
-    it "新規StockObservation作成画面が表示される" do
-      create_stock
-      get new_admin_stock_observation_path, headers: admin_headers
+    it "必須の観察日時と内容入力を表示する" do
+      get new_admin_stock_observation_path(stock_id: stock.id), headers: admin_headers
+
       expect(response).to have_http_status(:ok)
-      expect(response.body).to include("テスト株")
+      expect(response.body).to include(
+        "ST-#{stock.id}",
+        'name="stock_observation[recorded_at]"',
+        'name="stock_observation[height_cm]"',
+        'name="stock_observation[image]"'
+      )
+      recorded_at_input = Nokogiri::HTML(response.body).at_css(
+        'input[name="stock_observation[recorded_at]"]'
+      )
+      expect(recorded_at_input["required"]).to be_present
     end
   end
 
-  # create
-  describe "POST /admin/stock_observations" do
-    context "パラメータが正常な場合" do
-      it "StockObservationを作成できる" do
-        expect {
-          post admin_stock_observations_path, params: valid_params, headers: admin_headers
-        }.to change(StockObservation, :count).by(1)
+  describe "GET /admin/stock_observations/:id" do
+    it "観察時点の値と必須の観察日時を表示する" do
+      observation = stock.stock_observations.create!(
+        height_cm: 10.5,
+        memo: "詳細確認",
+        recorded_at: Time.zone.local(2026, 8, 15, 9, 30)
+      )
 
-        created_stock_observation = StockObservation.last
+      get admin_stock_observation_path(observation), headers: admin_headers
 
-        # 作成値を検証
-        expect(created_stock_observation.height_cm).to eq(5.0)
-        expect(created_stock_observation.memo).to eq("test")
-
-        # 遷移先がshowになるかどうか
-        expect(response).to redirect_to(admin_stock_observations_path)
-
-        expect(flash[:notice]).to eq("作成しました")
-      end
+      expect(response).to have_http_status(:ok)
+      expect(response.body).to include("ST-#{stock.id}", "10.5 cm", "2026/08/15 09:30", "詳細確認")
     end
   end
 
-  # edit
   describe "GET /admin/stock_observations/:id/edit" do
-    it "StockObservation編集画面が表示される" do
-      stock_observation = create_stock_observation
-      get edit_admin_stock_observation_path(stock_observation), headers: admin_headers
+    it "観察日時を必須とする編集フォームを表示する" do
+      observation = stock.stock_observations.create!(
+        memo: "編集対象",
+        recorded_at: Time.zone.local(2026, 8, 15, 9)
+      )
+
+      get edit_admin_stock_observation_path(observation), headers: admin_headers
+
       expect(response).to have_http_status(:ok)
-      expect(response.body).to include("テスト株")
+      recorded_at_input = Nokogiri::HTML(response.body).at_css(
+        'input[name="stock_observation[recorded_at]"]'
+      )
+      expect(recorded_at_input["required"]).to be_present
     end
   end
 
-  # update
-  describe "PATCH /admin/stock_observations/:id" do
-    context "パラメータが正常な場合" do
-      it "StockObservationを更新できる" do
-        stock_observation = create_stock_observation
-        params = {
-          stock_observation: { height_cm: 6.0 }
-        }
-        patch admin_stock_observation_path(stock_observation, params), headers: admin_headers
-        expect(stock_observation.reload.height_cm).to eq(6.0)
-        expect(response).to redirect_to(admin_stock_observation_path(stock_observation))
-        expect(flash[:notice]).to include("更新しました")
-      end
-      it "StockObservationに更新がない" do
-        stock_observation = create_stock_observation
-        patch admin_stock_observation_path(stock_observation, valid_params), headers: admin_headers
-        expect(stock_observation.reload.height_cm).to eq(5.0)
-        expect(response).to redirect_to(admin_stock_observation_path(stock_observation))
-        expect(flash[:notice]).to include("変更はありませんでした")
-      end
-    end
-  end
+  describe "POST /admin/stock_observations" do
+    it "草丈を観察日時付きで記録する" do
+      expect {
+        post admin_stock_observations_path,
+             params: {
+               stock_observation: {
+                 stock_id: stock.id,
+                 height_cm: "12.5",
+                 memo: "順調",
+                 recorded_at: "2026-08-15T09:30"
+               }
+             },
+             headers: admin_headers
+      }.to change(StockObservation, :count).by(1)
 
-  # destroy
-  describe "DELETE /admin/stock_observations/:id" do
-    it "削除できる" do
-      stock_observation = create_stock_observation
-      delete admin_stock_observation_path(stock_observation), headers: admin_headers
+      observation = StockObservation.last
       expect(response).to redirect_to(admin_stock_observations_path)
-      expect(flash[:notice]).to eq("削除しました")
+      expect(observation).to have_attributes(
+        stock_id: stock.id,
+        height_cm: 12.5,
+        memo: "順調",
+        recorded_at: Time.zone.local(2026, 8, 15, 9, 30)
+      )
+    end
+
+    it "観察日時がなければ保存しない" do
+      expect {
+        post admin_stock_observations_path,
+             params: {
+               stock_observation: {
+                 stock_id: stock.id,
+                 memo: "日時なし",
+                 recorded_at: ""
+               }
+             },
+             headers: admin_headers
+      }.not_to change(StockObservation, :count)
+
+      expect(response).to have_http_status(:unprocessable_content)
+    end
+
+    it "草丈・メモ・画像がすべて空なら保存しない" do
+      expect {
+        post admin_stock_observations_path,
+             params: {
+               stock_observation: {
+                 stock_id: stock.id,
+                 height_cm: "",
+                 memo: "",
+                 recorded_at: "2026-08-15T09:30"
+               }
+             },
+             headers: admin_headers
+      }.not_to change(StockObservation, :count)
+
+      expect(response).to have_http_status(:unprocessable_content)
+    end
+  end
+
+  describe "PATCH /admin/stock_observations/:id" do
+    it "観察値と日時を更新する" do
+      observation = stock.stock_observations.create!(
+        memo: "更新前",
+        recorded_at: Time.zone.local(2026, 8, 14, 9)
+      )
+
+      patch admin_stock_observation_path(observation),
+            params: {
+              stock_observation: {
+                height_cm: "15.2",
+                memo: "更新後",
+                recorded_at: "2026-08-15T10:00"
+              }
+            },
+            headers: admin_headers
+
+      expect(response).to redirect_to(admin_stock_observation_path(observation))
+      expect(observation.reload).to have_attributes(
+        height_cm: 15.2,
+        memo: "更新後",
+        recorded_at: Time.zone.local(2026, 8, 15, 10)
+      )
+    end
+  end
+
+  describe "DELETE /admin/stock_observations/:id" do
+    it "観察記録を削除する" do
+      observation = stock.stock_observations.create!(
+        memo: "削除対象",
+        recorded_at: Time.zone.local(2026, 8, 15, 9)
+      )
+
+      expect {
+        delete admin_stock_observation_path(observation), headers: admin_headers
+      }.to change(StockObservation, :count).by(-1)
+
+      expect(response).to redirect_to(admin_stock_observations_path)
     end
   end
 end

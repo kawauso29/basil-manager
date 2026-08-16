@@ -1,0 +1,21 @@
+<div class="page-header">
+  <div>
+    <h1 class="page-title">現在数量を補正</h1>
+    <p class="page-subtitle">NG-<%= @nursery_group.id %></p>
+  </div>
+  <div class="page-actions">
+    <%= link_to "詳細へ戻る", admin_nursery_group_path(@nursery_group), class: "button button-secondary" %>
+  </div>
+</div>
+
+<%= form_with url: correct_quantity_admin_nursery_group_path(@nursery_group),
+              scope: :correction,
+              method: :patch,
+              class: "form-card" do |f| %>
+  <p class="form-hint">履歴は作成せず、現在確認できる数量へ置き換えます。0株にすると終了扱いになります。</p>
+  <div class="form-field">
+    <%= f.label :quantity, "現在数量" %>
+    <%= f.number_field :quantity, value: @form_values[:quantity], min: 0, required: true %>
+  </div>
+  <%= f.submit "数量を補正" %>
+<% end %>

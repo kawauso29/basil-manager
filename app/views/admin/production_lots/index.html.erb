@@ -1,0 +1,50 @@
+<div class="page-header">
+  <div>
+    <h1 class="page-title">生産ロット</h1>
+    <p class="page-subtitle">同じ生産開始から生まれた苗群を確認します。</p>
+  </div>
+  <%= render "actions",
+             production_lot: nil,
+             current_action: :index,
+             previous_record: nil,
+             next_record: nil %>
+</div>
+
+<section class="panel table-wrap">
+  <% if @production_lots.any? %>
+    <table>
+      <thead>
+        <tr>
+          <th>ロット</th>
+          <th>植物</th>
+          <th>増殖方法</th>
+          <th>開始日</th>
+          <th>開始数量</th>
+          <th>親株</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @production_lots.each do |production_lot| %>
+          <tr>
+            <td><%= link_to "LOT-#{production_lot.id}", admin_production_lot_path(production_lot) %></td>
+            <td><%= production_lot.plant.name %></td>
+            <td><%= production_lot.propagation_method_i18n %></td>
+            <td><%= production_lot.started_on.strftime("%Y/%m/%d") %></td>
+            <td><%= production_lot.initial_quantity %>株</td>
+            <td>
+              <% if production_lot.source_stock %>
+                <%= link_to "ST-#{production_lot.source_stock.id}", admin_stock_path(production_lot.source_stock) %>
+              <% else %>
+                —
+              <% end %>
+            </td>
+            <td><%= link_to "詳細", admin_production_lot_path(production_lot) %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% else %>
+    <p class="empty-state">生産ロットはまだありません。</p>
+  <% end %>
+</section>

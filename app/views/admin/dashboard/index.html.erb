@@ -1,28 +1,34 @@
 <div class="page-header">
   <div>
     <h1 class="page-title">管理ダッシュボード</h1>
-    <p class="page-subtitle">植物、株、場所と日々の記録を管理します。</p>
+    <p class="page-subtitle">生産開始から個体観察、販売可能化までを管理します。</p>
   </div>
 </div>
 
 <section class="panel">
-  <h2>管理データ</h2>
+  <h2>生産管理</h2>
   <div class="page-actions">
+    <%= link_to "生産ロット", admin_production_lots_path, class: "button button-secondary" %>
+    <%= link_to "苗グループ", admin_nursery_groups_path, class: "button button-secondary" %>
     <%= link_to "株", admin_stocks_path, class: "button button-secondary" %>
+    <%= link_to "観察記録", admin_stock_observations_path, class: "button button-secondary" %>
+  </div>
+</section>
+
+<section class="panel">
+  <h2>マスタ</h2>
+  <div class="page-actions">
     <%= link_to "植物", admin_plants_path, class: "button button-secondary" %>
     <%= link_to "場所", admin_locations_path, class: "button button-secondary" %>
-    <%= link_to "作業履歴", admin_stock_action_logs_path, class: "button button-secondary" %>
-    <%= link_to "観察記録", admin_stock_observations_path, class: "button button-secondary" %>
   </div>
 </section>
 
 <section class="panel">
   <h2>よく使う操作</h2>
   <div class="page-actions">
-    <%= link_to "株を作成", new_admin_stock_path, class: "button" %>
-    <%= link_to "作業を記録", new_admin_stock_action_log_path, class: "button button-secondary" %>
-    <%= link_to "アクションを一括記録", bulk_new_admin_stock_action_logs_path, class: "button button-secondary" %>
+    <%= link_to "生産を開始", new_admin_production_lot_path, class: "button" %>
+    <%= link_to "株を直接登録", new_admin_stock_path, class: "button button-secondary" %>
     <%= link_to "観察を記録", new_admin_stock_observation_path, class: "button button-secondary" %>
-    <%= link_to "データを出力", admin_data_export_path, class: "button button-secondary" %>
+    <%= link_to "AI提供用ZIPを出力", admin_data_export_path, class: "button button-secondary" %>
   </div>
 </section>

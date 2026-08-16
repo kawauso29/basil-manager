@@ -1,0 +1,24 @@
+<div class="page-header">
+  <div>
+    <h1 class="page-title">管理を完了</h1>
+    <p class="page-subtitle">ST-<%= @stock.id %></p>
+  </div>
+  <div class="page-actions">
+    <%= link_to "詳細へ戻る", admin_stock_path(@stock), class: "button button-secondary" %>
+  </div>
+</div>
+
+<%= form_with url: complete_admin_stock_path(@stock), scope: :completion, method: :patch, class: "form-card" do |f| %>
+  <div class="form-field">
+    <%= f.label :completion_reason, "完了理由" %>
+    <%= f.select :completion_reason,
+                 @completion_reason_options,
+                 { prompt: "選択してください" },
+                 required: true %>
+  </div>
+  <div class="form-field">
+    <%= f.label :completed_at, "完了日時" %>
+    <%= f.datetime_local_field :completed_at, value: @completed_at, required: true %>
+  </div>
+  <%= f.submit "管理を完了" %>
+<% end %>

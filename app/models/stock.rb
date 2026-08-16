@@ -1,136 +1,135 @@
 # == 役割
-# 個々の株を管理するモデル。
-# 現在の状態、栽培方法、増殖方法、管理場所の関係を保持する。
-#
-# == カラム
-# id                 : 株ID
-# plant_id           : 植物ID
-# location_id        : 現在の管理場所ID
-# code               : 株を識別する管理コード
-# label              : 画面上の表示名
-# public_token       : 外部公開用トークン
-# status             : 現在の管理状態
-# growing_method     : 栽培方法
-# propagation_method : 増殖方法
-# memo               : 株についてのメモ
-# completion_reason  : 育成完了理由
-# completed_at       : 育成完了日時
-# created_at         : 作成日時
-# updated_at         : 更新日時
+# 鉢上げによって個体管理へ切り替えた株、または直接登録した株を管理するモデル。
+# 現在工程、現在地、販売可能日、管理完了を保持する。
+class Stock < ApplicationRecord
+  STAGE_TRANSITIONS = {
+    "acclimating" => "growing"
+  }.freeze
 
-class Stock < ActiveRecord::Base
   has_secure_token :public_token
-  has_one_attached :image do |attachable|
-    attachable.variant :icon_thumb, resize_to_limit: [ 100, 100 ], preprocessed: true
-    attachable.variant :main_thumb, resize_to_limit: [ 300, 300 ], preprocessed: true
-  end
 
   belongs_to :plant
   belongs_to :location
+  belongs_to :source_nursery_group,
+             class_name: "NurseryGroup",
+             optional: true,
+             inverse_of: :stocks
 
-  has_many :stock_action_logs, dependent: :destroy
-  has_many :stock_observations, dependent: :destroy
+  has_one :production_lot, through: :source_nursery_group
+  has_many :stock_observations, dependent: :restrict_with_error
+  has_many :sourced_production_lots,
+           class_name: "ProductionLot",
+           foreign_key: :source_stock_id,
+           inverse_of: :source_stock,
+           dependent: :restrict_with_error
 
-  enum :status, {
-    starting: "starting",
-    rooting: "rooting",
+  enum :stage, {
+    acclimating: "acclimating",
     growing: "growing"
   }, validate: true
 
   enum :completion_reason, {
     cultivation_ended: "cultivation_ended",
-    harvested: "harvested",
-    discarded: "discarded"
+    dead: "dead",
+    transferred: "transferred"
   }, validate: { allow_blank: true }
 
-  # どうやって育てるかを定義している。
-  # ポット、プランター、植木鉢などのサイズは
-  # 別途カラムを追加して管理することとする。
-  enum :growing_method, {
-    pot: "pot",
-    planter: "planter",
-    flowerpot: "flowerpot",
-    water: "water",
-    seeding_tray: "seeding_tray",
-    other: "other"
-  }, validate: true
+  validates :stage_started_on, presence: true
+  validates :potted_on, presence: true, if: :source_nursery_group_id?
+  validates :completion_reason, presence: true, if: :completed_at?
+  validates :completed_at, presence: true, if: -> { completion_reason.present? }
+  validate :source_nursery_group_plant_matches
 
-  enum :propagation_method, {
-    cutting_soil: "cutting_soil",
-    cutting_water: "cutting_water",
-    seed: "seed"
-  }, validate: { allow_blank: true }
-
-  normalizes :propagation_method, with: ->(value) { value.presence }
-
-  #######################
-  # scope
-  #######################
   scope :active, -> { where(completed_at: nil) }
+  scope :sale_ready, -> { active.where.not(sale_ready_on: nil) }
 
-  def has_image?
-    self.image.attached?
-  end
-  def missing_image?
-    !has_image?
-  end
-  def icon_path
-    return "" if missing_image?
-    self.image.variant(:icon_thumb)
-  end
-  def thumb_path
-    return "" if missing_image?
-    self.image.variant(:main_thumb)
+  def self.register_direct!(plant_id:, location_id:, stage:, stage_started_on:, potted_on: nil, memo: nil)
+    create!(
+      plant_id: plant_id,
+      location_id: location_id,
+      stage: stage,
+      stage_started_on: stage_started_on,
+      potted_on: potted_on,
+      memo: memo
+    )
   end
 
   def display_name
-    [ label.presence, code ].compact.join(" / ")
+    "ST-#{id}"
   end
 
-  def move_to!(location_id:, memo: nil, recorded_at: Time.current)
+  def latest_height_observation
+    stock_observations.where.not(height_cm: nil).order(recorded_at: :desc, id: :desc).first
+  end
+
+  def latest_height_cm
+    latest_height_observation&.height_cm
+  end
+
+  def sale_ready?
+    completed_at.nil? && sale_ready_on.present?
+  end
+
+  def advance_stage!(stage_started_on:)
     with_lock do
-      target_location = Location.find_by(id: location_id)
-      unless target_location
-        errors.add(:location, :required)
+      ensure_active!
+      next_stage = STAGE_TRANSITIONS[stage]
+      unless next_stage
+        errors.add(:stage, :invalid)
         raise ActiveRecord::RecordInvalid, self
       end
 
-      previous_location_id = self.location_id
-      if target_location.id == previous_location_id
-        errors.add(:location_id, :unchanged)
-        raise ActiveRecord::RecordInvalid, self
-      end
-
-      self.location = target_location
-      save!
-      stock_action_logs.create!(
-        action_type: :moved,
-        from_location_id: previous_location_id,
-        to_location_id: target_location.id,
-        memo: memo,
-        recorded_at: recorded_at
-      )
+      update!(stage: next_stage, stage_started_on: stage_started_on)
+      self
     end
   end
 
-  def change_status!(status:, memo: nil, recorded_at: Time.current)
+  def mark_sale_ready!(on:)
     with_lock do
-      previous_status = self.status
-      self.status = status
-
-      if self.status == previous_status
-        errors.add(:status, :unchanged)
+      ensure_active!
+      if on.blank?
+        errors.add(:sale_ready_on, :blank)
+        raise ActiveRecord::RecordInvalid, self
+      end
+      unless growing?
+        errors.add(:stage, :invalid)
         raise ActiveRecord::RecordInvalid, self
       end
 
-      save!
-      stock_action_logs.create!(
-        action_type: :status_changed,
-        status_before: previous_status,
-        status_after: self.status,
-        memo: memo,
-        recorded_at: recorded_at
-      )
+      update!(sale_ready_on: on)
+      self
     end
+  end
+
+  def revoke_sale_ready!
+    with_lock do
+      ensure_active!
+      update!(sale_ready_on: nil)
+      self
+    end
+  end
+
+  def complete!(reason:, at:)
+    with_lock do
+      ensure_active!
+      update!(completion_reason: reason, completed_at: at)
+      self
+    end
+  end
+
+  private
+
+  def ensure_active!
+    return unless completed_at?
+
+    errors.add(:completed_at, :invalid)
+    raise ActiveRecord::RecordInvalid, self
+  end
+
+  def source_nursery_group_plant_matches
+    return unless source_nursery_group && plant
+    return if source_nursery_group.production_lot.plant_id == plant_id
+
+    errors.add(:plant, :invalid)
   end
 end

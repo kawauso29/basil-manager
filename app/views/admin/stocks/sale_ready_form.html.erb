@@ -1,0 +1,17 @@
+<div class="page-header">
+  <div>
+    <h1 class="page-title">販売可能にする</h1>
+    <p class="page-subtitle">ST-<%= @stock.id %></p>
+  </div>
+  <div class="page-actions">
+    <%= link_to "詳細へ戻る", admin_stock_path(@stock), class: "button button-secondary" %>
+  </div>
+</div>
+
+<%= form_with url: mark_sale_ready_admin_stock_path(@stock), scope: :sale_ready, method: :patch, class: "form-card" do |f| %>
+  <div class="form-field">
+    <%= f.label :sale_ready_on, "販売可能日" %>
+    <%= f.date_field :sale_ready_on, value: @sale_ready_on, required: true %>
+  </div>
+  <%= f.submit "販売可能にする" %>
+<% end %>

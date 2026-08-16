@@ -1,219 +1,160 @@
 require "rails_helper"
 
 RSpec.describe "Admin::Plants", type: :request do
-  describe "共通アクション" do
-    it "一覧と作成画面で共通のコレクション操作を表示する" do
-      {
-        admin_plants_path => "植物一覧",
-        new_admin_plant_path => "植物を追加"
-      }.each do |path, current_label|
-        get path, headers: admin_headers
-
-        actions = Nokogiri::HTML(response.body).at_css('[aria-label="植物の操作"]')
-        expect(actions.text).to include("植物を追加", "植物一覧")
-        expect(actions.at_css('[aria-current="page"]').text.strip).to eq(current_label)
-      end
-    end
-
-    it "詳細と編集画面で共通のレコード操作を表示する" do
-      plant = Plant.create!(name: "共通操作の植物", code: "common-actions", prefix: "CMA")
-
-      {
-        admin_plant_path(plant) => "詳細",
-        edit_admin_plant_path(plant) => "編集"
-      }.each do |path, current_label|
-        get path, headers: admin_headers
-
-        actions = Nokogiri::HTML(response.body).at_css('[aria-label="植物の操作"]')
-        expect(actions.text).to include("詳細", "編集", "植物を追加", "植物一覧")
-        expect(actions.at_css('input[value="削除"]')).to be_present
-        expect(actions.at_css('[aria-current="page"]').text.strip).to eq(current_label)
-      end
-    end
+  let!(:location) do
+    Location.create!(name: "育成棚", code: "growing-shelf", environment: "indoor")
   end
 
-  # index
   describe "GET /admin/plants" do
-    it "保存済みのPlantが一覧に表示される" do
-      plant = Plant.create!(name: "テストプラント", code: "test", prefix: "TST")
+    it "植物をコードと名前で一覧表示する" do
+      plant = Plant.create!(name: "バジル", code: "basil", scientific_name: "Ocimum basilicum")
 
       get admin_plants_path, headers: admin_headers
 
       expect(response).to have_http_status(:ok)
-      expect(response.body).to include(edit_admin_plant_path(plant))
+      expect(response.body).to include(plant.name, plant.code)
+      expect(response.body).not_to include("プレフィックス", "最終株番号")
     end
   end
 
-  # show
   describe "GET /admin/plants/:id" do
-    it "保存済みのPlant詳細が表示される" do
-      plant = Plant.create!(
-        name: "テストプラント",
-        code: "test",
-        prefix: "TST",
-        scientific_name: "Ocimum basilicum"
+    it "関連するLotとStockを表示する" do
+      plant = Plant.create!(name: "バジル", code: "basil")
+      production_lot = StartProduction.call(
+        plant_id: plant.id,
+        propagation_method: "seed",
+        started_on: Date.new(2026, 8, 14),
+        initial_quantity: 5,
+        location_id: location.id,
+        growing_method: "soil"
       )
-      get admin_plant_path(plant), headers: admin_headers
-      expect(response).to have_http_status(:ok)
-      expect(response.body).to include("Ocimum basilicum")
-    end
-
-    it "ID順で前後のPlant詳細へ移動できる" do
-      previous_plant = Plant.create!(name: "前の植物", code: "previous", prefix: "PRV")
-      plant = Plant.create!(name: "現在の植物", code: "current", prefix: "CUR")
-      next_plant = Plant.create!(name: "次の植物", code: "next", prefix: "NXT")
+      stock = Stock.register_direct!(
+        plant_id: plant.id,
+        location_id: location.id,
+        stage: "growing",
+        stage_started_on: Date.new(2026, 8, 14)
+      )
 
       get admin_plant_path(plant), headers: admin_headers
 
-      document = Nokogiri::HTML(response.body)
-      expect(document.at_css('a[rel="prev"]')["href"]).to eq(admin_plant_path(previous_plant))
-      expect(document.at_css('a[rel="next"]')["href"]).to eq(admin_plant_path(next_plant))
-    end
-  end
-
-  # new
-  describe "GET /admin/plants/new" do
-    it "新規Plant作成画面が表示される" do
-      get new_admin_plant_path, headers: admin_headers
       expect(response).to have_http_status(:ok)
-      expect(response.body).to include('name="plant[image]"')
+      expect(response.body).to include("LOT-#{production_lot.id}", "ST-#{stock.id}")
     end
   end
 
-  # create
+  describe "GET /admin/plants/new and /admin/plants/:id/edit" do
+    it "作成・編集フォームに現在のマスタ項目だけを表示する" do
+      plant = Plant.create!(name: "バジル", code: "basil")
+
+      [ new_admin_plant_path, edit_admin_plant_path(plant) ].each do |path|
+        get path, headers: admin_headers
+
+        expect(response).to have_http_status(:ok)
+        expect(response.body).to include(
+          'name="plant[name]"',
+          'name="plant[code]"',
+          'name="plant[scientific_name]"'
+        )
+        expect(response.body).not_to include(
+          'name="plant[prefix]"',
+          'name="plant[last_stock_number]"'
+        )
+      end
+    end
+  end
+
   describe "POST /admin/plants" do
-    context "パラメータが正常な場合" do
-      it "Plantを作成できる" do
-        valid_params = {
-          plant: {
-            name: "テストプラント",
-            code: "test",
-            prefix: "TST",
-            scientific_name: "Ocimum basilicum",
-            image: fixture_file_upload(Rails.root.join("public/icon.png"), "image/png")
-          }
-        }
+    it "植物を作成する" do
+      expect {
+        post admin_plants_path,
+             params: {
+               plant: {
+                 name: "バジル",
+                 code: "basil",
+                 scientific_name: "Ocimum basilicum"
+               }
+             },
+             headers: admin_headers
+      }.to change(Plant, :count).by(1)
 
-        expect {
-          post admin_plants_path, params: valid_params, headers: admin_headers
-        }.to change(Plant, :count).by(1)
-
-        created_plant = Plant.last
-
-        # 作成値を検証
-        expect(created_plant.name).to eq("テストプラント")
-        expect(created_plant.code).to eq("test")
-        expect(created_plant.prefix).to eq("TST")
-        expect(created_plant.last_stock_number).to eq(0)
-        expect(created_plant.scientific_name).to eq("Ocimum basilicum")
-        expect(created_plant.image).to be_attached
-
-        # 遷移先がshowになるかどうか
-        expect(response).to redirect_to(admin_plant_path(created_plant))
-
-        expect(flash[:notice]).to eq("作成しました")
-      end
+      plant = Plant.last
+      expect(response).to redirect_to(admin_plant_path(plant))
+      expect(plant).to have_attributes(name: "バジル", code: "basil")
     end
 
-    context "パラメータが不正な場合" do
-      it "Plantを作成できない" do
-        invalid_params = {
-          plant: { name: "テストプラント", code: "", prefix: "TST" }
-        }
+    it "コードが空なら作成しない" do
+      expect {
+        post admin_plants_path,
+             params: { plant: { name: "バジル", code: "" } },
+             headers: admin_headers
+      }.not_to change(Plant, :count)
 
-        expect {
-          post admin_plants_path, params: invalid_params, headers: admin_headers
-        }.not_to change(Plant, :count)
-
-        expect(flash.now[:alert]).to include("作成に失敗しました")
-      end
+      expect(response).to have_http_status(:unprocessable_content)
     end
   end
 
-  # edit
-  describe "GET /admin/plants/:id/edit" do
-    it "Plant編集画面が表示される" do
-      plant = Plant.create!(name: "テストプラント", code: "test", prefix: "TST")
-      get edit_admin_plant_path(plant), headers: admin_headers
-      expect(response).to have_http_status(:ok)
-    end
-
-    it "ID順で前後のPlant編集画面へ移動できる" do
-      previous_plant = Plant.create!(name: "前の植物", code: "previous", prefix: "PRV")
-      plant = Plant.create!(name: "現在の植物", code: "current", prefix: "CUR")
-      next_plant = Plant.create!(name: "次の植物", code: "next", prefix: "NXT")
-
-      get edit_admin_plant_path(plant), headers: admin_headers
-
-      document = Nokogiri::HTML(response.body)
-      expect(document.at_css('a[rel="prev"]')["href"]).to eq(edit_admin_plant_path(previous_plant))
-      expect(document.at_css('a[rel="next"]')["href"]).to eq(edit_admin_plant_path(next_plant))
-    end
-  end
-
-  # update
   describe "PATCH /admin/plants/:id" do
-    context "パラメータが正常な場合" do
-      it "Plantを更新できる" do
-        plant = Plant.create!(name: "テストプラント", code: "test", prefix: "TST")
-        params = {
-          plant: {
-            name: "更新後プラント",
-            code: "test",
-            prefix: "TST",
-            scientific_name: "Ocimum basilicum"
-          }
-        }
-        patch admin_plant_path(plant, params), headers: admin_headers
-        expect(plant.reload.name).to eq("更新後プラント")
-        expect(plant.scientific_name).to eq("Ocimum basilicum")
-        expect(response).to redirect_to(admin_plant_path(plant))
-        expect(flash[:notice]).to include("更新しました")
-      end
-      it "Plantに更新がない" do
-        plant = Plant.create!(name: "テストプラント", code: "test", prefix: "TST")
-        params = {
-          plant: { name: "テストプラント", code: "test", prefix: "TST" }
-        }
-        patch admin_plant_path(plant, params), headers: admin_headers
-        expect(plant.reload.name).to eq("テストプラント")
-        expect(response).to redirect_to(admin_plant_path(plant))
-        expect(flash[:notice]).to include("変更はありませんでした")
-      end
-    end
-    context "パラメータが不正な場合" do
-      it "Plantを更新できない" do
-        plant = Plant.create!(name: "テストプラント", code: "test", prefix: "TST")
-        params = {
-          plant: { name: "", code: "test", prefix: "TST" }
-        }
-        patch admin_plant_path(plant, params), headers: admin_headers
-        expect(flash.now[:alert]).to include("更新に失敗しました")
-      end
+    it "植物を更新する" do
+      plant = Plant.create!(name: "バジル", code: "basil")
+
+      patch admin_plant_path(plant),
+            params: {
+              plant: {
+                name: "スイートバジル",
+                code: "sweet-basil",
+                scientific_name: "Ocimum basilicum"
+              }
+            },
+            headers: admin_headers
+
+      expect(response).to redirect_to(admin_plant_path(plant))
+      expect(plant.reload).to have_attributes(name: "スイートバジル", code: "sweet-basil")
     end
   end
 
-  # destroy
   describe "DELETE /admin/plants/:id" do
-    context "子のStockを持つ場合" do
-      it "Plantを削除できない" do
-        plant = Plant.create!(name: "テストプラント", code: "test", prefix: "TST")
-        location = Location.create!(name: "テストロケーション", code: "test", prefix: "TST")
-        stock = Stocks::Creator.call(plant_id: plant.id, location_id: location.id, growing_method: "pot", propagation_method: "seed")
+    it "関連データがなければ削除する" do
+      plant = Plant.create!(name: "削除対象", code: "delete-target")
 
+      expect {
         delete admin_plant_path(plant), headers: admin_headers
-        expect(flash.now[:alert]).to include("削除に失敗しました")
-      end
+      }.to change(Plant, :count).by(-1)
+
+      expect(response).to redirect_to(admin_plants_path)
     end
-    context "子のStockを持たない場合" do
-      it "Plantを削除できる" do
-        plant = Plant.create!(name: "テストプラント", code: "test", prefix: "TST")
 
+    it "Lotから参照されている植物は削除しない" do
+      plant = Plant.create!(name: "バジル", code: "basil")
+      StartProduction.call(
+        plant_id: plant.id,
+        propagation_method: "seed",
+        started_on: Date.new(2026, 8, 14),
+        initial_quantity: 5,
+        location_id: location.id,
+        growing_method: "soil"
+      )
+
+      expect {
         delete admin_plant_path(plant), headers: admin_headers
-        expect(response).to redirect_to(admin_plants_path)
+      }.not_to change(Plant, :count)
 
-        expect(flash[:notice]).to eq("削除しました")
-      end
+      expect(response).to have_http_status(:unprocessable_content)
+    end
+
+    it "Stockから参照されている植物は削除しない" do
+      plant = Plant.create!(name: "購入株の植物", code: "purchased-plant")
+      Stock.register_direct!(
+        plant_id: plant.id,
+        location_id: location.id,
+        stage: "growing",
+        stage_started_on: Date.new(2026, 8, 14)
+      )
+
+      expect {
+        delete admin_plant_path(plant), headers: admin_headers
+      }.not_to change(Plant, :count)
+
+      expect(response).to have_http_status(:unprocessable_content)
     end
   end
 end

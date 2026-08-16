@@ -2,8 +2,8 @@
 
 ## 目的
 
-管理対象となる植物の種類を保持するマスターテーブルです。
-植物名、識別コード、株コードの採番情報、学名を保持します。
+管理対象となる植物・品種を保持するマスターテーブルです。
+品種を区別して管理するときは、品種ごとにPlantを作成します。
 
 ## カラム
 
@@ -11,29 +11,30 @@
 | --- | --- | --- | --- | --- | --- |
 | `id` | `bigint` | 不可 | なし | PK | 植物ID |
 | `code` | `string` | 不可 | なし | UK | 植物を一意に識別するコード |
-| `prefix` | `string` | 不可 | なし | UK | 株コードに使用するプレフィックス |
-| `name` | `string` | 不可 | なし | UK | 表示用の植物名 |
-| `last_stock_number` | `integer` | 可 | `0` | なし | 最後に発行した株番号 |
-| `scientific_name` | `string` | 可 | なし | なし | 品種の特定に使う学名 |
+| `name` | `string` | 不可 | なし | UK | 表示用の植物・品種名 |
+| `scientific_name` | `string` | 可 | `NULL` | なし | 学名 |
 | `created_at` | `datetime` | 不可 | なし | なし | 作成日時 |
 | `updated_at` | `datetime` | 不可 | なし | なし | 更新日時 |
 
 ## インデックスと制約
 
 - 主キー: `id`
-- 一意インデックス: `code`、`prefix`、`name`
-- `code`、`prefix`、`name`は必須とする
+- 一意インデックス: `code`、`name`
+- `code`、`name`は必須とする
 
 ## 関連
 
 - `Plant has_one_attached Image`
+- `Plant has_many ProductionLots`
 - `Plant has_many Stocks`
-- `stocks.plant_id`から参照される
-- Stockが存在するPlantは削除できない
+- ProductionLotまたはStockから参照されているPlantは削除できない
 
 ## 業務ルール
 
-- 同じ`code`を持つ植物は重複登録できない
-- 同じ`prefix`または`name`を持つ植物は重複登録できない
-- 個別の株の状態、栽培方法、増殖方法は`plants`ではなく`stocks`で管理する
-- `last_stock_number`は株コードの採番に使用し、通常の編集画面では変更しない
+- 同じ`code`または`name`を持つ植物は重複登録できない
+- 生産の出自と開始条件はProductionLotで管理する
+- 鉢上げ前の現在工程と数量はNurseryGroupで管理する
+- 生産由来では、Plantごとに異なる、個体管理へ切り替える鉢上げ後に
+  1株を1件のStockとして管理する
+- 購入・譲受した株はProductionLotとNurseryGroupを介さずStockへ直接登録できる
+- 鉢サイズを設定・検証する機能はv1では持たない

@@ -19,10 +19,14 @@ module DataExport
     ].freeze
 
     RECORD_STRUCTURE = {
-      Location => [].freeze,
       Plant => [].freeze,
-      Stock => %i[stock_action_logs stock_observations].freeze
+      Location => [].freeze,
+      ProductionLot => [].freeze,
+      NurseryGroup => [].freeze,
+      Stock => %i[stock_observations].freeze
     }.freeze
+
+    IMAGE_RECORD_TYPES = [ Plant, Location, StockObservation ].freeze
 
     def self.write_to(path)
       new(path).write
@@ -104,6 +108,7 @@ module DataExport
     end
 
     def attached_blob(record)
+      return unless IMAGE_RECORD_TYPES.any? { |record_type| record.is_a?(record_type) }
       return unless record.respond_to?(:image)
       return unless record.image.attached?
 
@@ -117,8 +122,6 @@ module DataExport
           "images/locations/#{record.id}"
         when Plant
           "images/plants/#{record.id}"
-        when Stock
-          "images/stocks/#{record.id}"
         when StockObservation
           "images/stocks/#{main_record.id}/observations/#{record.id}"
         else

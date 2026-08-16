@@ -62,15 +62,14 @@ class Admin::PlantsController < Admin::BaseController
   private
 
   def set_show_data
-    @stocks = @plant.stocks.order(:id).to_a
+    @stocks = @plant.stocks.includes(:location, source_nursery_group: :production_lot).order(:id).to_a
+    @production_lots = @plant.production_lots.order(id: :desc).to_a
   end
 
   def plant_params
     params.require(:plant).permit(
       :name,
       :code,
-      :prefix,
-      :last_stock_number,
       :scientific_name,
       :image
     )

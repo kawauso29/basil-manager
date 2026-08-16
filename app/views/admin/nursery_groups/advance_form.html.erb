@@ -1,0 +1,33 @@
+<div class="page-header">
+  <div>
+    <h1 class="page-title">次工程へ進める</h1>
+    <p class="page-subtitle">NG-<%= @nursery_group.id %></p>
+  </div>
+  <div class="page-actions">
+    <%= link_to "詳細へ戻る", admin_nursery_group_path(@nursery_group), class: "button button-secondary" %>
+  </div>
+</div>
+
+<%= form_with url: advance_admin_nursery_group_path(@nursery_group), scope: :advance, class: "form-card" do |f| %>
+  <dl class="detail-list">
+    <dt>現在工程</dt>
+    <dd><%= @nursery_group.stage_i18n %></dd>
+    <dt>次工程</dt>
+    <dd><%= @next_stage ? NurseryGroup.stages_i18n.fetch(@next_stage) : "進行先なし" %></dd>
+    <dt>現在数量</dt>
+    <dd><%= @nursery_group.quantity %>株</dd>
+  </dl>
+  <div class="form-field">
+    <%= f.label :quantity, "進める数量" %>
+    <%= f.number_field :quantity,
+                       value: @form_values[:quantity],
+                       min: 1,
+                       max: @nursery_group.quantity,
+                       required: true %>
+  </div>
+  <div class="form-field">
+    <%= f.label :recorded_on, "次工程の開始日" %>
+    <%= f.date_field :recorded_on, value: @form_values[:recorded_on], required: true %>
+  </div>
+  <%= f.submit "次工程へ進める", disabled: @next_stage.nil? %>
+<% end %>

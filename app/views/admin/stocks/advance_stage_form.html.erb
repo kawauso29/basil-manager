@@ -1,0 +1,17 @@
+<div class="page-header">
+  <div>
+    <h1 class="page-title">次工程へ進める</h1>
+    <p class="page-subtitle">ST-<%= @stock.id %> / <%= @stock.stage_i18n %> → 生育中</p>
+  </div>
+  <div class="page-actions">
+    <%= link_to "詳細へ戻る", admin_stock_path(@stock), class: "button button-secondary" %>
+  </div>
+</div>
+
+<%= form_with url: advance_stage_admin_stock_path(@stock), scope: :stock_stage, method: :patch, class: "form-card" do |f| %>
+  <div class="form-field">
+    <%= f.label :stage_started_on, "生育開始日" %>
+    <%= f.date_field :stage_started_on, value: @stage_started_on, required: true %>
+  </div>
+  <%= f.submit "次工程へ進める" %>
+<% end %>

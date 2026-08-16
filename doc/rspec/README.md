@@ -120,25 +120,24 @@ RSpec.describe "Admin::Stocks", type: :request do
   let(:plant) do
     Plant.create!(
       name: "テストプラント",
-      code: "test",
-      prefix: "TST"
+      code: "test"
     )
   end
 
   let(:location) do
     Location.create!(
       name: "テストロケーション",
-      code: "test",
-      prefix: "TST"
+      code: "test"
     )
   end
 
   let(:stock) do
-    Stocks::Creator.call(
+    Stock.register_direct!(
       plant_id: plant.id,
       location_id: location.id,
-      growing_method: "pot",
-      propagation_method: "seed"
+      stage: "acclimating",
+      stage_started_on: Date.current,
+      potted_on: Date.current
     )
   end
 end
@@ -159,7 +158,7 @@ end
 `let`は、定義した場所ですぐに実行されるわけではない。各exampleで初めて呼び出されたときに実行され、同じexample内ではその結果が再利用される。
 
 ```ruby
-let(:stock) { Stocks::Creator.call(...) }
+let(:stock) { Stock.register_direct!(...) }
 
 it "Stockを使用する" do
   stock # ここで初めてStockが作成される
@@ -179,8 +178,9 @@ let(:valid_params) do
     stock: {
       plant_id: plant.id,
       location_id: location.id,
-      growing_method: "pot",
-      propagation_method: "seed"
+      stage: "acclimating",
+      stage_started_on: Date.current,
+      potted_on: Date.current
     }
   }
 end
@@ -200,11 +200,12 @@ end
 
 ```ruby
 let!(:stock) do
-  Stocks::Creator.call(
+  Stock.register_direct!(
     plant_id: plant.id,
     location_id: location.id,
-    growing_method: "pot",
-    propagation_method: "seed"
+    stage: "acclimating",
+    stage_started_on: Date.current,
+    potted_on: Date.current
   )
 end
 ```
@@ -243,7 +244,7 @@ Plant作成の例では、次のようになる。
 it "Plantを作成できる" do
   # 準備
   valid_params = {
-    plant: { name: "テストプラント", code: "test", prefix: "TST" }
+    plant: { name: "テストプラント", code: "test" }
   }
 
   # 実行と件数の確認
@@ -290,7 +291,7 @@ HTTPメソッドとControllerアクションの対応は次のとおり。
 Controllerが次のStrong Parametersを使っている場合、送信値は `plant` の下へネストする。
 
 ```ruby
-params.require(:plant).permit(:name, :code, :prefix)
+params.require(:plant).permit(:name, :code)
 ```
 
 Request specから送る値も同じ形にする。
@@ -299,8 +300,7 @@ Request specから送る値も同じ形にする。
 params = {
   plant: {
     name: "テストプラント",
-    code: "test",
-    prefix: "TST"
+    code: "test"
   }
 }
 
@@ -482,106 +482,11 @@ Model specでは、モデル自身のルールを確認する。
 ```text
 nameが空なら無効
 codeが空なら無効
-prefixが空なら無効
 codeが重複したら無効
-Stockを持つPlantは削除できない
+ProductionLotまたはStockを持つPlantは削除できない
 ```
 
 全バリデーションをRequest specでも繰り返す必要はない。Request specでは代表的な不正入力を1ケース確認し、個別のバリデーションはModel specで確認する。
-
-## Presenter spec
-
-Presenter自身の変換、統合、並べ替えなどはPresenter specで確認する。
-
-```text
-app/presenters/admin/stock_logs_presenter.rb
-spec/presenters/admin/stock_logs_presenter_spec.rb
-```
-
-```ruby
-require "rails_helper"
-
-RSpec.describe Admin::StockLogsPresenter do
-  describe ".call" do
-    it "作業ログと観察ログを古い順に整形する" do
-      # Presenterの入力と期待する返却値を確認する
-    end
-  end
-end
-```
-
-### `described_class`
-
-`described_class`は、最上位の`RSpec.describe`で指定したクラスを返す。
-
-```ruby
-RSpec.describe Admin::StockLogsPresenter do
-  it "ログがなければ空配列を返す" do
-    result = described_class.call([], [])
-
-    expect(result).to eq([])
-  end
-end
-```
-
-この場合、次の呼び出しと同じ意味になる。
-
-```ruby
-result = Admin::StockLogsPresenter.call([], [])
-```
-
-テスト対象のクラス名を繰り返さずに書けるため、クラス名を変更した場合の修正箇所を減らせる。
-
-### `double`
-
-`double`は、テストに必要なメソッドだけを持つ代役のオブジェクトを作る。
-
-```ruby
-action_log = double(
-  recorded_at: Time.zone.local(2026, 7, 2, 9),
-  action_type_i18n: "水やり",
-  memo: "作業ログ"
-)
-```
-
-この`action_log`は、テスト内で次の呼び出しに応答する。
-
-```ruby
-action_log.recorded_at
-action_log.action_type_i18n
-action_log.memo
-```
-
-Presenterの整形処理だけを確認したい場合は、実際のDBレコードを作る必要がない。関連モデルの必須項目やDB状態から切り離し、Presenterへ与える入力と返却値へテストを集中できる。
-
-実際のモデルに存在しないメソッドまで誤って許可したくない場合は、`instance_double`の使用を検討する。
-
-```ruby
-action_log = instance_double(
-  StockActionLog,
-  recorded_at: Time.zone.local(2026, 7, 2, 9),
-  action_type_i18n: "水やり",
-  memo: "作業ログ"
-)
-```
-
-### Presenter specとRequest specの分担
-
-Presenter specでは次を確認する。
-
-- 複数種類のデータを共通形式へ統合できる
-- `recorded_at`の古い順に並べ替えられる
-- 日時、単位、ラベルを表示用に整形できる
-- 入力が空なら空配列を返す
-
-Request specでは次を確認する。
-
-- Presenterを使用する画面が例外なく表示される
-- 代表的な表示データがレスポンスに含まれる
-
-並べ替えやHashの完全一致はPresenter specに任せ、Request specで同じ内容を重複して検証しない。
-
-Presenterの使用基準と実装ルールは[`Presenter 運用ガイド`](../presenter/README.md)を参照する。
 
 ## Plant管理画面で保証している内容
 
@@ -593,8 +498,8 @@ Presenterの使用基準と実装ルールは[`Presenter 運用ガイド`](../pr
 - Plantを更新できる
 - 値が変わらない更新を処理できる
 - 不正なパラメータではPlantを更新できない
-- Stockを持たないPlantを削除できる
-- Stockを持つPlantは削除できない
+- ProductionLotとStockを持たないPlantを削除できる
+- ProductionLotまたはStockを持つPlantは削除できない
 
 HTTPステータスだけを確認するテストは、「画面で例外が発生しないこと」を保証する。実際にPlantの名前などが表示されることまで保証したい場合は、レスポンス本文も確認する。
 

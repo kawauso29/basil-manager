@@ -1,22 +1,28 @@
-# データZIPエクスポート
+# AI提供用データZIPエクスポート
 
-管理画面の「データを出力」から、現在の業務データと添付画像を1つのZIPとして
+本番の生産管理データをAIへ提供することを主目的として、管理画面の
+「AI提供用ZIPを出力」から、現在の業務データと添付画像を1つのZIPとして
 ダウンロードできる。レコードは通常のCSV、画像は独立したバイナリファイルとして
 格納する。
 
+このZIPはAIによる分析・確認の入力用であり、データベースやActive Storageを
+復旧するためのバックアップではない。ZIPをアプリケーションへインポートまたは
+復元する機能は提供しない。
+
 ## 出力対象
 
-- Location
 - Plant
+- Location
+- ProductionLot
+- NurseryGroup
 - Stock
 
-上記3モデルを主レコードとして出力する。ログ系レコードは、対応する主レコードの
-直後へ次の関連単位で出力する。
+上記5モデルを主レコードとして出力する。StockObservationは、対応するStockの
+直後へ関連レコードとして出力する。
 
-- `Stock`の`stock_action_logs`（StockActionLog）
 - `Stock`の`stock_observations`（StockObservation）
 
-Active Storageの内部テーブルは出力しない。画像を持つPlant、Location、Stock、
+Active Storageの内部テーブルは出力しない。画像を持つPlant、Location、
 StockObservationは、CSV行の`image_path`からZIP内の画像を参照できる。
 
 ## ZIPの構成
@@ -33,7 +39,6 @@ basil-manager-data-YYYY-MM-DD.zip
     │       └── <filename>
     └── stocks
         └── <stock_id>
-            ├── <filename>
             └── observations
                 └── <stock_observation_id>
                     └── <filename>
@@ -58,12 +63,13 @@ StockObservationの画像は、対応するStockの配下へ格納する。
 | `image_byte_size` | 添付画像のバイト数。画像なしの場合は空 |
 | `image_path` | ZIP内の画像パス。画像なしの場合は空 |
 
-`attributes_json`は出力時点の全カラムを含む。Plantの学名、Stockのメモ・ラベル、
-StockActionLogの移動元・移動先、変更前後の状態もこのJSON内へ出力される。
+`attributes_json`は出力時点の全カラムを含む。外部キーも含むため、AIは
+ProductionLot、NurseryGroup、Stock、StockObservationの関係をCSVからたどれる。
 
 主レコード行では`main_record_type`と`main_record_id`が自身を指す。ログ系レコードは
 同じ2列で対応するStockを指すため、`attributes_json`を解析しなくても
-主レコードとのまとまりを判別できる。各主レコードとそのログはID順に出力する。
+主レコードとのまとまりを判別できる。主レコードはPlant、Location、ProductionLot、
+NurseryGroup、Stockの順で出力し、各モデル内とStockObservationはID順に出力する。
 
 ## 生成方法
 

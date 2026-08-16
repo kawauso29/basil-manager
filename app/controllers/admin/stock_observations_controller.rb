@@ -2,7 +2,9 @@ class Admin::StockObservationsController < Admin::BaseController
   include Admin::ImageAttachment
 
   def index
-    @stock_observations = StockObservation.all.order(:recorded_at).limit(30)
+    @stock_observations = StockObservation.includes(stock: %i[plant location])
+                                          .order(recorded_at: :desc, id: :desc)
+                                          .limit(30)
   end
 
   def new
@@ -70,7 +72,7 @@ class Admin::StockObservationsController < Admin::BaseController
 
   def set_form_options
     @stock_data = Stock.active.includes(:plant, :location).map do |stock|
-      [ "#{stock.display_name} / #{stock.plant.name} / #{stock.location.name}", stock.id ]
+      [ "ST-#{stock.id} / #{stock.plant.name} / #{stock.location.name}", stock.id ]
     end
   end
 

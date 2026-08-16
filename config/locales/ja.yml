@@ -33,31 +33,47 @@ ja:
   activerecord:
     attributes:
       plant:
+        code: 植物コード
+        name: 植物名
         scientific_name: 学名
       location:
+        code: 場所コード
+        name: 場所名
         environment: 屋内・屋外区分
+      production_lot:
+        plant: 植物
+        plant_id: 植物
+        propagation_method: 生産方法
+        started_on: 生産開始日
+        initial_quantity: 開始数量
+        source_stock: 親株
+        source_stock_id: 親株
+        memo: メモ
+      nursery_group:
+        production_lot: 生産ロット
+        production_lot_id: 生産ロット
+        location: 場所
+        location_id: 場所
+        stage: 工程
+        growing_method: 育成方法
+        container_type: 容器
+        quantity: 数量
+        stage_started_on: 工程開始日
+        memo: メモ
       stock:
         plant: 植物
         plant_id: 植物
         location: 管理場所
         location_id: 管理場所
-        code: 管理コード
-        status: 管理状態
-        growing_method: 栽培方法
-        propagation_method: 増殖方法
+        source_nursery_group: 鉢上げ元グループ
+        source_nursery_group_id: 鉢上げ元グループ
+        stage: 工程
+        stage_started_on: 工程開始日
+        potted_on: 鉢上げ日
+        sale_ready_on: 販売可能日
         memo: メモ
-        completion_reason: 育成完了理由
-        completed_at: 育成完了日時
-      stock_action_log:
-        stock: 対象株
-        stock_id: 対象株
-        action_type: 作業種別
-        from_location: 変更前の管理場所
-        to_location: 変更後の管理場所
-        status_before: 変更前の管理状態
-        status_after: 変更後の管理状態
-        memo: メモ
-        recorded_at: 作業日時
+        completion_reason: 管理完了理由
+        completed_at: 管理完了日時
       stock_observation:
         stock: 対象株
         stock_id: 対象株
@@ -76,24 +92,9 @@ ja:
               required: を選択してください
             location:
               required: を選択してください
-            status:
+            stage:
               inclusion: を選択してください
               unchanged: は変更前と異なる値を選択してください
-            growing_method:
-              inclusion: を選択してください
-            propagation_method:
-              inclusion: を選択してください
-            location_id:
-              unchanged: は変更前と異なる値を選択してください
-        stock_action_log:
-          attributes:
-            stock:
-              required: を選択してください
-            action_type:
-              blank: を選択してください
-              inclusion: を選択してください
-            recorded_at:
-              blank: を入力してください
         stock_observation:
           attributes:
             stock:
@@ -103,37 +104,26 @@ ja:
       environment:
         indoor: 屋内
         outdoor: 屋外
-    stock_action_log:
-      action_type:
-        seed_sown: 種まき
-        cutting_started: 挿し木開始
-        water_started: 水挿し開始
-        watered: 水やり
-        fertilized: 施肥
-        pinched: 摘芯
-        pruned: 剪定
-        water_replaced: 水交換
-        harvested: 収穫
-        moved: 管理場所変更
-        status_changed: 管理状態変更
-        transplanted: 植え替え
+    production_lot:
+      propagation_method:
+        seed: 播種
+        cutting: 挿し木
+    nursery_group:
+      stage:
+        sown: 播種済み
+        germinating: 発芽中
+        thinning: 間引き中
+        rooting_wait: 発根待ち
+        rooted: 発根済み
+        pot_up_ready: 鉢上げ可能
+      growing_method:
+        water: 水
+        soil: 土
     stock:
-      status:
-        starting: 育成開始
-        rooting: 発根中
+      stage:
+        acclimating: 順化中
         growing: 生育中
       completion_reason:
         cultivation_ended: 育成終了
-        harvested: 収穫完了
-        discarded: 廃棄
-      growing_method:
-        pot: 苗ポット
-        planter: プランター
-        flowerpot: 植木鉢
-        seeding_tray: セルトレー
-        water: 水耕
-        other: その他
-      propagation_method:
-        cutting_soil: 土挿し
-        cutting_water: 水挿し
-        seed: 種まき
+        dead: 枯死
+        transferred: 譲渡

@@ -1,506 +1,336 @@
 require "rails_helper"
 
 RSpec.describe "Admin::Stocks", type: :request do
-  let(:create_plant) do
-    Plant.create!(
-      name: "テストプラント",
-      code: "test",
-      prefix: "TST"
+  let!(:plant) { Plant.create!(name: "バジル", code: "basil") }
+  let!(:location) do
+    Location.create!(name: "育成棚", code: "growing-shelf", environment: "indoor")
+  end
+  let!(:destination) do
+    Location.create!(name: "販売棚", code: "sales-shelf", environment: "outdoor")
+  end
+
+  def create_stock(overrides = {})
+    Stock.register_direct!(
+      **{
+        plant_id: plant.id,
+        location_id: location.id,
+        stage: "acclimating",
+        stage_started_on: Date.new(2026, 8, 14),
+        potted_on: nil,
+        memo: "購入株"
+      }.merge(overrides)
     )
   end
-  let(:create_location) do
-    Location.create!(
-      name: "テストロケーション",
-      code: "test",
-      prefix: "TST"
-    )
-  end
-  let(:create_stock) do
-    Stocks::Creator.call(
-      plant_id: create_plant.id,
-      location_id: create_location.id,
-      growing_method: "pot",
-      propagation_method: "seed",
-      label: "テスト株"
-    )
-  end
-  let(:create_other_stock) do
-    Stocks::Creator.call(
-      plant_id: create_plant.id,
-      location_id: create_location.id,
-      growing_method: "pot",
-      propagation_method: "seed"
-    )
-  end
-  let(:valid_params) do
-    {
-      stock: {
-        plant_id: create_plant.id,
-        location_id: create_location.id,
-        growing_method: "pot",
-        propagation_method: "seed",
-        label: "テスト株"
-      }
-    }
-  end
-  let(:invalid_params) do
-    {
-      stock: {
-        plant_id: nil,
-        location_id: create_location.id,
-        growing_method: "pot",
-        propagation_method: "seed",
-        label: "テスト株"
-      }
-    }
-  end
 
-  describe "共通アクション" do
-    it "一覧と作成画面で共通のコレクション操作を表示する" do
-      {
-        admin_stocks_path => "株一覧",
-        new_admin_stock_path => "株を作成"
-      }.each do |path, current_label|
-        get path, headers: admin_headers
-
-        actions = Nokogiri::HTML(response.body).at_css('[aria-label="株の操作"]')
-        expect(actions.text).to include("株を作成", "株一覧")
-        expect(actions.at_css('[aria-current="page"]').text.strip).to eq(current_label)
-      end
-    end
-
-    it "詳細・編集画面で共通のレコード操作を表示する" do
-      stock = create_stock
-
-      {
-        admin_stock_path(stock) => "詳細",
-        edit_admin_stock_path(stock) => "編集"
-      }.each do |path, current_label|
-        get path, headers: admin_headers
-
-        actions = Nokogiri::HTML(response.body).at_css('[aria-label="株の操作"]')
-        expect(actions.text).to include(
-          "詳細",
-          "作業を記録",
-          "観察を記録",
-          "編集",
-          "株を作成",
-          "株一覧"
-        )
-        expect(actions.at_css('input[value="削除"]')).to be_present
-        expect(actions.at_css('[aria-current="page"]').text.strip).to eq(current_label)
-      end
-    end
-  end
-
-  # index
   describe "GET /admin/stocks" do
-    it "保存済みのStockが一覧に表示される" do
-      stock = create_stock
-      stock.update!(memo: "遮光ラックの上段")
-      create_stock
+    it "管理中と完了済みのStockをどちらも一覧表示する" do
+      active_stock = create_stock
+      completed_stock = create_stock(memo: "管理終了株")
+      completed_stock.complete!(
+        reason: "cultivation_ended",
+        at: Time.zone.local(2026, 8, 15, 10)
+      )
+
       get admin_stocks_path, headers: admin_headers
+
       expect(response).to have_http_status(:ok)
-      expect(response.body).to include("テスト株")
-      expect(response.body).to include("遮光ラックの上段")
-      expect(response.body).to include(stock.created_at.strftime("%Y/%m/%d"))
-      expect(response.body).to include(edit_admin_stock_path(stock))
+      expect(response.body).to include("ST-#{active_stock.id}", "ST-#{completed_stock.id}", "管理終了株")
     end
 
-    it "環境とロケーションを組み合わせて絞り込む" do
-      indoor_stock = create_stock
-      indoor_stock.update!(label: "屋内の株")
-      target_location = Location.create!(
-        name: "対象の屋外ロケーション",
-        code: "target-outdoor",
-        prefix: "TGO",
-        environment: "outdoor"
-      )
-      other_location = Location.create!(
-        name: "別の屋外ロケーション",
-        code: "other-outdoor",
-        prefix: "OGO",
-        environment: "outdoor"
-      )
-      target_stock = Stocks::Creator.call(
-        plant_id: create_plant.id,
-        location_id: target_location.id,
-        growing_method: "pot",
-        propagation_method: "seed",
-        label: "対象の株"
-      )
-      other_stock = Stocks::Creator.call(
-        plant_id: create_plant.id,
-        location_id: other_location.id,
-        growing_method: "pot",
-        propagation_method: "seed",
-        label: "別の屋外株"
-      )
+    it "工程、場所、植物、管理状態で絞り込む" do
+      target = create_stock(stage: "growing", location_id: destination.id, memo: "対象")
+      create_stock(memo: "対象外")
 
       get admin_stocks_path,
-          params: { environment: "outdoor", location_id: target_location.id },
+          params: {
+            environment: "outdoor",
+            location_id: destination.id,
+            plant_id: plant.id,
+            stage: "growing",
+            completion: "active"
+          },
           headers: admin_headers
 
       expect(response).to have_http_status(:ok)
-      expect(response.body).to include(target_stock.label)
-      expect(response.body).not_to include(indoor_stock.label, other_stock.label)
+      expect(response.body).to include("ST-#{target.id}", "対象")
+      expect(response.body).not_to include("対象外")
     end
 
-    it "植物と状態を組み合わせて絞り込む" do
-      target_stock = create_stock
-      target_stock.update!(label: "対象の株", status: "growing")
-      other_plant = Plant.create!(
-        name: "別のテストプラント",
-        code: "other-test",
-        prefix: "OTH"
-      )
-      other_plant_stock = Stocks::Creator.call(
-        plant_id: other_plant.id,
-        location_id: create_location.id,
-        growing_method: "pot",
-        propagation_method: "seed",
-        label: "別の植物の株"
-      )
-      other_status_stock = Stocks::Creator.call(
-        plant_id: create_plant.id,
-        location_id: create_location.id,
-        growing_method: "pot",
-        propagation_method: "seed",
-        label: "別の状態の株"
-      )
-      other_status_stock.update!(status: "rooting")
+    it "販売可能フィルタでは完了済みStockを除外する" do
+      active_ready = create_stock(stage: "growing", memo: "販売中")
+      active_ready.mark_sale_ready!(on: Date.new(2026, 8, 15))
+      completed_ready = create_stock(stage: "growing", memo: "販売終了")
+      completed_ready.mark_sale_ready!(on: Date.new(2026, 8, 15))
+      completed_ready.complete!(reason: "transferred", at: Time.zone.local(2026, 8, 16, 10))
 
-      get admin_stocks_path,
-          params: { plant_id: create_plant.id, status: "growing" },
-          headers: admin_headers
+      get admin_stocks_path, params: { sale_ready: "ready" }, headers: admin_headers
 
-      expect(response).to have_http_status(:ok)
-      expect(response.body).to include(target_stock.label)
-      expect(response.body).not_to include(other_plant_stock.label, other_status_stock.label)
-    end
-
-    it "一覧表示に必要な関連データを一括取得する" do
-      stock = create_stock
-      blob = ActiveStorage::Blob.create!(
-        key: SecureRandom.hex(20),
-        filename: "stock.png",
-        content_type: "image/png",
-        metadata: { identified: true },
-        service_name: ActiveStorage::Blob.service.name,
-        byte_size: 100,
-        checksum: "test-checksum"
-      )
-      ActiveStorage::Attachment.create!(name: "image", record: stock, blob: blob)
-
-      other_plant = Plant.create!(
-        name: "別のテストプラント",
-        code: "other-test",
-        prefix: "OTH"
-      )
-      other_location = Location.create!(
-        name: "別のテストロケーション",
-        code: "other-test",
-        prefix: "OTH"
-      )
-      Stocks::Creator.call(
-        plant_id: other_plant.id,
-        location_id: other_location.id,
-        growing_method: "pot",
-        propagation_method: "seed"
-      )
-
-      sql_queries = []
-      subscriber = lambda do |_name, _started, _finished, _id, payload|
-        next if payload[:cached] || payload[:name].in?(%w[ SCHEMA TRANSACTION ])
-
-        sql_queries << payload[:sql]
-      end
-
-      ActiveSupport::Notifications.subscribed(subscriber, "sql.active_record") do
-        get admin_stocks_path, headers: admin_headers
-      end
-
-      table_query_counts = sql_queries.filter_map do |sql|
-        sql[/FROM\s+"([a-z_]+)"/, 1]
-      end.tally
-
-      expect(response).to have_http_status(:ok)
-      expect(table_query_counts.slice(
-        "stocks",
-        "plants",
-        "locations",
-        "active_storage_attachments",
-        "active_storage_blobs"
-      )).to eq(
-        "stocks" => 1,
-        "plants" => 2,
-        "locations" => 2,
-        "active_storage_attachments" => 1,
-        "active_storage_blobs" => 1
-      )
+      expect(response.body).to include("ST-#{active_ready.id}", "販売中")
+      expect(response.body).not_to include("ST-#{completed_ready.id}")
+      expect(response.body).not_to include("販売終了")
     end
   end
 
-  # show
+  describe "GET /admin/stocks/new" do
+    it "直接登録に必要な現在値のフォームを表示する" do
+      get new_admin_stock_path, headers: admin_headers
+
+      expect(response).to have_http_status(:ok)
+      expect(response.body).to include(
+        'name="stock[plant_id]"',
+        'name="stock[location_id]"',
+        'name="stock[stage]"',
+        'name="stock[stage_started_on]"',
+        'name="stock[potted_on]"'
+      )
+      expect(response.body).not_to include("9cm", "個体コード", "ラベル")
+    end
+  end
+
   describe "GET /admin/stocks/:id" do
-    it "操作をヘッダーにまとめ、株カード内の詳細リンクを表示しない" do
-      stock = create_stock
+    it "業務現在値、出自、最新草丈を表示する" do
+      production_lot = StartProduction.call(
+        plant_id: plant.id,
+        propagation_method: "cutting",
+        started_on: Date.new(2026, 8, 10),
+        initial_quantity: 1,
+        location_id: location.id,
+        growing_method: "water"
+      )
+      nursery_group = production_lot.nursery_groups.first
+      2.times do |index|
+        AdvanceNurseryGroup.call(
+          nursery_group: nursery_group,
+          quantity: nursery_group.quantity,
+          recorded_on: Date.new(2026, 8, 11 + index)
+        )
+      end
+      stock = PotUpNurseryGroup.call(
+        nursery_group: nursery_group,
+        quantity: 1,
+        location_id: destination.id,
+        potted_on: Date.new(2026, 8, 13)
+      ).first
+      stock.stock_observations.create!(
+        height_cm: 8,
+        memo: "古い記録",
+        recorded_at: Time.zone.local(2026, 8, 14, 9)
+      )
+      stock.stock_observations.create!(
+        height_cm: 12.5,
+        memo: "最新記録",
+        recorded_at: Time.zone.local(2026, 8, 15, 9)
+      )
 
       get admin_stock_path(stock), headers: admin_headers
 
       expect(response).to have_http_status(:ok)
-      expect(response.body).to include("作業を記録")
-      expect(response.body).to include("観察を記録")
-      expect(response.body).to include("編集")
-      expect(response.body).to include("削除")
-      document = Nokogiri::HTML(response.body)
-      expect(document.css(".stock-card a").map { |link| link.text.strip }).not_to include("詳細")
+      expect(response.body).to include(
+        "ST-#{stock.id}",
+        "LOT-#{production_lot.id}",
+        "NG-#{nursery_group.id}",
+        "12.5 cm",
+        "2026/08/13"
+      )
+      expect(response.body).not_to include("作業を記録", "削除", "9cm")
     end
 
-    it "ID順で前後のStock詳細へ移動できる" do
-      stocks = 3.times.map do |index|
-        Stocks::Creator.call(
-          plant_id: create_plant.id,
-          location_id: create_location.id,
-          growing_method: "pot",
-          propagation_method: "seed",
-          label: "ナビゲーション用株#{index}"
-        )
-      end
+    it "完了後も販売可能日と完了内容を表示する" do
+      stock = create_stock(stage: "growing", potted_on: Date.new(2026, 8, 10))
+      stock.mark_sale_ready!(on: Date.new(2026, 8, 14))
+      stock.complete!(reason: "transferred", at: Time.zone.local(2026, 8, 15, 11, 30))
 
-      get admin_stock_path(stocks.second), headers: admin_headers
+      get admin_stock_path(stock), headers: admin_headers
 
-      document = Nokogiri::HTML(response.body)
-      expect(document.at_css('a[rel="prev"]')["href"]).to eq(admin_stock_path(stocks.first))
-      expect(document.at_css('a[rel="next"]')["href"]).to eq(admin_stock_path(stocks.third))
-    end
-    context "作業ログと観察ログを持つ" do
-      it "ログを含むStock詳細が表示される" do
-        stock = create_stock
-        stock.stock_action_logs.create!(
-          action_type: :watered,
-          memo: "作業ログ",
-          recorded_at: Time.zone.local(2026, 7, 2, 9)
-        )
-        stock.stock_observations.create!(
-          height_cm: 10,
-          memo: "観察ログ",
-          recorded_at: Time.zone.local(2026, 7, 1, 8)
-        )
-
-        get admin_stock_path(stock), headers: admin_headers
-
-        expect(response).to have_http_status(:ok)
-        expect(response.body).to include("作業ログ")
-        expect(response.body).to include("観察ログ")
-      end
+      expect(response.body).to include("2026/08/14", "2026/08/15 11:30", "譲渡")
+      expect(response.body).not_to include("販売可能を解除", "管理を完了")
     end
   end
 
-  # new
-  describe "GET /admin/stocks/new" do
-    it "新規Stock作成画面が表示される" do
-      get new_admin_stock_path, headers: admin_headers
-      expect(response).to have_http_status(:ok)
-      expect(response.body).to include('name="stock[image]"')
-    end
-  end
-
-  # create
   describe "POST /admin/stocks" do
-    context "パラメータが正常な場合" do
-      it "Stockを作成できる" do
-        params = valid_params.deep_merge(
-          stock: { image: fixture_file_upload(Rails.root.join("public/icon.png"), "image/png") }
-        )
-
-        expect {
-          post admin_stocks_path, params: params, headers: admin_headers
-        }.to change(Stock, :count).by(1)
-
-        created_stock = Stock.last
-
-        # 作成値を検証
-        expect(created_stock.plant.name).to eq("テストプラント")
-        expect(created_stock.location.name).to eq("テストロケーション")
-        expect(created_stock.growing_method).to eq("pot")
-        expect(created_stock.propagation_method).to eq("seed")
-        expect(created_stock.label).to eq("テスト株")
-        expect(created_stock.image).to be_attached
-
-        # 遷移先がshowになるかどうか
-        expect(response).to redirect_to(admin_stock_path(created_stock))
-
-        expect(flash[:notice]).to eq("作成しました")
-      end
-
-      it "増殖方法が未設定でもStockを作成できる" do
-        params = {
-          stock: {
-            plant_id: create_plant.id,
-            location_id: create_location.id,
-            growing_method: "pot",
-            propagation_method: ""
-          }
+    let(:valid_params) do
+      {
+        stock: {
+          plant_id: plant.id,
+          location_id: location.id,
+          stage: "growing",
+          stage_started_on: "2026-08-14",
+          potted_on: "",
+          memo: "購入した株"
         }
-
-        expect {
-          post admin_stocks_path, params: params, headers: admin_headers
-        }.to change(Stock, :count).by(1)
-
-        expect(Stock.last.propagation_method).to be_nil
-      end
-
-      it "メモを指定してStockを作成できる" do
-        params = {
-          stock: {
-            plant_id: create_plant.id,
-            location_id: create_location.id,
-            growing_method: "pot",
-            propagation_method: "cutting_soil",
-            memo: "摘芯で作った挿し穂"
-          }
-        }
-
-        post admin_stocks_path, params: params, headers: admin_headers
-
-        created_stock = Stock.last
-        expect(created_stock.memo).to eq("摘芯で作った挿し穂")
-      end
+      }
     end
 
-    context "パラメータが不正な場合" do
-      it "Stockを作成できない" do
-        expect {
-          post admin_stocks_path, params: invalid_params, headers: admin_headers
-        }.not_to change(Stock, :count)
+    it "LotなしのStockを直接登録する" do
+      expect {
+        post admin_stocks_path, params: valid_params, headers: admin_headers
+      }.to change(Stock, :count).by(1)
 
-        expect(flash.now[:alert]).to include("作成に失敗しました")
-      end
+      stock = Stock.last
+      expect(response).to redirect_to(admin_stock_path(stock))
+      expect(stock).to have_attributes(
+        plant_id: plant.id,
+        location_id: location.id,
+        source_nursery_group_id: nil,
+        stage: "growing",
+        stage_started_on: Date.new(2026, 8, 14),
+        potted_on: nil,
+        memo: "購入した株"
+      )
+    end
+
+    it "必須項目がなければ登録しない" do
+      invalid_params = valid_params.deep_merge(stock: { stage_started_on: "" })
+
+      expect {
+        post admin_stocks_path, params: invalid_params, headers: admin_headers
+      }.not_to change(Stock, :count)
+
+      expect(response).to have_http_status(:unprocessable_content)
     end
   end
 
-  # edit
-  describe "GET /admin/stocks/:id/edit" do
-    it "Stock編集画面が表示される" do
-      stock = create_stock
-      get edit_admin_stock_path(stock), headers: admin_headers
-      expect(response).to have_http_status(:ok)
-      expect(response.body).to include("テスト株")
-
-      update_button = Nokogiri::HTML(response.body)
-                              .at_css('form.form-card .form-actions--sticky input[type="submit"][value="更新"]')
-      expect(update_button).to be_present
-    end
-
-    it "ID順で前後のStock編集画面へ移動できる" do
-      stocks = 3.times.map do |index|
-        Stocks::Creator.call(
-          plant_id: create_plant.id,
-          location_id: create_location.id,
-          growing_method: "pot",
-          propagation_method: "seed",
-          label: "ナビゲーション用株#{index}"
-        )
-      end
-
-      get edit_admin_stock_path(stocks.second), headers: admin_headers
-
-      document = Nokogiri::HTML(response.body)
-      expect(document.at_css('a[rel="prev"]')["href"]).to eq(edit_admin_stock_path(stocks.first))
-      expect(document.at_css('a[rel="next"]')["href"]).to eq(edit_admin_stock_path(stocks.third))
-    end
-  end
-
-  # update
   describe "PATCH /admin/stocks/:id" do
-    context "パラメータが正常な場合" do
-      it "Stockを更新できる" do
-        stock = create_stock
-        params = {
-          stock: { growing_method: "water" }
-        }
-        patch admin_stock_path(stock, params), headers: admin_headers
-        expect(stock.reload.growing_method).to eq("water")
-        expect(response).to redirect_to(admin_stock_path(stock))
-        expect(flash[:notice]).to include("更新しました")
-      end
-      it "Stockに更新がない" do
-        stock = create_stock
-        patch admin_stock_path(stock, valid_params), headers: admin_headers
-        expect(stock.reload.growing_method).to eq("pot")
-        expect(response).to redirect_to(admin_stock_path(stock))
-        expect(flash[:notice]).to include("変更はありませんでした")
-      end
+    it "場所、鉢上げ日、メモだけを通常編集する" do
+      stock = create_stock
 
-      it "Stockのメモを更新できる" do
-        stock = create_stock
+      patch admin_stock_path(stock),
+            params: {
+              stock: {
+                location_id: destination.id,
+                potted_on: "2026-08-12",
+                memo: "販売棚へ移動",
+                plant_id: -1,
+                stage: "growing"
+              }
+            },
+            headers: admin_headers
 
-        patch admin_stock_path(stock),
-              params: { stock: { memo: "南側の青いトレー" } },
-              headers: admin_headers
-
-        expect(stock.reload.memo).to eq("南側の青いトレー")
-      end
-
-      it "管理場所を変更して構造化された作業ログを作成する" do
-        stock = create_stock
-        destination = Location.create!(name: "移動先", code: "dst", prefix: "DST")
-
-        expect {
-          patch admin_stock_path(stock),
-                params: { stock: { location_id: destination.id, history_memo: "遮光ラックへ移動" } },
-                headers: admin_headers
-        }.to change(StockActionLog, :count).by(1)
-
-        action_log = stock.stock_action_logs.last
-        expect(stock.reload.location).to eq(destination)
-        expect(action_log).to have_attributes(
-          action_type: "moved",
-          from_location_id: create_location.id,
-          to_location_id: destination.id,
-          memo: "遮光ラックへ移動"
-        )
-      end
-
-      it "管理状態を変更して構造化された作業ログを作成する" do
-        stock = create_stock
-
-        expect {
-          patch admin_stock_path(stock),
-                params: { stock: { status: "rooting", history_memo: "発根を確認" } },
-                headers: admin_headers
-        }.to change(StockActionLog, :count).by(1)
-
-        action_log = stock.stock_action_logs.last
-        expect(stock.reload.status).to eq("rooting")
-        expect(action_log).to have_attributes(
-          action_type: "status_changed",
-          status_before: "starting",
-          status_after: "rooting",
-          memo: "発根を確認"
-        )
-      end
-    end
-
-    context "パラメータが不正な場合" do
-      it "Stockを更新できない" do
-        stock = create_stock
-        patch admin_stock_path(stock, invalid_params), headers: admin_headers
-        expect(flash.now[:alert]).to include("更新に失敗しました")
-      end
+      expect(response).to redirect_to(admin_stock_path(stock))
+      expect(stock.reload).to have_attributes(
+        plant_id: plant.id,
+        location_id: destination.id,
+        stage: "acclimating",
+        potted_on: Date.new(2026, 8, 12),
+        memo: "販売棚へ移動"
+      )
     end
   end
 
-  # destroy
-  describe "DELETE /admin/stocks/:id" do
-    it "Stockを削除できる" do
+  describe "GET /admin/stocks/:id/edit" do
+    it "場所、鉢上げ日、メモだけを編集するフォームを表示する" do
       stock = create_stock
 
-      delete admin_stock_path(stock), headers: admin_headers
+      get edit_admin_stock_path(stock), headers: admin_headers
 
-      expect(response).to redirect_to(admin_stocks_path)
-      expect(flash[:notice]).to eq("削除しました")
+      expect(response).to have_http_status(:ok)
+      expect(response.body).to include(
+        'name="stock[location_id]"',
+        'name="stock[potted_on]"',
+        'name="stock[memo]"'
+      )
+      expect(response.body).not_to include('name="stock[plant_id]"', 'name="stock[stage]"')
     end
+  end
+
+  describe "専用操作フォーム" do
+    it "工程進行フォームを表示する" do
+      stock = create_stock
+
+      get advance_stage_admin_stock_path(stock), headers: admin_headers
+
+      expect(response).to have_http_status(:ok)
+      expect(response.body).to include("ST-#{stock.id}", 'name="stock_stage[stage_started_on]"')
+    end
+
+    it "販売可能設定フォームを表示する" do
+      stock = create_stock(stage: "growing")
+
+      get sale_ready_admin_stock_path(stock), headers: admin_headers
+
+      expect(response).to have_http_status(:ok)
+      expect(response.body).to include("ST-#{stock.id}", 'name="sale_ready[sale_ready_on]"')
+    end
+
+    it "管理完了フォームを表示する" do
+      stock = create_stock(stage: "growing")
+
+      get complete_admin_stock_path(stock), headers: admin_headers
+
+      expect(response).to have_http_status(:ok)
+      expect(response.body).to include(
+        "ST-#{stock.id}",
+        'name="completion[completion_reason]"',
+        'name="completion[completed_at]"'
+      )
+    end
+  end
+
+  describe "PATCH /admin/stocks/:id/advance_stage" do
+    it "専用操作でacclimatingからgrowingへ進める" do
+      stock = create_stock
+
+      patch advance_stage_admin_stock_path(stock),
+            params: { stock_stage: { stage_started_on: "2026-08-15" } },
+            headers: admin_headers
+
+      expect(response).to redirect_to(admin_stock_path(stock))
+      expect(stock.reload).to have_attributes(
+        stage: "growing",
+        stage_started_on: Date.new(2026, 8, 15)
+      )
+    end
+  end
+
+  describe "販売可能の設定と解除" do
+    it "専用操作で販売可能日を設定する" do
+      stock = create_stock(stage: "growing")
+
+      patch mark_sale_ready_admin_stock_path(stock),
+            params: { sale_ready: { sale_ready_on: "2026-08-15" } },
+            headers: admin_headers
+
+      expect(response).to redirect_to(admin_stock_path(stock))
+      expect(stock.reload.sale_ready_on).to eq(Date.new(2026, 8, 15))
+    end
+
+    it "専用操作で販売可能を解除する" do
+      stock = create_stock(stage: "growing")
+      stock.mark_sale_ready!(on: Date.new(2026, 8, 15))
+
+      patch revoke_sale_ready_admin_stock_path(stock), headers: admin_headers
+
+      expect(response).to redirect_to(admin_stock_path(stock))
+      expect(stock.reload.sale_ready_on).to be_nil
+    end
+  end
+
+  describe "PATCH /admin/stocks/:id/complete" do
+    it "完了理由と日時を同時に保存する" do
+      stock = create_stock(stage: "growing")
+
+      patch complete_admin_stock_path(stock),
+            params: {
+              completion: {
+                completion_reason: "dead",
+                completed_at: "2026-08-15T10:30"
+              }
+            },
+            headers: admin_headers
+
+      expect(response).to redirect_to(admin_stock_path(stock))
+      expect(stock.reload).to have_attributes(
+        completion_reason: "dead",
+        completed_at: Time.zone.local(2026, 8, 15, 10, 30)
+      )
+    end
+  end
+
+  it "Stockの物理削除ルートを持たない" do
+    stock = create_stock
+
+    expect {
+      Rails.application.routes.recognize_path(admin_stock_path(stock), method: :delete)
+    }.to raise_error(ActionController::RoutingError)
   end
 end

@@ -4,11 +4,10 @@ require "zip"
 
 RSpec.describe "Admin::DataExports", type: :request do
   describe "GET /admin/data_export" do
-    it "通常のCSVとLocation・Plant・Stockの画像をZIPに出力する" do
+    it "AIへ提供する生産管理レコードとPlant・Location・StockObservationの画像をZIPへ出力する" do
       plant = Plant.create!(
         name: "テストプラント",
         code: "test",
-        prefix: "TST",
         scientific_name: "Ocimum basilicum"
       )
       plant.image.attach(
@@ -19,7 +18,6 @@ RSpec.describe "Admin::DataExports", type: :request do
       location = Location.create!(
         name: "テストロケーション",
         code: "loc",
-        prefix: "LOC",
         environment: "outdoor"
       )
       location.image.attach(
@@ -27,17 +25,41 @@ RSpec.describe "Admin::DataExports", type: :request do
         filename: "location.txt",
         content_type: "text/plain"
       )
-      stock = Stocks::Creator.call(
-        plant_id: plant.id,
-        location_id: location.id,
-        growing_method: "pot",
+      production_lot = ProductionLot.create!(
+        plant: plant,
         propagation_method: "seed",
-        memo: "南側で管理",
-        label: "南側バジル"
+        started_on: Date.new(2026, 8, 14),
+        initial_quantity: 2,
+        memo: "播種から開始"
       )
-      stock.image.attach(
-        io: StringIO.new("stock image"),
-        filename: "stock.txt",
+      nursery_group = NurseryGroup.create!(
+        production_lot: production_lot,
+        location: location,
+        stage: "pot_up_ready",
+        growing_method: "soil",
+        container_type: "cell_tray",
+        quantity: 1,
+        stage_started_on: Date.new(2026, 8, 20),
+        memo: "鉢上げ待ち"
+      )
+      stock = Stock.create!(
+        plant: plant,
+        location: location,
+        source_nursery_group: nursery_group,
+        stage: "acclimating",
+        stage_started_on: Date.new(2026, 8, 21),
+        potted_on: Date.new(2026, 8, 21),
+        memo: "南側で管理"
+      )
+      observation = StockObservation.create!(
+        stock: stock,
+        height_cm: 12.5,
+        memo: "元気",
+        recorded_at: Time.zone.local(2026, 8, 25, 8)
+      )
+      observation.image.attach(
+        io: StringIO.new("growth image"),
+        filename: "growth.txt",
         content_type: "text/plain"
       )
 
@@ -52,18 +74,30 @@ RSpec.describe "Admin::DataExports", type: :request do
 
       open_archive do |archive|
         rows = csv_rows(archive)
-        location_row = find_row(rows, Location, location.id)
         plant_row = find_row(rows, Plant, plant.id)
+        location_row = find_row(rows, Location, location.id)
+        production_lot_row = find_row(rows, ProductionLot, production_lot.id)
+        nursery_group_row = find_row(rows, NurseryGroup, nursery_group.id)
         stock_row = find_row(rows, Stock, stock.id)
+        observation_row = find_row(rows, StockObservation, observation.id)
 
         expect(rows.headers).to include("image_path")
         expect(rows.headers).not_to include("image_data_url")
-        expect(rows.map { |row| row.fetch("record_type") }).to include(
-          "Location",
+        expect(rows.map { |row| row.fetch("record_type") }).to contain_exactly(
           "Plant",
-          "Stock"
+          "Location",
+          "ProductionLot",
+          "NurseryGroup",
+          "Stock",
+          "StockObservation"
         )
-        expect([ location_row, plant_row, stock_row ]).to all(
+        expect([
+          plant_row,
+          location_row,
+          production_lot_row,
+          nursery_group_row,
+          stock_row
+        ]).to all(
           satisfy do |row|
             row.fetch("record_role") == "main" &&
               row.fetch("main_record_type") == row.fetch("record_type") &&
@@ -71,26 +105,38 @@ RSpec.describe "Admin::DataExports", type: :request do
               row["association_name"].nil?
           end
         )
-        expect(JSON.parse(location_row.fetch("attributes_json"))).to include(
-          "environment" => "outdoor"
-        )
+
         expect(JSON.parse(plant_row.fetch("attributes_json"))).to include(
           "name" => "テストプラント",
           "scientific_name" => "Ocimum basilicum"
         )
+        expect(JSON.parse(location_row.fetch("attributes_json"))).to include(
+          "environment" => "outdoor"
+        )
+        expect(JSON.parse(production_lot_row.fetch("attributes_json"))).to include(
+          "plant_id" => plant.id,
+          "propagation_method" => "seed",
+          "initial_quantity" => 2
+        )
+        expect(JSON.parse(nursery_group_row.fetch("attributes_json"))).to include(
+          "production_lot_id" => production_lot.id,
+          "location_id" => location.id,
+          "stage" => "pot_up_ready",
+          "quantity" => 1
+        )
         expect(JSON.parse(stock_row.fetch("attributes_json"))).to include(
           "plant_id" => plant.id,
           "location_id" => location.id,
-          "memo" => "南側で管理",
-          "label" => "南側バジル"
+          "source_nursery_group_id" => nursery_group.id,
+          "stage" => "acclimating",
+          "memo" => "南側で管理"
+        )
+        expect(JSON.parse(observation_row.fetch("attributes_json"))).to include(
+          "stock_id" => stock.id,
+          "height_cm" => "12.5",
+          "memo" => "元気"
         )
 
-        expect_image(
-          archive,
-          location_row,
-          "images/locations/#{location.id}/location.txt",
-          "location image"
-        )
         expect_image(
           archive,
           plant_row,
@@ -99,31 +145,35 @@ RSpec.describe "Admin::DataExports", type: :request do
         )
         expect_image(
           archive,
-          stock_row,
-          "images/stocks/#{stock.id}/stock.txt",
-          "stock image"
+          location_row,
+          "images/locations/#{location.id}/location.txt",
+          "location image"
+        )
+        expect_image(
+          archive,
+          observation_row,
+          "images/stocks/#{stock.id}/observations/#{observation.id}/growth.txt",
+          "growth image"
+        )
+        expect([ production_lot_row, nursery_group_row, stock_row ]).to all(
+          satisfy { |row| row["image_path"].nil? }
         )
       end
     end
 
-    it "株の観察記録と操作ログを関連する主レコードの直後に出力する" do
-      plant = Plant.create!(name: "ログ用プラント", code: "log-plant", prefix: "LGP")
-      location = Location.create!(name: "ログ用ロケーション", code: "log-location", prefix: "LGL")
-      stock = Stocks::Creator.call(
-        plant_id: plant.id,
-        location_id: location.id,
-        growing_method: "pot"
+    it "StockObservationを対応するStockの直後に出力する" do
+      plant = Plant.create!(name: "観察用プラント", code: "observation-plant")
+      location = Location.create!(name: "観察用ロケーション", code: "observation-location")
+      stock = Stock.create!(
+        plant: plant,
+        location: location,
+        stage: "growing",
+        stage_started_on: Date.new(2026, 8, 20)
       )
-      stock_action_log = stock.stock_action_logs.create!(
-        action_type: "watered",
-        memo: "水やり",
-        recorded_at: Time.zone.local(2026, 7, 28, 8)
-      )
-      stock_observation = StockObservation.create!(stock: stock, height_cm: 12.5, memo: "元気")
-      stock_observation.image.attach(
-        io: StringIO.new("growth image"),
-        filename: "growth.txt",
-        content_type: "text/plain"
+      observation = StockObservation.create!(
+        stock: stock,
+        memo: "葉色良好",
+        recorded_at: Time.zone.local(2026, 8, 25, 9)
       )
 
       get admin_data_export_path, headers: admin_headers
@@ -134,38 +184,16 @@ RSpec.describe "Admin::DataExports", type: :request do
           [ [ row.fetch("record_type"), row.fetch("record_id") ], index ]
         end
         stock_row_index = row_indexes.fetch([ "Stock", stock.id.to_s ])
-        stock_action_log_index = row_indexes.fetch([ "StockActionLog", stock_action_log.id.to_s ])
-        stock_observation_index = row_indexes.fetch([ "StockObservation", stock_observation.id.to_s ])
+        observation_row_index = row_indexes.fetch([ "StockObservation", observation.id.to_s ])
+        observation_row = rows[observation_row_index]
 
-        expect(stock_action_log_index).to eq(stock_row_index + 1)
-        expect(stock_observation_index).to eq(stock_action_log_index + 1)
-
-        stock_action_log_row = rows[stock_action_log_index]
-        stock_observation_row = rows[stock_observation_index]
-
-        expect(stock_action_log_row.to_h).to include(
+        expect(observation_row_index).to eq(stock_row_index + 1)
+        expect(observation_row.to_h).to include(
           "record_role" => "log",
           "main_record_type" => "Stock",
           "main_record_id" => stock.id.to_s,
-          "association_name" => "stock_action_logs"
+          "association_name" => "stock_observations"
         )
-        expect(JSON.parse(stock_action_log_row.fetch("attributes_json"))).to include(
-          "stock_id" => stock.id,
-          "action_type" => "watered",
-          "memo" => "水やり"
-        )
-
-        expected_image_path =
-          "images/stocks/#{stock.id}/observations/#{stock_observation.id}/growth.txt"
-        expect(stock_observation_row.to_h).to include(
-          "record_role" => "log",
-          "main_record_type" => "Stock",
-          "main_record_id" => stock.id.to_s,
-          "association_name" => "stock_observations",
-          "image_filename" => "growth.txt",
-          "image_path" => expected_image_path
-        )
-        expect(archive.read(expected_image_path)).to eq("growth image")
       end
     end
   end

@@ -1,21 +1,45 @@
 <div class="stock-card-header">
-  <%= expandable_thumbnail(stock.icon_path, stock.image, alt: stock.code) if stock.has_image? %>
   <div>
-    <h3 class="stock-card-title"><%= stock.code %></h3>
-    <span class="status status--<%= stock.status %>"><%= stock.status_i18n %></span>
+    <h3 class="stock-card-title">ST-<%= stock.id %></h3>
+    <span class="status status--<%= stock.stage %>"><%= stock.stage_i18n %></span>
+    <% if stock.completed_at %>
+      <span class="tag">管理完了</span>
+    <% elsif stock.sale_ready? %>
+      <span class="tag">販売可能</span>
+    <% end %>
   </div>
 </div>
 <dl class="detail-list">
-  <dt>ラベル</dt>
-  <dd><%= stock.label %></dd>
   <dt>植物</dt>
   <dd><%= stock.plant.name %></dd>
   <dt>場所</dt>
   <dd><%= stock.location.name %></dd>
-  <dt>栽培方法</dt>
-  <dd><%= stock.growing_method_i18n %></dd>
-  <dt>増殖方法</dt>
-  <dd><%= stock.propagation_method_i18n || "未設定" %></dd>
+  <dt>現工程開始日</dt>
+  <dd><%= stock.stage_started_on.strftime("%Y/%m/%d") %></dd>
+  <dt>鉢上げ日</dt>
+  <dd><%= stock.potted_on&.strftime("%Y/%m/%d") || "—" %></dd>
+  <dt>販売可能日</dt>
+  <dd><%= stock.sale_ready_on&.strftime("%Y/%m/%d") || "—" %></dd>
+  <dt>出自</dt>
+  <dd>
+    <% if stock.production_lot %>
+      <%= link_to "LOT-#{stock.production_lot.id}", admin_production_lot_path(stock.production_lot) %>
+    <% else %>
+      直接登録
+    <% end %>
+  </dd>
+  <dt>鉢上げ元</dt>
+  <dd>
+    <% if stock.source_nursery_group %>
+      <%= link_to "NG-#{stock.source_nursery_group.id}", admin_nursery_group_path(stock.source_nursery_group) %>
+    <% else %>
+      —
+    <% end %>
+  </dd>
+  <dt>管理完了日時</dt>
+  <dd><%= stock.completed_at&.strftime("%Y/%m/%d %H:%M") || "—" %></dd>
+  <dt>完了理由</dt>
+  <dd><%= stock.completion_reason_i18n || "—" %></dd>
   <dt>メモ</dt>
   <dd><%= stock.memo.presence || "—" %></dd>
 </dl>

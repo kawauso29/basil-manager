@@ -8,17 +8,9 @@
     <%= f.text_field :code, placeholder: "例: basil" %>
   </div>
   <div class="form-field">
-    <%= f.label :prefix, "プレフィックス" %>
-    <%= f.text_field :prefix, placeholder: "例: BSL" %>
-  </div>
-  <div class="form-field">
     <%= f.label :scientific_name, "学名" %>
     <%= f.text_field :scientific_name, placeholder: "例: Ocimum basilicum" %>
   </div>
-
-  <% if plant.persisted? %>
-    <p class="form-hint">最終株番号: <%= plant.last_stock_number %>（自動管理）</p>
-  <% end %>
 
   <div class="form-field" data-controller="image-preview">
     <%= f.label :image, "画像" %>

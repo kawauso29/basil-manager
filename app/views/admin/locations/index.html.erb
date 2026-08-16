@@ -18,7 +18,6 @@
           <th>画像</th>
           <th>名前</th>
           <th>コード</th>
-          <th>プレフィックス</th>
           <th>環境</th>
           <th></th>
         </tr>
@@ -29,7 +28,6 @@
             <td><%= expandable_thumbnail(location.icon_path, location.image, alt: location.name) if location.has_image? %></td>
             <td><%= link_to location.name, admin_location_path(location) %></td>
             <td><%= location.code %></td>
-            <td><%= location.prefix %></td>
             <td><span class="tag"><%= location.environment_i18n %></span></td>
             <td>
               <div class="table-actions">

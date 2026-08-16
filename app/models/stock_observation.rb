@@ -10,12 +10,16 @@
 # recorded_at : 観察した日時
 # created_at  : 登録日時
 # updated_at  : 更新日時
-class StockObservation < ActiveRecord::Base
+class StockObservation < ApplicationRecord
   belongs_to :stock
   has_one_attached :image do |attachable|
     attachable.variant :small, resize_to_limit: [ 100, 100 ], preprocessed: true
     attachable.variant :normal, resize_to_limit: [ 300, 300 ]
   end
+
+  validates :recorded_at, presence: true
+  validates :height_cm, numericality: { greater_than_or_equal_to: 0 }, allow_nil: true
+  validate :observation_content_present
 
   def has_image?
     self.image.attached?
@@ -30,5 +34,13 @@ class StockObservation < ActiveRecord::Base
   def image_normal_path
     return "" if missing_image?
     self.image.variant(:normal)
+  end
+
+  private
+
+  def observation_content_present
+    return if height_cm.present? || memo.present? || image.attached?
+
+    errors.add(:base, :blank)
   end
 end

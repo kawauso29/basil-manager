@@ -1,40 +1,36 @@
 <div class="page-header">
   <div>
-    <h1 class="page-title">株を作成</h1>
-    <p class="page-subtitle">管理する株を登録します。</p>
+    <h1 class="page-title">株を直接登録</h1>
+    <p class="page-subtitle">購入・譲受など、生産ロットを経由しない個体を登録します。</p>
   </div>
   <%= render "actions", stock: @stock, current_action: :new, previous_record: nil, next_record: nil %>
 </div>
 
 <%= form_with model: [:admin, @stock], class: "form-card" do |f| %>
   <div class="form-field">
-    <%= f.label :location_id, "場所" %>
-    <%= f.select :location_id, @location_data, prompt: "選択してください" %>
-  </div>
-  <div class="form-field">
     <%= f.label :plant_id, "植物" %>
-    <%= f.select :plant_id, @plant_data, prompt: "選択してください" %>
+    <%= f.select :plant_id, @plant_options, { prompt: "選択してください" }, required: true %>
   </div>
   <div class="form-field">
-    <%= f.label :growing_method, "栽培方法" %>
-    <%= f.select :growing_method, @growing_method_data, prompt: "選択してください" %>
+    <%= f.label :location_id, "場所" %>
+    <%= f.select :location_id, @location_options, { prompt: "選択してください" }, required: true %>
   </div>
   <div class="form-field">
-    <%= f.label :propagation_method, "増殖方法" %>
-    <%= f.select :propagation_method, @propagation_method_data, include_blank: "未設定" %>
+    <%= f.label :stage, "現在工程" %>
+    <%= f.select :stage, @stage_options, { prompt: "選択してください" }, required: true %>
   </div>
   <div class="form-field">
-    <%= f.label :label, "ラベル" %>
-    <%= f.text_field :label %>
+    <%= f.label :stage_started_on, "現工程の開始日" %>
+    <%= f.date_field :stage_started_on, required: true %>
+  </div>
+  <div class="form-field">
+    <%= f.label :potted_on, "鉢上げ日" %>
+    <%= f.date_field :potted_on %>
+    <p class="form-hint">不明な場合は空欄にできます。</p>
   </div>
   <div class="form-field">
     <%= f.label :memo, "メモ" %>
     <%= f.text_area :memo %>
   </div>
-  <div class="form-field" data-controller="image-preview">
-    <%= f.label :image, "画像" %>
-    <%= f.file_field :image, data: { action: "change->image-preview#preview" } %>
-    <img data-image-preview-target="image" width="100" hidden>
-  </div>
-  <%= f.submit "作成" %>
+  <%= f.submit "登録" %>
 <% end %>

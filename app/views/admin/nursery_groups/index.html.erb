@@ -1,0 +1,53 @@
+<div class="page-header">
+  <div>
+    <h1 class="page-title">苗グループ</h1>
+    <p class="page-subtitle">鉢上げ前の苗を数量単位で確認します。</p>
+  </div>
+  <%= render "actions",
+             nursery_group: nil,
+             current_action: :index,
+             previous_record: nil,
+             next_record: nil %>
+</div>
+
+<section class="panel table-wrap">
+  <% if @nursery_groups.any? %>
+    <table>
+      <thead>
+        <tr>
+          <th>グループ</th>
+          <th>ロット</th>
+          <th>工程</th>
+          <th>数量</th>
+          <th>場所</th>
+          <th>育成方法</th>
+          <th>工程開始日</th>
+          <th>状態</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @nursery_groups.each do |nursery_group| %>
+          <tr>
+            <td><%= link_to "NG-#{nursery_group.id}", admin_nursery_group_path(nursery_group) %></td>
+            <td><%= link_to "LOT-#{nursery_group.production_lot_id}", admin_production_lot_path(nursery_group.production_lot) %></td>
+            <td><span class="status"><%= nursery_group.stage_i18n %></span></td>
+            <td><%= nursery_group.quantity %>株</td>
+            <td><%= nursery_group.location.name %></td>
+            <td><%= nursery_group.growing_method_i18n %></td>
+            <td><%= nursery_group.stage_started_on.strftime("%Y/%m/%d") %></td>
+            <td><%= nursery_group.quantity.zero? ? "終了" : "管理中" %></td>
+            <td>
+              <div class="table-actions">
+                <%= link_to "詳細", admin_nursery_group_path(nursery_group) %>
+                <%= link_to "条件を編集", edit_admin_nursery_group_path(nursery_group) %>
+              </div>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% else %>
+    <p class="empty-state">苗グループはまだありません。</p>
+  <% end %>
+</section>

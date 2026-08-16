@@ -1,0 +1,21 @@
+<div class="page-actions resource-actions" aria-label="生産ロットの操作">
+  <% if production_lot&.persisted? && current_action == :show %>
+    <%= render "admin/shared/record_navigation",
+               previous_record: previous_record,
+               next_record: next_record,
+               navigation_action: nil %>
+    <span class="button button-secondary" aria-current="page">詳細</span>
+  <% end %>
+
+  <% if current_action == :new %>
+    <span class="button" aria-current="page">生産を開始</span>
+  <% else %>
+    <%= link_to "生産を開始", new_admin_production_lot_path, class: "button" %>
+  <% end %>
+
+  <% if current_action == :index %>
+    <span class="button button-secondary" aria-current="page">生産ロット一覧</span>
+  <% else %>
+    <%= link_to "生産ロット一覧", admin_production_lots_path, class: "button button-secondary" %>
+  <% end %>
+</div>

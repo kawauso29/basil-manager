@@ -14,8 +14,6 @@
   <dl class="detail-list">
     <dt>コード</dt>
     <dd><%= @location.code %></dd>
-    <dt>プレフィックス</dt>
-    <dd><%= @location.prefix %></dd>
     <dt>環境</dt>
     <dd><span class="tag"><%= @location.environment_i18n %></span></dd>
     <dt>作成日</dt>
@@ -24,6 +22,19 @@
     <dd><%= @location.updated_at.strftime("%Y/%m/%d %H:%M") %></dd>
   </dl>
   <%= image_tag(@location.thumb_path, class: "record-image", alt: @location.name) if @location.has_image? %>
+</section>
+
+<section class="panel">
+  <h2>この場所の苗グループ</h2>
+  <% if @nursery_groups.any? %>
+    <div class="page-actions">
+      <% @nursery_groups.each do |nursery_group| %>
+        <%= link_to "NG-#{nursery_group.id}", admin_nursery_group_path(nursery_group), class: "button button-secondary" %>
+      <% end %>
+    </div>
+  <% else %>
+    <p class="empty-state">現在この場所にある苗グループはありません。</p>
+  <% end %>
 </section>
 
 <section class="panel">

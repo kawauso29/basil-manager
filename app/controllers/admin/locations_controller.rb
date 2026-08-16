@@ -66,14 +66,14 @@ class Admin::LocationsController < Admin::BaseController
   private
 
   def set_show_data
-    @stocks = @location.stocks.order(:id).to_a
+    @stocks = @location.stocks.includes(:plant, source_nursery_group: :production_lot).order(:id).to_a
+    @nursery_groups = @location.nursery_groups.includes(:production_lot).order(:id).to_a
   end
 
   def location_params
     params.require(:location).permit(
       :name,
       :code,
-      :prefix,
       :environment,
       :image
     )

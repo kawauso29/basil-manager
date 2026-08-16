@@ -1,0 +1,79 @@
+<div class="page-header">
+  <div>
+    <h1 class="page-title">LOT-<%= @production_lot.id %></h1>
+    <p class="page-subtitle"><%= @production_lot.plant.name %></p>
+  </div>
+  <%= render "actions",
+             production_lot: @production_lot,
+             current_action: :show,
+             previous_record: @previous_record,
+             next_record: @next_record %>
+</div>
+
+<section class="detail-card">
+  <dl class="detail-list">
+    <dt>植物</dt>
+    <dd><%= @production_lot.plant.name %></dd>
+    <dt>増殖方法</dt>
+    <dd><%= @production_lot.propagation_method_i18n %></dd>
+    <dt>生産開始日</dt>
+    <dd><%= @production_lot.started_on.strftime("%Y/%m/%d") %></dd>
+    <dt>開始数量</dt>
+    <dd><%= @production_lot.initial_quantity %>株</dd>
+    <dt>親株</dt>
+    <dd>
+      <% if @production_lot.source_stock %>
+        <%= link_to "ST-#{@production_lot.source_stock.id}", admin_stock_path(@production_lot.source_stock) %>
+      <% else %>
+        —
+      <% end %>
+    </dd>
+    <dt>メモ</dt>
+    <dd><%= @production_lot.memo.presence || "—" %></dd>
+  </dl>
+</section>
+
+<section class="panel">
+  <h2>苗グループ</h2>
+  <% if @nursery_groups.any? %>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>グループ</th>
+            <th>工程</th>
+            <th>数量</th>
+            <th>場所</th>
+            <th>育成方法</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @nursery_groups.each do |nursery_group| %>
+            <tr>
+              <td><%= link_to "NG-#{nursery_group.id}", admin_nursery_group_path(nursery_group) %></td>
+              <td><span class="status"><%= nursery_group.stage_i18n %></span></td>
+              <td><%= nursery_group.quantity %>株</td>
+              <td><%= nursery_group.location.name %></td>
+              <td><%= nursery_group.growing_method_i18n %></td>
+              <td><%= link_to "詳細", admin_nursery_group_path(nursery_group) %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% else %>
+    <p class="empty-state">苗グループはありません。</p>
+  <% end %>
+</section>
+
+<section class="panel">
+  <h2>鉢上げ後の株</h2>
+  <% if @stocks.any? %>
+    <% @stocks.each do |stock| %>
+      <%= render "/admin/stocks/stock_attr", stock: stock %>
+    <% end %>
+  <% else %>
+    <p class="empty-state">鉢上げ後の株はまだありません。</p>
+  <% end %>
+</section>

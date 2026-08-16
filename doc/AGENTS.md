@@ -8,7 +8,6 @@
 - `er.md`: 業務テーブル全体の関連を示すER図
 - `db/<table>.md`: 業務テーブルごとの詳細仕様
 - `enum/README.md`: Rails enumとenum_helpの共通運用ルール
-- `presenter/README.md`: Presenterの使用基準と実装ルール
 - `rspec/README.md`: RSpecの基本とテスト種別ごとの責務
 - `stimulus/<controller>.md`: Stimulus Controllerの目的、Viewとの接続、処理内容
 

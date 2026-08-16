@@ -1,0 +1,46 @@
+<div class="page-header">
+  <div>
+    <h1 class="page-title">NG-<%= @nursery_group.id %></h1>
+    <p class="page-subtitle">
+      <%= link_to "LOT-#{@nursery_group.production_lot_id}", admin_production_lot_path(@nursery_group.production_lot) %>
+      / <%= @nursery_group.production_lot.plant.name %>
+    </p>
+  </div>
+  <%= render "actions",
+             nursery_group: @nursery_group,
+             current_action: :show,
+             previous_record: @previous_record,
+             next_record: @next_record %>
+</div>
+
+<section class="detail-card">
+  <dl class="detail-list">
+    <dt>現在工程</dt>
+    <dd><span class="status"><%= @nursery_group.stage_i18n %></span></dd>
+    <dt>現在数量</dt>
+    <dd><%= @nursery_group.quantity %>株</dd>
+    <dt>工程開始日</dt>
+    <dd><%= @nursery_group.stage_started_on.strftime("%Y/%m/%d") %></dd>
+    <dt>育成方法</dt>
+    <dd><%= @nursery_group.growing_method_i18n %></dd>
+    <dt>容器種類</dt>
+    <dd><%= @nursery_group.container_type.presence || "—" %></dd>
+    <dt>場所</dt>
+    <dd><%= @nursery_group.location.name %></dd>
+    <dt>メモ</dt>
+    <dd><%= @nursery_group.memo.presence || "—" %></dd>
+    <dt>管理状態</dt>
+    <dd><%= @nursery_group.quantity.zero? ? "終了" : "管理中" %></dd>
+  </dl>
+</section>
+
+<section class="panel">
+  <h2>このグループから鉢上げした株</h2>
+  <% if @stocks.any? %>
+    <% @stocks.each do |stock| %>
+      <%= render "/admin/stocks/stock_attr", stock: stock %>
+    <% end %>
+  <% else %>
+    <p class="empty-state">鉢上げした株はまだありません。</p>
+  <% end %>
+</section>

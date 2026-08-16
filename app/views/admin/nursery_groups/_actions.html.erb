@@ -1,0 +1,40 @@
+<div class="page-actions resource-actions" aria-label="苗グループの操作">
+  <% if nursery_group&.persisted? && current_action.in?([:show, :edit]) %>
+    <%= render "admin/shared/record_navigation",
+               previous_record: previous_record,
+               next_record: next_record,
+               navigation_action: current_action == :edit ? :edit : nil %>
+  <% end %>
+
+  <% if nursery_group&.persisted? %>
+    <% if current_action == :show %>
+      <span class="button button-secondary" aria-current="page">詳細</span>
+    <% else %>
+      <%= link_to "詳細", admin_nursery_group_path(nursery_group), class: "button button-secondary" %>
+    <% end %>
+
+    <% if current_action == :edit %>
+      <span class="button" aria-current="page">条件を編集</span>
+    <% else %>
+      <%= link_to "条件を編集", edit_admin_nursery_group_path(nursery_group), class: "button button-secondary" %>
+    <% end %>
+
+    <%= link_to "数量を補正",
+                correct_quantity_admin_nursery_group_path(nursery_group),
+                class: "button button-secondary" %>
+
+    <% if nursery_group.quantity.positive? %>
+      <% if nursery_group.pot_up_ready? %>
+        <%= link_to "鉢上げ", pot_up_admin_nursery_group_path(nursery_group), class: "button" %>
+      <% else %>
+        <%= link_to "次工程へ進める", advance_admin_nursery_group_path(nursery_group), class: "button" %>
+      <% end %>
+    <% end %>
+  <% end %>
+
+  <% if current_action == :index %>
+    <span class="button button-secondary" aria-current="page">苗グループ一覧</span>
+  <% else %>
+    <%= link_to "苗グループ一覧", admin_nursery_groups_path, class: "button button-secondary" %>
+  <% end %>
+</div>

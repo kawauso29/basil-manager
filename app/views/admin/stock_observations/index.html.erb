@@ -1,2 +1,49 @@
-<div class="page-header"><div><h1 class="page-title">観察記録</h1><p class="page-subtitle">株の高さや生育の様子を記録します。</p></div><div class="page-actions"><%= link_to "観察を記録", new_admin_stock_observation_path, class: "button" %></div></div>
-<section class="panel table-wrap"><% if @stock_observations.any? %><table><thead><tr><th>画像</th><th>日時</th><th>株</th><th>植物 / 場所</th><th>高さ</th><th>メモ</th><th></th></tr></thead><tbody><% @stock_observations.each do |observation| %><tr><td><%= expandable_thumbnail(observation.image_small_path, observation.image, alt: "観察画像") if observation.has_image? %></td><td><%= observation.recorded_at&.strftime("%Y/%m/%d %H:%M") || "未設定" %></td><td><%= observation.stock.display_name %></td><td><%= observation.stock.plant.name %> / <%= observation.stock.location.name %></td><td><%= observation.height_cm %> cm</td><td><%= observation.memo %></td><td><div class="table-actions"><%= link_to "詳細", admin_stock_observation_path(observation) %><%= link_to "編集", edit_admin_stock_observation_path(observation) %></div></td></tr><% end %></tbody></table><% else %><p class="empty-state">観察記録はまだありません。</p><% end %></section>
+<div class="page-header">
+  <div>
+    <h1 class="page-title">観察記録</h1>
+    <p class="page-subtitle">株の草丈や生育の様子を記録します。</p>
+  </div>
+  <div class="page-actions">
+    <%= link_to "観察を記録", new_admin_stock_observation_path, class: "button" %>
+  </div>
+</div>
+
+<section class="panel table-wrap">
+  <% if @stock_observations.any? %>
+    <table>
+      <thead>
+        <tr>
+          <th>画像</th>
+          <th>観察日時</th>
+          <th>株</th>
+          <th>植物 / 場所</th>
+          <th>草丈</th>
+          <th>メモ</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @stock_observations.each do |observation| %>
+          <tr>
+            <td>
+              <%= expandable_thumbnail(observation.image_small_path, observation.image, alt: "観察画像") if observation.has_image? %>
+            </td>
+            <td><%= observation.recorded_at.strftime("%Y/%m/%d %H:%M") %></td>
+            <td><%= link_to "ST-#{observation.stock_id}", admin_stock_path(observation.stock) %></td>
+            <td><%= observation.stock.plant.name %> / <%= observation.stock.location.name %></td>
+            <td><%= observation.height_cm ? "#{observation.height_cm} cm" : "—" %></td>
+            <td><%= observation.memo.presence || "—" %></td>
+            <td>
+              <div class="table-actions">
+                <%= link_to "詳細", admin_stock_observation_path(observation) %>
+                <%= link_to "編集", edit_admin_stock_observation_path(observation) %>
+              </div>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% else %>
+    <p class="empty-state">観察記録はまだありません。</p>
+  <% end %>
+</section>

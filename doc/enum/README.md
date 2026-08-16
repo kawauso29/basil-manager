@@ -18,9 +18,8 @@
 必須属性は、次のように定義します。
 
 ```ruby
-enum :status, {
-  starting: "starting",
-  rooting: "rooting",
+enum :stage, {
+  acclimating: "acclimating",
   growing: "growing"
 }, validate: true
 ```
@@ -28,9 +27,9 @@ enum :status, {
 未定義値は代入時の例外ではなく、モデルのバリデーションエラーとして扱われます。
 
 ```ruby
-stock.status = "unknown"
+stock.stage = "unknown"
 stock.valid? # => false
-stock.errors.details[:status]
+stock.errors.details[:stage]
 # => [{ error: :inclusion, value: "unknown" }]
 ```
 
@@ -39,15 +38,14 @@ stock.errors.details[:status]
 ```ruby
 enum :completion_reason, {
   cultivation_ended: "cultivation_ended",
-  harvested: "harvested",
-  discarded: "discarded"
+  dead: "dead",
+  transferred: "transferred"
 }, validate: { allow_blank: true }
 ```
 
-`completion_reason`は育成完了前、`propagation_method`は購入株など増殖方法を管理しない株では
-未設定となるため、空を許可します。
-一方、`status`、`growing_method`、`StockActionLog#action_type`、
-`Location#environment`などの必須属性には
+`completion_reason`は管理完了前には未設定となるため、空を許可します。一方、
+`Stock#stage`、`NurseryGroup#stage`、`NurseryGroup#growing_method`、
+`ProductionLot#propagation_method`、`Location#environment`などの必須属性には
 `allow_blank`を付けません。
 
 ## enumの利用
@@ -55,18 +53,18 @@ enum :completion_reason, {
 enumには値の取得・判定・更新・検索用のメソッドが生成されます。
 
 ```ruby
-stock.status = :starting
-stock.status       # => "starting"
-stock.starting?    # => true
-stock.growing!     # statusを"growing"へ更新して保存
-Stock.starting     # statusが"starting"のStockを検索
-Stock.statuses     # enumの保存値一覧
+stock.stage = :acclimating
+stock.stage          # => "acclimating"
+stock.acclimating?   # => true
+stock.growing!       # stageを"growing"へ更新して保存
+Stock.acclimating    # stageが"acclimating"のStockを検索
+Stock.stages         # enumの保存値一覧
 ```
 
 コードから値を渡す場合は、モデル定数の表示名ではなくenumキーを使用します。
 
 ```ruby
-Stock.create!(status: :starting)
+stock.stage = :acclimating
 ```
 
 ## enum_helpによる日本語表示
@@ -78,29 +76,28 @@ Stock.create!(status: :starting)
 ja:
   enums:
     stock:
-      status:
-        starting: 育成開始
-        rooting: 発根中
+      stage:
+        acclimating: 順化中
         growing: 生育中
 ```
 
 インスタンスでは、属性名に`_i18n`を付けて表示名を取得します。
 
 ```ruby
-stock.status       # => "starting"
-stock.status_i18n  # => "育成開始"
+stock.stage       # => "acclimating"
+stock.stage_i18n  # => "順化中"
 ```
 
 クラスでは、enum属性名を複数形にしたメソッドで表示名一覧を取得します。
 
 ```ruby
-Stock.statuses_i18n
-# => { "starting" => "育成開始", "rooting" => "発根中", ... }
+Stock.stages_i18n
+# => { "acclimating" => "順化中", "growing" => "生育中" }
 
 Stock.completion_reasons_i18n
-Stock.growing_methods_i18n
-Stock.propagation_methods_i18n
-StockActionLog.action_types_i18n
+ProductionLot.propagation_methods_i18n
+NurseryGroup.stages_i18n
+NurseryGroup.growing_methods_i18n
 Location.environments_i18n
 ```
 
@@ -112,19 +109,19 @@ Railsサーバーを再起動します。
 画面には`*_i18n`の表示名を出し、フォームからは英語のenumキーを送信します。
 
 ```ruby
-@status_options = Stock.statuses_i18n.map do |value, label|
-  [label, value]
+@stage_options = Stock.stages_i18n.map do |value, label|
+  [ label, value ]
 end
 ```
 
 ```erb
-<%= f.select :status, @status_options, prompt: "選択してください" %>
+<%= f.select :stage, @stage_options, prompt: "選択してください" %>
 ```
 
 一覧や詳細では、保存値ではなく翻訳済みの値を表示します。
 
 ```erb
-<%= stock.status_i18n %>
+<%= stock.stage_i18n %>
 ```
 
 ## DB制約と一括更新
@@ -161,7 +158,7 @@ enum値を追加するときは、次を同じ変更に含めます。
 既存値の名前変更や削除では、先にDB内の値を確認します。
 
 ```ruby
-Stock.group(:status).count
+Stock.group(:stage).count
 ```
 
 既存レコードがある場合は、旧値を新値へ変換するデータmigrationを用意します。
@@ -180,9 +177,9 @@ Stock.group(:status).count
 未定義値の検証では、翻訳文言に依存せずエラー種別を確認できます。
 
 ```ruby
-stock = Stock.new(status: "unknown")
+stock = Stock.new(stage: "unknown")
 stock.valid?
 
-expect(stock.errors.details[:status])
+expect(stock.errors.details[:stage])
   .to include(error: :inclusion, value: "unknown")
 ```

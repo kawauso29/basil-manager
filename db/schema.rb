@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_10_170937) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_15_000000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -47,24 +47,49 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_10_170937) do
     t.datetime "created_at", null: false
     t.string "environment", default: "indoor", null: false, comment: "屋内・屋外の区分"
     t.string "name", null: false, comment: "管理場所名称"
-    t.string "prefix", null: false, comment: "管理プレフィックス"
     t.datetime "updated_at", null: false
     t.index ["code"], name: "index_locations_on_code", unique: true
     t.index ["name"], name: "index_locations_on_name", unique: true
-    t.index ["prefix"], name: "index_locations_on_prefix", unique: true
+  end
+
+  create_table "nursery_groups", comment: "鉢上げ前の苗群を管理するテーブル", force: :cascade do |t|
+    t.string "container_type", comment: "容器種類"
+    t.datetime "created_at", null: false
+    t.string "growing_method", null: false, comment: "育成方法"
+    t.bigint "location_id", null: false, comment: "管理場所ID"
+    t.text "memo", comment: "メモ"
+    t.bigint "production_lot_id", null: false, comment: "生産ロットID"
+    t.integer "quantity", null: false, comment: "現在数量"
+    t.string "stage", null: false, comment: "現在工程"
+    t.date "stage_started_on", null: false, comment: "現工程の開始日"
+    t.datetime "updated_at", null: false
+    t.index ["location_id"], name: "index_nursery_groups_on_location_id"
+    t.index ["production_lot_id"], name: "index_nursery_groups_on_production_lot_id"
+    t.check_constraint "quantity >= 0", name: "nursery_groups_quantity_non_negative"
   end
 
   create_table "plants", comment: "植物の種類を管理するテーブル", force: :cascade do |t|
     t.string "code", null: false, comment: "管理コード"
     t.datetime "created_at", null: false
-    t.integer "last_stock_number", default: 0, comment: "最後に発行した株番号"
     t.string "name", null: false, comment: "植物名"
-    t.string "prefix", null: false, comment: "管理プレフィックス"
     t.string "scientific_name", comment: "学名"
     t.datetime "updated_at", null: false
     t.index ["code"], name: "index_plants_on_code", unique: true
     t.index ["name"], name: "index_plants_on_name", unique: true
-    t.index ["prefix"], name: "index_plants_on_prefix", unique: true
+  end
+
+  create_table "production_lots", comment: "生産開始単位を管理するテーブル", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.integer "initial_quantity", null: false, comment: "開始数量"
+    t.text "memo", comment: "メモ"
+    t.bigint "plant_id", null: false, comment: "植物ID"
+    t.string "propagation_method", null: false, comment: "生産方法"
+    t.bigint "source_stock_id", comment: "挿し穂を採取した親株ID"
+    t.date "started_on", null: false, comment: "生産開始日"
+    t.datetime "updated_at", null: false
+    t.index ["plant_id"], name: "index_production_lots_on_plant_id"
+    t.index ["source_stock_id"], name: "index_production_lots_on_source_stock_id"
+    t.check_constraint "initial_quantity > 0", name: "production_lots_initial_quantity_positive"
   end
 
   create_table "solid_queue_blocked_executions", force: :cascade do |t|
@@ -188,64 +213,51 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_10_170937) do
     t.index ["key"], name: "index_solid_queue_semaphores_on_key", unique: true
   end
 
-  create_table "stock_action_logs", comment: "株への作業実行記録を行うテーブル", force: :cascade do |t|
-    t.string "action_type", null: false, comment: "アクションログの種類"
-    t.datetime "created_at", null: false
-    t.bigint "from_location_id", comment: "変更前の管理場所ID"
-    t.text "memo", comment: "アクションログのメモ"
-    t.datetime "recorded_at", comment: "アクションログの記録日時"
-    t.string "status_after", comment: "変更後の管理状態"
-    t.string "status_before", comment: "変更前の管理状態"
-    t.bigint "stock_id", null: false, comment: "株ID"
-    t.bigint "to_location_id", comment: "変更後の管理場所ID"
-    t.datetime "updated_at", null: false
-    t.index ["from_location_id"], name: "index_stock_action_logs_on_from_location_id"
-    t.index ["stock_id"], name: "index_stock_action_logs_on_stock_id"
-    t.index ["to_location_id"], name: "index_stock_action_logs_on_to_location_id"
-  end
-
   create_table "stock_observations", comment: "株の観察記録を行うテーブル", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.decimal "height_cm", precision: 10, scale: 2, comment: "高さ (cm)"
     t.text "memo", comment: "観察メモ"
-    t.datetime "recorded_at", comment: "観察記録日時"
+    t.datetime "recorded_at", null: false, comment: "観察記録日時"
     t.bigint "stock_id", null: false, comment: "株ID"
     t.datetime "updated_at", null: false
     t.index ["stock_id"], name: "index_stock_observations_on_stock_id"
+    t.check_constraint "height_cm IS NULL OR height_cm >= 0::numeric", name: "stock_observations_height_non_negative"
   end
 
   create_table "stocks", comment: "株を管理するテーブル", force: :cascade do |t|
-    t.string "code", null: false, comment: "株単位の識別子"
-    t.datetime "completed_at", comment: "株の育成が完了した日時"
-    t.string "completion_reason", comment: "株の育成完了理由"
+    t.datetime "completed_at", comment: "株の管理が完了した日時"
+    t.string "completion_reason", comment: "株の管理完了理由"
     t.datetime "created_at", null: false
-    t.string "growing_method", null: false, comment: "株の栽培方法"
-    t.string "label", comment: "表示名"
     t.bigint "location_id", null: false, comment: "管理場所ID"
     t.text "memo", comment: "株についてのメモ"
     t.bigint "plant_id", null: false, comment: "植物ID"
-    t.string "propagation_method", comment: "株の増殖方法"
+    t.date "potted_on", comment: "個体管理へ切り替えた鉢上げ日"
     t.string "public_token", null: false, comment: "公開用の株単位のトークン識別子"
-    t.string "status", null: false, comment: "株の管理ステータス"
+    t.date "sale_ready_on", comment: "販売可能日"
+    t.bigint "source_nursery_group_id", comment: "鉢上げ元の苗グループID"
+    t.string "stage", null: false, comment: "現在工程"
+    t.date "stage_started_on", null: false, comment: "現工程の開始日"
     t.datetime "updated_at", null: false
-    t.index ["code"], name: "index_stocks_on_code", unique: true
     t.index ["location_id"], name: "index_stocks_on_location_id"
     t.index ["plant_id"], name: "index_stocks_on_plant_id"
     t.index ["public_token"], name: "index_stocks_on_public_token", unique: true
+    t.index ["source_nursery_group_id"], name: "index_stocks_on_source_nursery_group_id"
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "nursery_groups", "locations"
+  add_foreign_key "nursery_groups", "production_lots"
+  add_foreign_key "production_lots", "plants"
+  add_foreign_key "production_lots", "stocks", column: "source_stock_id"
   add_foreign_key "solid_queue_blocked_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_claimed_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_failed_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_ready_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_recurring_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_scheduled_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
-  add_foreign_key "stock_action_logs", "locations", column: "from_location_id"
-  add_foreign_key "stock_action_logs", "locations", column: "to_location_id"
-  add_foreign_key "stock_action_logs", "stocks"
   add_foreign_key "stock_observations", "stocks"
   add_foreign_key "stocks", "locations"
+  add_foreign_key "stocks", "nursery_groups", column: "source_nursery_group_id"
   add_foreign_key "stocks", "plants"
 end

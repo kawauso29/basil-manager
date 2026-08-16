@@ -29,18 +29,18 @@
         <div class="header-inner">
           <%= link_to "Basil Manager", admin_root_path, class: "brand" %>
           <nav class="primary-nav" aria-label="メインメニュー">
+            <%= link_to "生産ロット", admin_production_lots_path %>
+            <%= link_to "苗グループ", admin_nursery_groups_path %>
             <%= link_to "株", admin_stocks_path %>
             <%= link_to "植物", admin_plants_path %>
             <%= link_to "場所", admin_locations_path %>
-            <%= link_to "作業履歴", admin_stock_action_logs_path %>
             <%= link_to "観察記録", admin_stock_observations_path %>
           </nav>
-          <%= link_to "データを出力", admin_data_export_path, class: "button button-secondary header-export" %>
+          <%= link_to "AI提供用ZIPを出力", admin_data_export_path, class: "button button-secondary header-export" %>
         </div>
         <nav class="quick-nav" aria-label="よく使う操作">
-          <%= link_to "株を作成", new_admin_stock_path %>
-          <%= link_to "作業を記録", new_admin_stock_action_log_path %>
-          <%= link_to "アクションを一括記録", bulk_new_admin_stock_action_logs_path %>
+          <%= link_to "生産を開始", new_admin_production_lot_path %>
+          <%= link_to "株を直接登録", new_admin_stock_path %>
           <%= link_to "観察を記録", new_admin_stock_observation_path %>
         </nav>
       </header>

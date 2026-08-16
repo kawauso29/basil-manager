@@ -1,0 +1,33 @@
+<div class="page-header">
+  <div>
+    <h1 class="page-title">鉢上げ</h1>
+    <p class="page-subtitle">NG-<%= @nursery_group.id %>から個体Stockを作成します。</p>
+  </div>
+  <div class="page-actions">
+    <%= link_to "詳細へ戻る", admin_nursery_group_path(@nursery_group), class: "button button-secondary" %>
+  </div>
+</div>
+
+<%= form_with url: pot_up_admin_nursery_group_path(@nursery_group), scope: :pot_up, class: "form-card" do |f| %>
+  <p class="form-hint">現在数量: <%= @nursery_group.quantity %>株</p>
+  <div class="form-field">
+    <%= f.label :quantity, "鉢上げする数量" %>
+    <%= f.number_field :quantity,
+                       value: @form_values[:quantity],
+                       min: 1,
+                       max: @nursery_group.quantity,
+                       required: true %>
+  </div>
+  <div class="form-field">
+    <%= f.label :location_id, "鉢上げ後の場所" %>
+    <%= f.select :location_id,
+                 @location_options,
+                 { prompt: "選択してください", selected: @form_values[:location_id] },
+                 required: true %>
+  </div>
+  <div class="form-field">
+    <%= f.label :potted_on, "鉢上げ日" %>
+    <%= f.date_field :potted_on, value: @form_values[:potted_on], required: true %>
+  </div>
+  <%= f.submit "鉢上げ" %>
+<% end %>
