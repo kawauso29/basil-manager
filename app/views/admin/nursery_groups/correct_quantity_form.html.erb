@@ -1,7 +1,7 @@
 <div class="page-header">
   <div>
     <h1 class="page-title">現在数量を補正</h1>
-    <p class="page-subtitle">NG-<%= @nursery_group.id %></p>
+    <p class="page-subtitle">NG-<%= @nursery_group.id %> / <%= @nursery_group.production_lot.plant.name %></p>
   </div>
   <div class="page-actions">
     <%= link_to "詳細へ戻る", admin_nursery_group_path(@nursery_group), class: "button button-secondary" %>

@@ -16,6 +16,7 @@
       <thead>
         <tr>
           <th>グループ</th>
+          <th>植物</th>
           <th>ロット</th>
           <th>工程</th>
           <th>数量</th>
@@ -30,6 +31,7 @@
         <% @nursery_groups.each do |nursery_group| %>
           <tr>
             <td><%= link_to "NG-#{nursery_group.id}", admin_nursery_group_path(nursery_group) %></td>
+            <td><%= nursery_group.production_lot.plant.name %></td>
             <td><%= link_to "LOT-#{nursery_group.production_lot_id}", admin_production_lot_path(nursery_group.production_lot) %></td>
             <td><span class="status"><%= nursery_group.stage_i18n %></span></td>
             <td><%= nursery_group.quantity %>株</td>
