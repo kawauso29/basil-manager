@@ -2,7 +2,7 @@ class Admin::NurseryGroupsController < Admin::BaseController
   before_action :set_nursery_group, except: :index
 
   def index
-    @nursery_groups = NurseryGroup.includes(:production_lot, :location).order(id: :desc)
+    @nursery_groups = NurseryGroup.includes(:location, production_lot: :plant).order(id: :desc)
   end
 
   def show
