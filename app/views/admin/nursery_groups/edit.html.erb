@@ -1,7 +1,7 @@
 <div class="page-header">
   <div>
     <h1 class="page-title">苗グループの条件を編集</h1>
-    <p class="page-subtitle">NG-<%= @nursery_group.id %></p>
+    <p class="page-subtitle">NG-<%= @nursery_group.id %> / <%= @nursery_group.production_lot.plant.name %></p>
   </div>
   <%= render "actions",
              nursery_group: @nursery_group,

@@ -101,7 +101,7 @@ class Admin::NurseryGroupsController < Admin::BaseController
   private
 
   def set_nursery_group
-    @nursery_group = NurseryGroup.includes(:production_lot, :location).find(params[:id])
+    @nursery_group = NurseryGroup.includes(:location, production_lot: :plant).find(params[:id])
   end
 
   def set_condition_options
