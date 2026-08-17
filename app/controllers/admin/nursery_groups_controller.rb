@@ -35,6 +35,9 @@ class Admin::NurseryGroupsController < Admin::BaseController
     set_advance_data
   end
 
+  # 工程を1つ進める。一部数量だけ進める場合は元グループの数量を減らし、
+  # 進んだ数量分の新しいNurseryGroupを作成する（全部進める場合は同じ
+  # グループを更新する）
   def advance
     advanced_group = AdvanceNurseryGroup.call(
       nursery_group: @nursery_group,
@@ -54,6 +57,7 @@ class Admin::NurseryGroupsController < Admin::BaseController
     @form_values = { quantity: @nursery_group.quantity }
   end
 
+  # 工程遷移を伴わない数量の訂正（実測との差分調整）。訂正後の絶対値を指定する
   def correct_quantity
     CorrectNurseryGroupQuantity.call(
       nursery_group: @nursery_group,
@@ -76,6 +80,8 @@ class Admin::NurseryGroupsController < Admin::BaseController
     set_location_options
   end
 
+  # 個体管理（Stock）へ切り替える鉢上げ。グループの数量を減らし、
+  # 鉢上げ数と同じ件数のStockを作成する
   def pot_up
     stocks = PotUpNurseryGroup.call(
       nursery_group: @nursery_group,

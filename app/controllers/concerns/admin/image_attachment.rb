@@ -1,6 +1,7 @@
 module Admin::ImageAttachment
   private
 
+  # アップロード画像を1000x1000以内に縮小してから添付する（保存容量の抑制）
   def attach_resized_image(record, image)
     return if image.blank?
 

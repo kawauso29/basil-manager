@@ -65,6 +65,7 @@ class Admin::StocksController < Admin::BaseController
     @stage_started_on = Date.current
   end
 
+  # 現在工程を次工程へ進める
   def advance_stage
     @stock.advance_stage!(stage_started_on: advance_stage_params[:stage_started_on])
     admin_flash_notice("生産工程を進めました")
@@ -79,6 +80,7 @@ class Admin::StocksController < Admin::BaseController
     @sale_ready_on = Date.current
   end
 
+  # 販売可能日を設定する
   def mark_sale_ready
     @stock.mark_sale_ready!(on: sale_ready_params[:sale_ready_on])
     admin_flash_notice("販売可能にしました")
@@ -89,6 +91,7 @@ class Admin::StocksController < Admin::BaseController
     render :sale_ready_form, status: :unprocessable_content
   end
 
+  # 販売可能設定を取り消す
   def revoke_sale_ready
     @stock.revoke_sale_ready!
     admin_flash_notice("販売可能を解除しました")
@@ -102,6 +105,7 @@ class Admin::StocksController < Admin::BaseController
     set_completion_reason_options
   end
 
+  # 栽培管理を完了する（完了理由と日時を記録し、以後の工程操作を止める）
   def complete
     @stock.complete!(reason: complete_params[:completion_reason], at: complete_params[:completed_at])
     admin_flash_notice("管理を完了しました")

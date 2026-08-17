@@ -2,6 +2,7 @@
 # 鉢上げによって個体管理へ切り替えた株、または直接登録した株を管理するモデル。
 # 現在工程、現在地、販売可能日、管理完了を保持する。
 class Stock < ApplicationRecord
+  # 工程を1つ進めたときの遷移先
   STAGE_TRANSITIONS = {
     "acclimating" => "growing"
   }.freeze

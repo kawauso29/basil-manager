@@ -8,6 +8,7 @@ class Admin::BaseController < ApplicationController
 
   private
 
+  # 詳細画面の「前へ/次へ」用に、主キー順で前後のレコードを取得する
   def set_record_navigation(record, scope: record.class.all)
     primary_key = record.class.primary_key
     primary_key_column = record.class.arel_table[primary_key]
