@@ -74,6 +74,8 @@ ja:
         memo: メモ
         completion_reason: 管理完了理由
         completed_at: 管理完了日時
+        product_type: 商品形態
+        published_at: 公開日時
       stock_observation:
         stock: 対象株
         stock_id: 対象株
@@ -127,3 +129,6 @@ ja:
         cultivation_ended: 育成終了
         dead: 枯死
         transferred: 譲渡
+      product_type:
+        hydro: ハイドロ（室内）
+        soil: 土（屋外）
