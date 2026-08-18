@@ -1,30 +1,48 @@
-<% content_for :title, "#{@stock.plant.name} ST-#{@stock.id} の育て方" %>
+<% content_for :title, "#{@stock.plant.name} ST-#{@stock.id}" %>
 
 <header class="public-header">
+  <p class="public-eyebrow">BASIL</p>
   <h1 class="public-title"><%= @stock.plant.name %></h1>
   <p class="public-stock-id">ST-<%= @stock.id %></p>
-  <p class="public-lead">この苗は1株ずつ記録をつけながら育てました。育て方をまとめています。</p>
+  <p class="public-lead">1株ずつ記録をつけながら育てた苗です。この株のこれまでと、これからの育て方をまとめています。</p>
 </header>
+
+<section class="public-section">
+  <h2>商品が届いたら</h2>
+  <ul class="public-list">
+    <li>まず箱から出して、明るい場所に置いてください。</li>
+    <li>運ばれてくるあいだに、葉が折れたり下の葉が黄色くなることがあります。新しい葉が出てくれば心配いりません。</li>
+    <li>水を切らしています。下の「育て方」を見て、最初の水やりをしてください。</li>
+    <li>置き場所が変わると、数日は元気がないように見えることがあります。あわてず様子を見てください。</li>
+  </ul>
+</section>
 
 <% if @stock.production_lot || @stock.potted_on %>
   <section class="public-section">
-    <h2>この株のこと</h2>
-    <dl class="public-facts">
+    <h2>育成の記録</h2>
+    <ul class="public-record">
       <% if @stock.production_lot %>
-        <dt>育て始めた日</dt>
-        <dd><%= @stock.production_lot.started_on.strftime("%Y年%-m月%-d日") %></dd>
-        <dt>増やし方</dt>
-        <dd><%= @stock.production_lot.propagation_method_i18n %></dd>
+        <li>
+          <span class="record-date"><%= @stock.production_lot.started_on.strftime("%Y年%-m月%-d日") %></span>
+          <span class="record-event"><%= @stock.production_lot.propagation_method_i18n %></span>
+          <% if @stock.production_lot.source_stock %>
+            <p class="record-note">親株 ST-<%= @stock.production_lot.source_stock_id %> から枝を分けました。</p>
+          <% end %>
+        </li>
       <% end %>
       <% if @stock.potted_on %>
-        <dt>鉢に植えた日</dt>
-        <dd><%= @stock.potted_on.strftime("%Y年%-m月%-d日") %></dd>
+        <li>
+          <span class="record-date"><%= @stock.potted_on.strftime("%Y年%-m月%-d日") %></span>
+          <span class="record-event">鉢上げ</span>
+          <p class="record-note">根が育ったので、この鉢に植えました。</p>
+        </li>
       <% end %>
-      <% if @stock.production_lot&.source_stock %>
-        <dt>親株</dt>
-        <dd>ST-<%= @stock.production_lot.source_stock_id %></dd>
-      <% end %>
-    </dl>
+      <li>
+        <span class="record-date">そして</span>
+        <span class="record-event">お手元へ</span>
+        <p class="record-note">ここからは、あなたのもとで。</p>
+      </li>
+    </ul>
   </section>
 <% end %>
 
