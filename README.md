@@ -55,11 +55,15 @@ QRコードを渡した購入者だけがページへたどり着きます。
 公開ページの育て方がその形態のものに切り替わります。未設定の場合、育て方は表示されません。
 
 公開ページのURLは株詳細画面から確認できます。QRコードのPNGは、次のrakeタスクで
-`tmp/qr/ST-<株ID>.png` に出力します。`PUBLIC_BASE_URL` には本番のドメインを指定します。
+`tmp/qr/ST-<株ID>.png` に出力します。
 
 ```bash
-docker compose exec web bash -lc "PUBLIC_BASE_URL=https://example.com bin/rails 'qr:generate[52]'"
+docker compose exec web bash -lc "bin/rails 'qr:generate[52]'"
 ```
+
+QRへ埋め込むドメインは `lib/tasks/qr.rake` に直接書いています。別の環境で試すときだけ、
+`PUBLIC_BASE_URL` で上書きできます。**ドメインを変更すると、すでに印刷して鉢に貼った
+QRコードは読めなくなります。**
 
 育て方の文言は `app/views/public/stocks/_care_hydro.html.erb` と
 `_care_soil.html.erb` に直接書いています。修正はこの2ファイルだけで完結します。

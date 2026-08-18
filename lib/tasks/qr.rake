@@ -1,8 +1,9 @@
 namespace :qr do
   desc "指定した株の公開ページQRコードを tmp/qr/ST-<株ID>.png へ出力する（例: bin/rails \"qr:generate[52]\"）"
   task :generate, [ :stock_id ] => :environment do |_task, args|
-    base_url = ENV["PUBLIC_BASE_URL"]
-    abort "環境変数 PUBLIC_BASE_URL を設定してください（例: https://example.com）" if base_url.blank?
+    # 本番の公開ページのドメイン。別の環境で試すときだけ PUBLIC_BASE_URL で上書きする。
+    # ここを変えると、すでに印刷したQRコードは読めなくなるので注意する。
+    base_url = ENV.fetch("PUBLIC_BASE_URL", "https://web--basil-manager--46tkrhjqfnyq.code.run")
 
     stock = Stock.find_by(id: args[:stock_id])
     abort "ST-#{args[:stock_id]} が見つかりません" if stock.nil?
