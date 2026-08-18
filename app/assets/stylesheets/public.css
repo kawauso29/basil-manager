@@ -104,10 +104,3 @@
   margin: 0;
   font-weight: 600;
 }
-
-.public-footer {
-  margin-top: 24px;
-  color: var(--public-muted);
-  font-size: 13px;
-  text-align: center;
-}
