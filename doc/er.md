@@ -73,6 +73,8 @@ erDiagram
         date sale_ready_on "NULL可"
         string completion_reason "NULL可"
         datetime completed_at "NULL可"
+        string product_type "NULL可"
+        datetime published_at "NULL可"
         text memo "NULL可"
     }
 

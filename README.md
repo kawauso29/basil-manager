@@ -13,6 +13,7 @@
 - **StockObservation**: 株の高さやメモ、写真を時系列で記録する観察ログ
 - **データ出力**: 管理画面から、業務データと添付画像をまとめたZIPをダウンロード可能
   （AIへの分析・確認用途。詳細は [`doc/data_export.md`](doc/data_export.md) を参照）
+- **公開ページ**: 鉢に貼ったQRコードから開く、購入者向けの読み取り専用ページ
 
 各モデルの詳細な仕様は [`doc/er.md`](doc/er.md) と `doc/db/` 配下のテーブル仕様書を
 参照してください。
@@ -42,6 +43,26 @@ docker compose up
 ```bash
 docker compose exec web bin/rails console
 ```
+
+## 公開ページとQRコード
+
+販売する苗の鉢にQRコードを貼り、購入者が個体の情報と育て方を読めるようにしています。
+公開ページは `/p/<public_token>` で開く認証なしの読み取り専用ページです。
+
+株を公開するには、管理画面の株編集画面で次の2つを設定します。
+
+- **商品形態**: `ハイドロ（室内）` か `土（屋外）`。育て方の記載を出し分ける
+- **公開日時**: 設定すると公開される。空にすると公開を取り下げる
+
+公開ページのURLは株詳細画面から確認できます。QRコードのPNGは、次のrakeタスクで
+`tmp/qr/ST-<株ID>.png` に出力します。`PUBLIC_BASE_URL` には本番のドメインを指定します。
+
+```bash
+docker compose exec web bash -lc "PUBLIC_BASE_URL=https://example.com bin/rails 'qr:generate[52]'"
+```
+
+育て方の文言は `app/views/public/stocks/_care_hydro.html.erb` と
+`_care_soil.html.erb` に直接書いています。修正はこの2ファイルだけで完結します。
 
 ## テスト
 

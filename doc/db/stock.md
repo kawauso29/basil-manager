@@ -21,6 +21,8 @@
 | `sale_ready_on` | `date` | 可 | `NULL` | なし | 販売可能日 |
 | `completion_reason` | `string` | 可 | `NULL` | なし | 管理完了理由 |
 | `completed_at` | `datetime` | 可 | `NULL` | なし | 管理完了日時 |
+| `product_type` | `string` | 可 | `NULL` | なし | 公開ページで育て方を出し分ける商品形態 |
+| `published_at` | `datetime` | 可 | `NULL` | INDEX | 公開ページを公開した日時。NULLなら非公開 |
 | `memo` | `text` | 可 | `NULL` | なし | 現在の補足 |
 | `created_at` | `datetime` | 不可 | なし | なし | 作成日時 |
 | `updated_at` | `datetime` | 不可 | なし | なし | 更新日時 |
@@ -29,7 +31,7 @@
 
 - 主キー: `id`
 - 一意インデックス: `public_token`
-- インデックス: `plant_id`、`location_id`、`source_nursery_group_id`
+- インデックス: `plant_id`、`location_id`、`source_nursery_group_id`、`published_at`
 - `plant_id`、`location_id`、`public_token`、`stage`、`stage_started_on`は必須とする
 
 ## 関連
@@ -60,4 +62,9 @@
 - 草丈はStock本体に重複保持せず、最新のStockObservationから取得する
 - 工程変更と場所移動の専用履歴は初期版では保存しない
 - 外部公開時は連番の`id`ではなく`public_token`を使用する
+- 購入者向けの公開ページは`/p/<public_token>`で開く。`published_at`があるStockだけを
+  公開し、未公開のトークンと存在しないトークンは区別せず同じ404を返す
+- 公開ページは購入後も開けるようにするため、管理完了したStockも公開したままにする
+- `product_type`は`hydro`または`soil`とする。育て方を出せない公開ページを作らないよう、
+  `published_at`があるStockでは必須とする
 - enumの日本語表示と変更手順は[`enum 運用ガイド`](../enum/README.md)に従う
