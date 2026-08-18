@@ -1,0 +1,64 @@
+<% content_for :title, "#{@stock.plant.name} ST-#{@stock.id} の育て方" %>
+
+<header class="public-header">
+  <h1 class="public-title"><%= @stock.plant.name %></h1>
+  <p class="public-stock-id">ST-<%= @stock.id %></p>
+  <p class="public-lead">
+    この苗は1株ずつ記録をつけながら育てました。育て方をまとめています。
+  </p>
+</header>
+
+<% if @stock.production_lot || @stock.potted_on %>
+  <section class="public-section">
+    <h2>この株のこと</h2>
+    <dl class="public-facts">
+      <% if @stock.production_lot %>
+        <dt>育て始めた日</dt>
+        <dd><%= @stock.production_lot.started_on.strftime("%Y年%-m月%-d日") %></dd>
+        <dt>増やし方</dt>
+        <dd><%= @stock.production_lot.propagation_method_i18n %></dd>
+      <% end %>
+      <% if @stock.potted_on %>
+        <dt>鉢に植えた日</dt>
+        <dd><%= @stock.potted_on.strftime("%Y年%-m月%-d日") %></dd>
+      <% end %>
+      <% if @stock.production_lot&.source_stock %>
+        <dt>親株</dt>
+        <dd>ST-<%= @stock.production_lot.source_stock_id %></dd>
+      <% end %>
+    </dl>
+  </section>
+<% end %>
+
+<% if @stock.hydro? %>
+  <%= render "care_hydro" %>
+<% elsif @stock.soil? %>
+  <%= render "care_soil" %>
+<% end %>
+
+<section class="public-section">
+  <h2>困ったときは</h2>
+  <h3>葉が黄色くなってきた</h3>
+  <p>
+    下のほうの葉から黄色くなるのは、栄養が足りないサインです。
+    上の「育て方」のとおりに肥料をあげてください。
+    株全体が急に黄色くなったときは、水のあげすぎで根が傷んでいることがあります。
+  </p>
+  <h3>しおれてしまった</h3>
+  <p>
+    ほとんどは水切れです。水をあげれば数時間で元に戻ります。
+    水をあげても戻らないときは、強い日ざしや暑さが原因のことがあるので、
+    涼しい場所へ移してください。
+  </p>
+  <h3>ひょろひょろと伸びすぎた</h3>
+  <p>
+    先端を摘んでください。摘んだところの下から新しい枝が2本出て、
+    こんもりした形に育ちます。摘んだ葉はそのまま料理に使えます。
+  </p>
+</section>
+
+<footer class="public-footer">
+  <p>
+    育て方のご質問は、ご購入いただいたメルカリの取引メッセージからお気軽にどうぞ。
+  </p>
+</footer>
