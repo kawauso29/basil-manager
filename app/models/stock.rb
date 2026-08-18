@@ -45,14 +45,10 @@ class Stock < ApplicationRecord
   validates :potted_on, presence: true, if: :source_nursery_group_id?
   validates :completion_reason, presence: true, if: :completed_at?
   validates :completed_at, presence: true, if: -> { completion_reason.present? }
-  # 育て方を出せない公開ページを作らないため、公開する株には商品形態を必須とする
-  validates :product_type, presence: true, if: :published_at?
   validate :source_nursery_group_plant_matches
 
   scope :active, -> { where(completed_at: nil) }
   scope :sale_ready, -> { active.where.not(sale_ready_on: nil) }
-  # 公開ページに出せる株。管理完了後も購入者がページを開けるよう完了は除外しない
-  scope :published, -> { where.not(published_at: nil) }
 
   def self.register_direct!(plant_id:, location_id:, stage:, stage_started_on:, potted_on: nil, memo: nil)
     create!(

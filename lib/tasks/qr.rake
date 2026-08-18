@@ -6,7 +6,7 @@ namespace :qr do
 
     stock = Stock.find_by(id: args[:stock_id])
     abort "ST-#{args[:stock_id]} が見つかりません" if stock.nil?
-    warn "ST-#{stock.id} はまだ非公開です。公開日時を設定するまでページは404になります。" if stock.published_at.nil?
+    warn "ST-#{stock.id} には商品形態が未設定です。このままでは育て方が表示されません。" if stock.product_type.blank?
 
     url = "#{base_url.chomp('/')}/p/#{stock.public_token}"
     # 屋外・水濡れを想定して誤り訂正レベルはq、周囲の余白（quiet zone）は4モジュール確保する

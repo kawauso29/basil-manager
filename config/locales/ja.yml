@@ -75,7 +75,6 @@ ja:
         completion_reason: 管理完了理由
         completed_at: 管理完了日時
         product_type: 商品形態
-        published_at: 公開日時
       stock_observation:
         stock: 対象株
         stock_id: 対象株

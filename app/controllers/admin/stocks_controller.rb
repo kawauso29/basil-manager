@@ -172,7 +172,7 @@ class Admin::StocksController < Admin::BaseController
   end
 
   def stock_params
-    params.require(:stock).permit(:location_id, :potted_on, :memo, :product_type, :published_at)
+    params.require(:stock).permit(:location_id, :potted_on, :memo, :product_type)
   end
 
   def create_stock_params

@@ -6,11 +6,11 @@ module Public
     layout "public"
 
     def show
-      @stock = Stock.published
-                    .includes(:plant, production_lot: :source_stock)
+      # Stockはすべて常時公開とし、公開・非公開の切り替えは持たない。
+      # URLを知っている購入者だけが開けることを前提にする。
+      @stock = Stock.includes(:plant, production_lot: :source_stock)
                     .find_by(public_token: params[:token])
 
-      # 未公開の株と存在しないトークンは区別せず、どちらも同じ404を返す
       render :not_found, status: :not_found if @stock.nil?
     end
   end

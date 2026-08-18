@@ -27,10 +27,5 @@
     <%= f.label :product_type, "商品形態" %>
     <%= f.select :product_type, @product_type_options, prompt: "選択してください" %>
   </div>
-  <div class="form-field">
-    <%# 公開ページを出す日時。空にすると公開を取り下げる %>
-    <%= f.label :published_at, "公開日時" %>
-    <%= f.datetime_field :published_at %>
-  </div>
   <%= f.submit "更新" %>
 <% end %>

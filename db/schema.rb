@@ -234,7 +234,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_18_000000) do
     t.date "potted_on", comment: "個体管理へ切り替えた鉢上げ日"
     t.string "product_type", comment: "商品形態"
     t.string "public_token", null: false, comment: "公開用の株単位のトークン識別子"
-    t.datetime "published_at", comment: "公開ページを公開した日時"
     t.date "sale_ready_on", comment: "販売可能日"
     t.bigint "source_nursery_group_id", comment: "鉢上げ元の苗グループID"
     t.string "stage", null: false, comment: "現在工程"
@@ -243,7 +242,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_18_000000) do
     t.index ["location_id"], name: "index_stocks_on_location_id"
     t.index ["plant_id"], name: "index_stocks_on_plant_id"
     t.index ["public_token"], name: "index_stocks_on_public_token", unique: true
-    t.index ["published_at"], name: "index_stocks_on_published_at"
     t.index ["source_nursery_group_id"], name: "index_stocks_on_source_nursery_group_id"
   end
 

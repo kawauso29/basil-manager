@@ -151,36 +151,17 @@ RSpec.describe Stock, type: :model do
     end
   end
 
-  describe "公開ページ" do
-    it "published_atがある株だけをpublishedスコープに含める" do
-      published = create_stock(product_type: :hydro, published_at: Time.current)
-      create_stock
-
-      expect(described_class.published).to contain_exactly(published)
+  describe "#product_type" do
+    it "商品形態は空でもよい" do
+      expect(create_stock.product_type).to be_nil
     end
 
-    it "管理完了後もpublishedスコープに残す" do
-      stock = create_stock(product_type: :soil, published_at: Time.current)
-      stock.complete!(reason: :transferred, at: Time.current)
-
-      expect(described_class.published).to include(stock)
-    end
-
-    it "公開する株には商品形態を必須とする" do
-      stock = described_class.new(
-        plant: plant,
-        location: location,
-        stage: :acclimating,
-        stage_started_on: Date.new(2026, 8, 15),
-        published_at: Time.current
-      )
+    it "未定義の商品形態を拒否する" do
+      stock = create_stock
+      stock.product_type = "unknown"
 
       expect(stock).not_to be_valid
-      expect(stock.errors.details[:product_type]).to include(error: :blank)
-    end
-
-    it "非公開なら商品形態は空でよい" do
-      expect(create_stock.product_type).to be_nil
+      expect(stock.errors.details[:product_type]).to include(error: :inclusion, value: "unknown")
     end
   end
 end
