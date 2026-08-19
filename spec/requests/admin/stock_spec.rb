@@ -35,6 +35,8 @@ RSpec.describe "Admin::Stocks", type: :request do
 
       expect(response).to have_http_status(:ok)
       expect(response.body).to include("ST-#{active_stock.id}", "ST-#{completed_stock.id}", "管理終了株")
+      # 管理画面レイアウト（ヘッダー）が付くこと
+      expect(response.body).to include("primary-nav")
     end
 
     it "工程、場所、植物、管理状態で絞り込む" do

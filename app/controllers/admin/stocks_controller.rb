@@ -1,5 +1,4 @@
 class Admin::StocksController < Admin::BaseController
-  layout "print", only: :labels
   before_action :set_stock, only: %i[
     show edit update advance_stage_form advance_stage sale_ready_form
     mark_sale_ready revoke_sale_ready complete_form complete qr
@@ -13,10 +12,16 @@ class Admin::StocksController < Admin::BaseController
   end
 
   # 出荷分をまとめて刷るためのA4ラベルシート。一覧と同じ絞り込みが効く。
-  # 管理画面のナビゲーションを紙に載せないよう、印刷専用のレイアウトを使う。
+  # 管理画面のナビゲーションを紙に載せないよう、このアクションだけ
+  # 印刷専用のレイアウトで描画する。
+  # （クラス側で `layout "print", only: :labels` と書くと、条件から外れた
+  #  他のアクションが親の "admin" ではなく "application" レイアウトに
+  #  落ちてしまうため、ここで指定する）
   def labels
     @stock_filters = stock_filter_params
     @stocks = filtered_stocks.includes(:plant).order(id: :asc).load
+
+    render :labels, layout: "print"
   end
 
   def new
