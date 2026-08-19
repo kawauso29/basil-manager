@@ -3,7 +3,7 @@ namespace :qr do
   task :generate, [ :stock_id ] => :environment do |_task, args|
     # 本番の公開ページのドメイン。別の環境で試すときだけ PUBLIC_BASE_URL で上書きする。
     # ここを変えると、すでに印刷したQRコードは読めなくなるので注意する。
-    base_url = ENV.fetch("PUBLIC_BASE_URL", "https://midorinotonari.jp")
+    base_url = ENV.fetch("PUBLIC_BASE_URL", "https://www.midorinotonari.jp")
 
     stock = Stock.find_by(id: args[:stock_id])
     abort "ST-#{args[:stock_id]} が見つかりません" if stock.nil?

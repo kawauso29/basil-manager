@@ -47,7 +47,10 @@ docker compose exec web bin/rails console
 ## 公開ページとQRコード
 
 販売する苗の鉢にQRコードを貼り、購入者が個体の情報と育て方を読めるようにしています。
-屋号は「みどりのとなり」、公開ページのドメインは `midorinotonari.jp` です。
+屋号は「みどりのとなり」、公開ページのURLは `https://www.midorinotonari.jp` です。
+`www` を付けているのは、さくらのDNSがALIASレコードに対応しておらず、アポックス
+（`midorinotonari.jp`）をNorthflankへ向けられないためです。QRコードの複雑さは
+`www` の有無で変わりません（どちらもversion 5・37×37モジュール）。
 公開ページは `/p/<public_token>` で開く認証なしの読み取り専用ページです。全Stockが
 常時公開で、公開・非公開の切り替えは持ちません。URLは推測できないトークンなので、
 QRコードを渡した購入者だけがページへたどり着きます。
