@@ -5,6 +5,10 @@ Rails.application.routes.draw do
   # Can be used by load balancers and uptime monitors to verify that the app is live.
   get "up" => "rails/health#show", as: :rails_health_check
 
+  # 鉢に貼ったQRコードから開く、購入者向けの公開ページ。
+  # QRの情報量を抑えるためパスは短くする。
+  get "/p/:token", to: "public/stocks#show", as: :public_stock
+
   namespace :admin do
     root "dashboard#index"
     resource :data_export, only: :show

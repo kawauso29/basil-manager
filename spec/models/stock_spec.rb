@@ -150,4 +150,18 @@ RSpec.describe Stock, type: :model do
       expect(stock.display_name).to eq("ST-#{stock.id}")
     end
   end
+
+  describe "#product_type" do
+    it "商品形態は空でもよい" do
+      expect(create_stock.product_type).to be_nil
+    end
+
+    it "未定義の商品形態を拒否する" do
+      stock = create_stock
+      stock.product_type = "unknown"
+
+      expect(stock).not_to be_valid
+      expect(stock.errors.details[:product_type]).to include(error: :inclusion, value: "unknown")
+    end
+  end
 end

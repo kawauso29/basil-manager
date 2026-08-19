@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_15_000000) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_18_000000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -232,6 +232,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_15_000000) do
     t.text "memo", comment: "株についてのメモ"
     t.bigint "plant_id", null: false, comment: "植物ID"
     t.date "potted_on", comment: "個体管理へ切り替えた鉢上げ日"
+    t.string "product_type", comment: "商品形態"
     t.string "public_token", null: false, comment: "公開用の株単位のトークン識別子"
     t.date "sale_ready_on", comment: "販売可能日"
     t.bigint "source_nursery_group_id", comment: "鉢上げ元の苗グループID"

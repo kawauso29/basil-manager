@@ -1,0 +1,63 @@
+<% content_for :title, "#{@stock.plant.name} ST-#{@stock.id}" %>
+
+<header class="public-header">
+  <p class="public-eyebrow">BASIL</p>
+  <h1 class="public-title"><%= @stock.plant.name %></h1>
+  <p class="public-stock-id">ST-<%= @stock.id %></p>
+  <p class="public-lead">1株ずつ記録をつけながら育てた苗です。この株のこれまでと、これからの育て方をまとめています。</p>
+</header>
+
+<section class="public-section">
+  <h2>商品が届いたら</h2>
+  <ul class="public-list">
+    <li>まず箱から出して、明るい場所に置いてください。</li>
+    <li>運ばれてくるあいだに、葉が折れたり下の葉が黄色くなることがあります。新しい葉が出てくれば心配いりません。</li>
+    <li>水を切らしています。下の「育て方」を見て、最初の水やりをしてください。</li>
+    <li>置き場所が変わると、数日は元気がないように見えることがあります。あわてず様子を見てください。</li>
+  </ul>
+</section>
+
+<% if @stock.production_lot || @stock.potted_on %>
+  <section class="public-section">
+    <h2>育成の記録</h2>
+    <ul class="public-record">
+      <% if @stock.production_lot %>
+        <li>
+          <span class="record-date"><%= @stock.production_lot.started_on.strftime("%Y年%-m月%-d日") %></span>
+          <span class="record-event"><%= @stock.production_lot.propagation_method_i18n %></span>
+          <% if @stock.production_lot.source_stock %>
+            <p class="record-note">親株 ST-<%= @stock.production_lot.source_stock_id %> から枝を分けました。</p>
+          <% end %>
+        </li>
+      <% end %>
+      <% if @stock.potted_on %>
+        <li>
+          <span class="record-date"><%= @stock.potted_on.strftime("%Y年%-m月%-d日") %></span>
+          <span class="record-event">鉢上げ</span>
+          <p class="record-note">根が育ったので、この鉢に植えました。</p>
+        </li>
+      <% end %>
+      <li>
+        <span class="record-date">そして</span>
+        <span class="record-event">お手元へ</span>
+        <p class="record-note">ここからは、あなたのもとで。</p>
+      </li>
+    </ul>
+  </section>
+<% end %>
+
+<% if @stock.hydro? %>
+  <%= render "care_hydro" %>
+<% elsif @stock.soil? %>
+  <%= render "care_soil" %>
+<% end %>
+
+<section class="public-section">
+  <h2>困ったときは</h2>
+  <h3>葉が黄色くなってきた</h3>
+  <p>下のほうの葉から黄色くなるのは、栄養が足りないサインです。上の「育て方」のとおりに肥料をあげてください。株全体が急に黄色くなったときは、水のあげすぎで根が傷んでいることがあります。</p>
+  <h3>しおれてしまった</h3>
+  <p>ほとんどは水切れです。水をあげれば数時間で元に戻ります。水をあげても戻らないときは、強い日ざしや暑さが原因のことがあるので、涼しい場所へ移してください。</p>
+  <h3>ひょろひょろと伸びすぎた</h3>
+  <p>先端を摘んでください。摘んだところの下から新しい枝が2本出て、こんもりした形に育ちます。摘んだ葉はそのまま料理に使えます。</p>
+</section>

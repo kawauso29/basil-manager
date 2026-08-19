@@ -21,6 +21,7 @@
 | `sale_ready_on` | `date` | 可 | `NULL` | なし | 販売可能日 |
 | `completion_reason` | `string` | 可 | `NULL` | なし | 管理完了理由 |
 | `completed_at` | `datetime` | 可 | `NULL` | なし | 管理完了日時 |
+| `product_type` | `string` | 可 | `NULL` | なし | 公開ページで育て方を出し分ける商品形態 |
 | `memo` | `text` | 可 | `NULL` | なし | 現在の補足 |
 | `created_at` | `datetime` | 不可 | なし | なし | 作成日時 |
 | `updated_at` | `datetime` | 不可 | なし | なし | 更新日時 |
@@ -60,4 +61,7 @@
 - 草丈はStock本体に重複保持せず、最新のStockObservationから取得する
 - 工程変更と場所移動の専用履歴は初期版では保存しない
 - 外部公開時は連番の`id`ではなく`public_token`を使用する
+- 購入者向けの公開ページは`/p/<public_token>`で開く。全Stockを常時公開とし、
+  公開・非公開の切り替えは持たない。URLを知っている購入者だけが開けることを前提にする
+- `product_type`は`hydro`または`soil`とする。空の場合、公開ページは育て方を表示しない
 - enumの日本語表示と変更手順は[`enum 運用ガイド`](../enum/README.md)に従う

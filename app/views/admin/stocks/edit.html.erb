@@ -23,5 +23,9 @@
     <%= f.label :memo, "現在のメモ" %>
     <%= f.text_area :memo %>
   </div>
+  <div class="form-field">
+    <%= f.label :product_type, "商品形態" %>
+    <%= f.select :product_type, @product_type_options, prompt: "選択してください" %>
+  </div>
   <%= f.submit "更新" %>
 <% end %>

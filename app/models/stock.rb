@@ -35,6 +35,12 @@ class Stock < ApplicationRecord
     transferred: "transferred"
   }, validate: { allow_blank: true }
 
+  # 購入者向け公開ページで育て方を出し分けるための商品形態
+  enum :product_type, {
+    hydro: "hydro",
+    soil: "soil"
+  }, validate: { allow_blank: true }
+
   validates :stage_started_on, presence: true
   validates :potted_on, presence: true, if: :source_nursery_group_id?
   validates :completion_reason, presence: true, if: :completed_at?

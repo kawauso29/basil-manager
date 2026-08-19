@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <title><%= content_for(:title) || "育て方" %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <%# 1株ごとの薄いページなので、当面は検索エンジンに載せない %>
+    <meta name="robots" content="noindex">
+    <link rel="icon" href="/icon.png" type="image/png">
+    <%= stylesheet_link_tag "public", "data-turbo-track": "reload" %>
+  </head>
+
+  <body class="public-body">
+    <main class="public-page">
+      <%= yield %>
+    </main>
+  </body>
+</html>

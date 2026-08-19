@@ -135,6 +135,7 @@ class Admin::StocksController < Admin::BaseController
   def set_form_options(include_stage: false)
     @location_options = Location.order(:name).pluck(:name, :id)
     @plant_options = Plant.order(:name).pluck(:name, :id)
+    @product_type_options = Stock.product_types_i18n.map { |value, label| [ label, value ] }
     @stage_options = Stock.stages_i18n.map { |key, label| [ label, key ] } if include_stage
   end
 
@@ -171,7 +172,7 @@ class Admin::StocksController < Admin::BaseController
   end
 
   def stock_params
-    params.require(:stock).permit(:location_id, :potted_on, :memo)
+    params.require(:stock).permit(:location_id, :potted_on, :memo, :product_type)
   end
 
   def create_stock_params

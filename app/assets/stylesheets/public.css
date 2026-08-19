@@ -1,0 +1,238 @@
+/* 購入者向け公開ページ専用のスタイル。管理画面とは共有しない。 */
+/* 手書きの園芸ノートのような、あたたかい紙面を目指す。 */
+/* スマートフォンで縦に読むことだけを想定し、JavaScriptは使わない。 */
+
+:root {
+  --paper: #f7f3ea;
+  --card: #fffdf8;
+  --ink: #2f3a33;
+  --ink-soft: #737d74;
+  --forest: #2c4b3a;
+  --clay: #b06c4a;
+  --sage: #8fa892;
+  --rule: #e6ddcd;
+}
+
+* { box-sizing: border-box; }
+
+.public-body {
+  margin: 0;
+  color: var(--ink);
+  background: var(--paper);
+  font-family: "Hiragino Sans", "Yu Gothic", YuGothic, "Noto Sans JP", sans-serif;
+  font-size: 16px;
+  line-height: 1.9;
+  /* 長い単語やURLでも横スクロールを起こさない */
+  overflow-wrap: anywhere;
+}
+
+/* 紙のざらつき。ごく薄くかけて、のっぺりした画面にしない */
+.public-body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  opacity: .5;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)' opacity='.05'/%3E%3C/svg%3E");
+}
+
+.public-page {
+  width: min(620px, calc(100% - 40px));
+  margin: 0 auto;
+  padding: 40px 0 56px;
+}
+
+/* 見出し */
+
+.public-header { margin-bottom: 32px; }
+
+.public-eyebrow {
+  margin: 0;
+  color: var(--sage);
+  font-size: 12px;
+  letter-spacing: .3em;
+}
+
+.public-title {
+  margin: 6px 0 0;
+  color: var(--forest);
+  font-family: "Hiragino Mincho ProN", "Yu Mincho", YuMincho, "Noto Serif CJK JP", "Noto Serif JP", serif;
+  font-size: 32px;
+  font-weight: 600;
+  line-height: 1.35;
+  letter-spacing: .02em;
+}
+
+.public-stock-id {
+  display: inline-block;
+  margin: 12px 0 0;
+  padding: 2px 12px;
+  border: 1px solid var(--clay);
+  border-radius: 999px;
+  color: var(--clay);
+  font-size: 12px;
+  line-height: 1.8;
+  letter-spacing: .16em;
+}
+
+.public-lead {
+  margin: 16px 0 0;
+  color: var(--ink-soft);
+  font-size: 14px;
+}
+
+/* 本文のかたまり */
+
+.public-section {
+  margin-top: 20px;
+  padding: 24px 22px 26px;
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  background: var(--card);
+}
+
+.public-section h2 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 16px;
+  color: var(--forest);
+  font-family: "Hiragino Mincho ProN", "Yu Mincho", YuMincho, "Noto Serif CJK JP", "Noto Serif JP", serif;
+  font-size: 19px;
+  font-weight: 600;
+  letter-spacing: .04em;
+}
+
+/* 見出しの前に置く小さな葉のしるし */
+.public-section h2::before {
+  content: "";
+  flex: 0 0 auto;
+  width: 11px;
+  height: 11px;
+  border-radius: 0 100% 0 100%;
+  background: var(--sage);
+}
+
+.public-section h3 {
+  margin: 24px 0 6px;
+  color: var(--clay);
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.public-section h3:first-of-type { margin-top: 20px; }
+
+.public-section p { margin: 0 0 10px; }
+.public-section p:last-child { margin-bottom: 0; }
+
+.public-list {
+  margin: 0;
+  padding-left: 0;
+  list-style: none;
+}
+
+.public-list li {
+  position: relative;
+  margin-bottom: 10px;
+  padding-left: 20px;
+}
+
+.public-list li:last-child { margin-bottom: 0; }
+
+.public-list li::before {
+  content: "";
+  position: absolute;
+  top: .78em;
+  left: 4px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--sage);
+}
+
+/* 育成の記録。日付を縦に並べて、記録らしく見せる */
+
+.public-record {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.public-record li {
+  position: relative;
+  padding: 0 0 22px 26px;
+  border-left: 1px solid var(--rule);
+}
+
+.public-record li:last-child {
+  padding-bottom: 0;
+  border-left-color: transparent;
+}
+
+/* 最後の項目から下へは線を伸ばさないが、丸の高さまではつないでおく */
+.public-record li:last-child::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -1px;
+  width: 1px;
+  height: .62em;
+  background: var(--rule);
+}
+
+.public-record li::before {
+  content: "";
+  position: absolute;
+  top: .62em;
+  left: -5px;
+  width: 9px;
+  height: 9px;
+  border: 1px solid var(--sage);
+  border-radius: 50%;
+  background: var(--card);
+}
+
+/* 最後の「お手元へ」だけ塗りつぶして、区切りを付ける */
+.public-record li:last-child::before {
+  border-color: var(--clay);
+  background: var(--clay);
+}
+
+.public-record .record-date {
+  display: block;
+  color: var(--ink-soft);
+  font-size: 13px;
+  letter-spacing: .06em;
+}
+
+.public-record .record-event {
+  display: block;
+  color: var(--forest);
+  font-family: "Hiragino Mincho ProN", "Yu Mincho", YuMincho, "Noto Serif CJK JP", "Noto Serif JP", serif;
+  font-size: 17px;
+}
+
+.public-record .record-note {
+  margin: 2px 0 0;
+  color: var(--ink-soft);
+  font-size: 14px;
+}
+
+/* 読み込み時にそっと立ち上げる。動きを減らす設定なら出さない */
+@media (prefers-reduced-motion: no-preference) {
+  .public-header,
+  .public-section {
+    animation: public-rise .5s ease-out backwards;
+  }
+
+  .public-section:nth-of-type(1) { animation-delay: .06s; }
+  .public-section:nth-of-type(2) { animation-delay: .12s; }
+  .public-section:nth-of-type(3) { animation-delay: .18s; }
+  .public-section:nth-of-type(4) { animation-delay: .24s; }
+
+  @keyframes public-rise {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: none; }
+  }
+}
