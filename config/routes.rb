@@ -26,6 +26,9 @@ Rails.application.routes.draw do
       end
     end
     resources :stocks, except: :destroy do
+      collection do
+        get :labels
+      end
       member do
         get :advance_stage, action: :advance_stage_form
         patch :advance_stage

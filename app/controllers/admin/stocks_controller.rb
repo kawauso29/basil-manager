@@ -1,4 +1,5 @@
 class Admin::StocksController < Admin::BaseController
+  layout "print", only: :labels
   before_action :set_stock, only: %i[
     show edit update advance_stage_form advance_stage sale_ready_form
     mark_sale_ready revoke_sale_ready complete_form complete qr
@@ -8,17 +9,14 @@ class Admin::StocksController < Admin::BaseController
     @stock_filters = stock_filter_params
     set_filter_options
 
-    stocks = Stock.all
-    if Location.environments.key?(@stock_filters[:environment])
-      stocks = stocks.joins(:location).where(locations: { environment: @stock_filters[:environment] })
-    end
-    stocks = stocks.where(location_id: @stock_filters[:location_id]) if @stock_filters[:location_id].present?
-    stocks = stocks.where(plant_id: @stock_filters[:plant_id]) if @stock_filters[:plant_id].present?
-    stocks = stocks.where(stage: @stock_filters[:stage]) if Stock.stages.key?(@stock_filters[:stage])
-    stocks = filter_sale_ready(stocks)
-    stocks = filter_completion(stocks)
+    @stocks = filtered_stocks.includes(:plant, :location, :production_lot).order(id: :asc).load
+  end
 
-    @stocks = stocks.includes(:plant, :location, :production_lot).order(id: :asc).load
+  # 出荷分をまとめて刷るためのA4ラベルシート。一覧と同じ絞り込みが効く。
+  # 管理画面のナビゲーションを紙に載せないよう、印刷専用のレイアウトを使う。
+  def labels
+    @stock_filters = stock_filter_params
+    @stocks = filtered_stocks.includes(:plant).order(id: :asc).load
   end
 
   def new
@@ -65,10 +63,7 @@ class Admin::StocksController < Admin::BaseController
   # 中身はpublic_tokenから決まるので保存せず、開かれるたびに描く。
   # 保存してしまうと、公開ドメインを変えたときに古い画像が残ってしまう。
   def qr
-    png = RQRCode::QRCode.new(@stock.public_url, level: :q)
-                         .as_png(border_modules: 4, module_px_size: 10)
-
-    send_data png.to_s,
+    send_data StockQrCode.png(@stock),
               type: "image/png",
               disposition: "inline",
               filename: "#{@stock.display_name}.png"
@@ -131,6 +126,18 @@ class Admin::StocksController < Admin::BaseController
   end
 
   private
+
+  def filtered_stocks
+    stocks = Stock.all
+    if Location.environments.key?(@stock_filters[:environment])
+      stocks = stocks.joins(:location).where(locations: { environment: @stock_filters[:environment] })
+    end
+    stocks = stocks.where(location_id: @stock_filters[:location_id]) if @stock_filters[:location_id].present?
+    stocks = stocks.where(plant_id: @stock_filters[:plant_id]) if @stock_filters[:plant_id].present?
+    stocks = stocks.where(stage: @stock_filters[:stage]) if Stock.stages.key?(@stock_filters[:stage])
+    stocks = filter_sale_ready(stocks)
+    filter_completion(stocks)
+  end
 
   def set_stock
     @stock = Stock.includes(:plant, :location, :production_lot, :source_nursery_group).find(params[:id])
