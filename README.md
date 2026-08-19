@@ -68,6 +68,29 @@ QRコードは読めなくなります。**
 育て方の文言は `app/views/public/stocks/_care_hydro.html.erb` と
 `_care_soil.html.erb` に直接書いています。修正はこの2ファイルだけで完結します。
 
+## バックアップ
+
+本番データベースのダンプを手元へ保存します。ホスティング先が使えなくなっても
+復旧できるよう、**ダンプは本番と同じ場所に置かないこと**。
+
+```bash
+DATABASE_URL="postgres://..." script/backup_db.sh
+```
+
+`BACKUP_DIR`（既定 `~/basil-backups`）へ `basil-<日時>.dump` を出力し、
+`KEEP_COUNT`（既定 12）世代だけ残します。ダンプ後に `pg_restore --list` で
+読めることを確認し、確認できた場合だけ古い世代を消します。ダンプに失敗した
+ときは古い世代を消さずに終了します。
+
+復元は空のデータベースに対して行います。
+
+```bash
+pg_restore -d "$NEW_DATABASE_URL" ~/basil-backups/basil-2026-08-19-0300.dump
+```
+
+添付画像はデータベースではなくActive Storageの保存先にあるため、この
+ダンプには含まれません。画像は保存先側で別に控えを取ります。
+
 ## テスト
 
 テストはRSpecで記述しています。
