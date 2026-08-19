@@ -7,6 +7,10 @@ class Stock < ApplicationRecord
     "acclimating" => "growing"
   }.freeze
 
+  # 鉢に貼るQRコードが指す公開ページのURL。
+  # ここを変えると、すでに印刷して鉢に貼ったQRコードは読めなくなるので注意する。
+  PUBLIC_BASE_URL = ENV.fetch("PUBLIC_BASE_URL", "https://www.midorinotonari.jp").freeze
+
   has_secure_token :public_token
 
   belongs_to :plant
@@ -63,6 +67,11 @@ class Stock < ApplicationRecord
 
   def display_name
     "ST-#{id}"
+  end
+
+  # 購入者がQRコードから開く公開ページのURL。パスはroutes.rbのpublic_stockと揃える。
+  def public_url
+    PUBLIC_BASE_URL + Rails.application.routes.url_helpers.public_stock_path(public_token)
   end
 
   def latest_height_observation

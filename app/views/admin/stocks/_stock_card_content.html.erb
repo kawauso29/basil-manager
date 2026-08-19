@@ -39,7 +39,7 @@
   <dt>商品形態</dt>
   <dd><%= stock.product_type_i18n || "—" %></dd>
   <dt>公開ページ</dt>
-  <dd><%= link_to "/p/#{stock.public_token}", public_stock_path(stock.public_token) %></dd>
+  <dd><%= link_to stock.public_url, public_stock_path(stock.public_token) %></dd>
   <dt>管理完了日時</dt>
   <dd><%= stock.completed_at&.strftime("%Y/%m/%d %H:%M") || "—" %></dd>
   <dt>完了理由</dt>

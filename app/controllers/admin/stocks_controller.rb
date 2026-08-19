@@ -1,7 +1,7 @@
 class Admin::StocksController < Admin::BaseController
   before_action :set_stock, only: %i[
     show edit update advance_stage_form advance_stage sale_ready_form
-    mark_sale_ready revoke_sale_ready complete_form complete
+    mark_sale_ready revoke_sale_ready complete_form complete qr
   ]
 
   def index
@@ -59,6 +59,19 @@ class Admin::StocksController < Admin::BaseController
       admin_update_error_message(@stock)
       render :edit, status: :unprocessable_content
     end
+  end
+
+  # 鉢に貼るQRコードのPNG。株を作った時点から、いつでもここから取得できる。
+  # 中身はpublic_tokenから決まるので保存せず、開かれるたびに描く。
+  # 保存してしまうと、公開ドメインを変えたときに古い画像が残ってしまう。
+  def qr
+    png = RQRCode::QRCode.new(@stock.public_url, level: :q)
+                         .as_png(border_modules: 4, module_px_size: 10)
+
+    send_data png.to_s,
+              type: "image/png",
+              disposition: "inline",
+              filename: "#{@stock.display_name}.png"
   end
 
   def advance_stage_form

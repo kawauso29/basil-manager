@@ -233,6 +233,18 @@ RSpec.describe "Admin::Stocks", type: :request do
     end
   end
 
+  describe "GET /admin/stocks/:id/qr" do
+    it "公開ページのQRコードをPNGで返す" do
+      stock = create_stock
+
+      get qr_admin_stock_path(stock), headers: admin_headers
+
+      expect(response).to have_http_status(:ok)
+      expect(response.media_type).to eq("image/png")
+      expect(response.body).to start_with("\x89PNG".b)
+    end
+  end
+
   describe "専用操作フォーム" do
     it "工程進行フォームを表示する" do
       stock = create_stock
