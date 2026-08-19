@@ -47,11 +47,13 @@
 
 .public-header { margin-bottom: 32px; }
 
+/* 屋号。小さく置くが、見出しと同じ明朝体でロゴとして扱う */
 .public-eyebrow {
   margin: 0;
   color: var(--sage);
-  font-size: 12px;
-  letter-spacing: .3em;
+  font-family: "Hiragino Mincho ProN", "Yu Mincho", YuMincho, "Noto Serif CJK JP", "Noto Serif JP", serif;
+  font-size: 13px;
+  letter-spacing: .28em;
 }
 
 .public-title {
