@@ -47,6 +47,10 @@ docker compose exec web bin/rails console
 ## 公開ページとQRコード
 
 販売する苗の鉢にQRコードを貼り、購入者が個体の情報と育て方を読めるようにしています。
+屋号は「みどりのとなり」、公開ページのURLは `https://www.midorinotonari.jp` です。
+`www` を付けているのは、さくらのDNSがALIASレコードに対応しておらず、アポックス
+（`midorinotonari.jp`）をNorthflankへ向けられないためです。QRコードの複雑さは
+`www` の有無で変わりません（どちらもversion 5・37×37モジュール）。
 公開ページは `/p/<public_token>` で開く認証なしの読み取り専用ページです。全Stockが
 常時公開で、公開・非公開の切り替えは持ちません。URLは推測できないトークンなので、
 QRコードを渡した購入者だけがページへたどり着きます。
@@ -64,6 +68,8 @@ docker compose exec web bash -lc "bin/rails 'qr:generate[52]'"
 QRへ埋め込むドメインは `lib/tasks/qr.rake` に直接書いています。別の環境で試すときだけ、
 `PUBLIC_BASE_URL` で上書きできます。**ドメインを変更すると、すでに印刷して鉢に貼った
 QRコードは読めなくなります。**
+
+屋号は公開ページのヘッダーにも出しています（`app/views/public/stocks/show.html.erb`）。
 
 育て方の文言は `app/views/public/stocks/_care_hydro.html.erb` と
 `_care_soil.html.erb` に直接書いています。修正はこの2ファイルだけで完結します。
