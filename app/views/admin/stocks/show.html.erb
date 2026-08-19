@@ -13,6 +13,19 @@
 <%= render "/admin/stocks/stock_detail", stock: @stock %>
 
 <section class="panel">
+  <h2>鉢に貼るQRコード</h2>
+  <p>
+    読み取ると公開ページ
+    <%= link_to @stock.public_url, public_stock_path(@stock.public_token) %>
+    が開きます。画像を右クリックして保存し、2cm以上の大きさで印刷してください。
+  </p>
+  <%= image_tag qr_admin_stock_path(@stock),
+                alt: "#{@stock.display_name}の公開ページQRコード",
+                width: 200,
+                height: 200 %>
+</section>
+
+<section class="panel">
   <h2>最新の草丈</h2>
   <% if @latest_height_observation %>
     <p>

@@ -26,6 +26,9 @@ Rails.application.routes.draw do
       end
     end
     resources :stocks, except: :destroy do
+      collection do
+        get :labels
+      end
       member do
         get :advance_stage, action: :advance_stage_form
         patch :advance_stage
@@ -34,6 +37,7 @@ Rails.application.routes.draw do
         patch :revoke_sale_ready
         get :complete, action: :complete_form
         patch :complete
+        get :qr
       end
     end
     resources :stock_observations

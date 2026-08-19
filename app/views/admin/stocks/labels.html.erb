@@ -1,0 +1,29 @@
+<% content_for :title, "ラベルシート" %>
+
+<div class="print-toolbar">
+  <p>
+    <strong><%= @stocks.size %>枚</strong>のラベルです。
+    A4・等倍（100%）で印刷してください。破線が切り取り線です。
+  </p>
+  <p>
+    <%= link_to "株一覧へ戻る", admin_stocks_path(@stock_filters) %>
+  </p>
+</div>
+
+<% if @stocks.any? %>
+  <div class="label-sheet">
+    <% @stocks.each do |stock| %>
+      <div class="label">
+        <%= image_tag StockQrCode.data_uri(stock), class: "label-qr", alt: "" %>
+        <div class="label-body">
+          <p class="label-brand">みどりのとなり</p>
+          <p class="label-plant"><%= stock.plant.name %></p>
+          <p class="label-id"><%= stock.display_name %></p>
+          <p class="label-note">カメラで読み取ると、育て方が開きます。</p>
+        </div>
+      </div>
+    <% end %>
+  </div>
+<% else %>
+  <p class="print-empty">条件に合う株がありません。株一覧で絞り込みを変えてください。</p>
+<% end %>

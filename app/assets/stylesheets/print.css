@@ -1,0 +1,99 @@
+/* 出荷分のQRラベルをA4へまとめて刷るためのスタイル。 */
+/* 画面でも同じ見た目にして、印刷前に確認できるようにする。 */
+
+@page {
+  size: A4;
+  margin: 10mm;
+}
+
+* { box-sizing: border-box; }
+
+.print-body {
+  margin: 0;
+  padding: 10mm;
+  color: #26332d;
+  background: #f5f7f5;
+  font-family: "Hiragino Sans", "Yu Gothic", YuGothic, "Noto Sans JP", sans-serif;
+}
+
+.print-toolbar {
+  margin-bottom: 8mm;
+  font-size: 14px;
+}
+
+.print-toolbar p { margin: 0 0 4px; }
+.print-empty { font-size: 14px; }
+
+/* 60mm×42mmのカードを3列。A4（余白10mm＝印刷可能高さ277mm）に3×6＝18枚入る。
+   42×6＋3×5＝267mmなので、6行目まで同じページに収まる */
+.label-sheet {
+  display: grid;
+  grid-template-columns: repeat(3, 60mm);
+  gap: 3mm;
+}
+
+.label {
+  display: flex;
+  align-items: center;
+  gap: 3mm;
+  width: 60mm;
+  height: 42mm;
+  padding: 3mm;
+  border: 0.3mm dashed #9aa89e;
+  background: #fff;
+  /* カードが用紙の切れ目で分断されないようにする */
+  break-inside: avoid;
+}
+
+.label-qr {
+  flex: 0 0 auto;
+  width: 24mm;
+  height: 24mm;
+  /* 縮小時にモジュールがぼやけて読み取れなくならないようにする */
+  image-rendering: pixelated;
+}
+
+.label-body {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.label-body p { margin: 0; }
+
+.label-brand {
+  color: #8fa892;
+  font-family: "Hiragino Mincho ProN", "Yu Mincho", YuMincho, "Noto Serif CJK JP", serif;
+  font-size: 7pt;
+  letter-spacing: .1em;
+}
+
+/* 「スイートバジル」7文字が折り返さない大きさにする */
+.label-plant {
+  color: #164e3b;
+  font-family: "Hiragino Mincho ProN", "Yu Mincho", YuMincho, "Noto Serif CJK JP", serif;
+  font-size: 10pt;
+  line-height: 1.3;
+}
+
+.label-id {
+  color: #b06c4a;
+  font-size: 8pt;
+  letter-spacing: .12em;
+}
+
+.label-note {
+  margin-top: 1.5mm !important;
+  color: #68756e;
+  font-size: 6pt;
+  line-height: 1.4;
+}
+
+/* 印刷時は操作用の文言と背景を落とす */
+@media print {
+  .print-body {
+    padding: 0;
+    background: #fff;
+  }
+
+  .print-toolbar { display: none; }
+}

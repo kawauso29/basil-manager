@@ -233,6 +233,36 @@ RSpec.describe "Admin::Stocks", type: :request do
     end
   end
 
+  describe "GET /admin/stocks/labels" do
+    it "絞り込んだ株のQRラベルを印刷用レイアウトで並べる" do
+      target = create_stock(stage: "growing")
+      target.mark_sale_ready!(on: Date.new(2026, 8, 20))
+      other = create_stock
+
+      get labels_admin_stocks_path(sale_ready: "ready"), headers: admin_headers
+
+      expect(response).to have_http_status(:ok)
+      expect(response.body).to include(target.display_name)
+      expect(response.body).not_to include(other.display_name)
+      # QRはHTMLへ直接埋め込む。印刷時に未読み込みで欠けるのを避けるため
+      expect(response.body).to include("data:image/png;base64,")
+      # 管理画面のナビゲーションを紙に載せない
+      expect(response.body).not_to include("primary-nav")
+    end
+  end
+
+  describe "GET /admin/stocks/:id/qr" do
+    it "公開ページのQRコードをPNGで返す" do
+      stock = create_stock
+
+      get qr_admin_stock_path(stock), headers: admin_headers
+
+      expect(response).to have_http_status(:ok)
+      expect(response.media_type).to eq("image/png")
+      expect(response.body).to start_with("\x89PNG".b)
+    end
+  end
+
   describe "専用操作フォーム" do
     it "工程進行フォームを表示する" do
       stock = create_stock

@@ -151,6 +151,23 @@ RSpec.describe Stock, type: :model do
     end
   end
 
+  describe "#public_url" do
+    it "公開ページのURLを組み立てる" do
+      stock = create_stock
+
+      expect(stock.public_url)
+        .to eq("#{described_class::PUBLIC_BASE_URL}/p/#{stock.public_token}")
+    end
+
+    # 印刷して鉢に貼ったQRコードは直せないため、ルーティングとの食い違いを検知する
+    it "routes.rbの公開ページのパスと一致する" do
+      stock = create_stock
+      path = Rails.application.routes.url_helpers.public_stock_path(stock.public_token)
+
+      expect(stock.public_url).to end_with(path)
+    end
+  end
+
   describe "#product_type" do
     it "商品形態は空でもよい" do
       expect(create_stock.product_type).to be_nil
